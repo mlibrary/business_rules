@@ -1,0 +1,214 @@
+# Business Rules Action.
+business_rules.action.*:
+  type: config_entity
+  label: 'Action config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string
+    description:
+      type: text
+      label: 'Description'
+    type:
+      type: string
+      label: 'Type'
+    target_entity_type:
+      type: string
+      label: 'Entity type'
+    target_bundle:
+      type: string
+      label: 'Bundle'
+    settings:
+      type: business_rules.action.type.[%parent.type]
+
+# Action Set.
+business_rules.action.type.action_set:
+  type: mapping
+  label: 'Action set'
+  mapping:
+    items:
+      type: sequence
+      label: 'Items'
+      sequence:
+        type: business_rules.item
+
+
+# Delete Entity Action.
+business_rules.action.type.delete_entity:
+  type: mapping
+  label: 'Delete entity'
+  mapping:
+    field:
+      type: string
+      label: 'Field'
+    value:
+      type: text
+      label: 'value'
+
+# Display error message on form Action.
+business_rules.action.type.display_error_message_on_form:
+  type: mapping
+  label: 'Display validation error in a form'
+  mapping:
+    field:
+      type: string
+      label: 'Field'
+    message:
+      type: text
+      label: 'Message'
+
+# Fetch entity variable Action.
+business_rules.action.type.fetch_entity_variable:
+  type: mapping
+  label: 'Fetch entity variable'
+  mapping:
+    field:
+      type: string
+      label: 'Id Field'
+    value_type:
+      type: string
+      label: 'If the value to fill the entity is a constant or came from a variable'
+    constant:
+      type: string
+      label: 'Constant value'
+    empty_variable:
+      type: string
+      label: 'Empty variable to be filled in'
+    id_variable:
+      type: string
+      label: 'Variable name which contains the entity id'
+
+# Fill entity variable fields Action.
+business_rules.action.type.fill_entity_variable_fields:
+  type: mapping
+  label: 'Fill entity variable fields'
+  mapping:
+    variable:
+      type: string
+      label: 'Empty variable to be filled in'
+    fields_values:
+      type: sequence
+      label: 'Fields values'
+      sequence:
+        type: business_rules.action.type.fill_entity_variable_fields.field_value
+
+# Fill entity variable fields: Fields value mapping.
+business_rules.action.type.fill_entity_variable_fields.field_value:
+  type: mapping
+  label: 'Field value'
+  mapping:
+    entity_field:
+      type: string
+      label: 'Field name'
+    field_value:
+      type: text
+      label: 'Field value'
+
+# Page redirect Action.
+business_rules.action.type.page_redirect:
+  type: mapping
+  label: 'Page redirect'
+  mapping:
+    url:
+      type: string
+      label: 'Url'
+
+# Publish entity Action.
+business_rules.action.type.publish_entity:
+  type: mapping
+  label: 'Publish entity'
+  mapping:
+    field:
+      type: string
+      label: 'Field'
+    value:
+      type: text
+      label: 'value'
+
+# Unpublish entity Action.
+business_rules.action.type.unpublish_entity:
+  type: mapping
+  label: 'Unpublish entity'
+  mapping:
+    field:
+      type: string
+      label: 'Field'
+    value:
+      type: text
+      label: 'value'
+
+# Save entity variable Action.
+business_rules.action.type.save_entity_variable:
+  type: mapping
+  label: 'Save entity variable'
+  mapping:
+    variable:
+      type: string
+      label: 'Empty variable to be saved'
+
+# Send mail Action.
+business_rules.action.type.send_email:
+  type: mapping
+  label: 'Send mail'
+  mapping:
+    subject:
+      type: text
+      label: 'Subject'
+    use_site_mail_as_sender:
+      type: boolean
+      label: 'Use site mail as sender'
+    from:
+      type: string
+      label: 'From'
+    to:
+      type: string
+      label: 'To'
+    subject:
+      type: text
+      label: 'Subject'
+    body:
+      type: text
+      label: 'Message body'
+
+# Set field value Action.
+business_rules.action.type.set_field_value:
+  type: mapping
+  label: 'Set field value'
+  mapping:
+    field:
+      type: string
+      label: 'Field'
+    value:
+      type: text
+      label: 'value'
+
+# Show a message Action.
+business_rules.action.type.show_message:
+  type: mapping
+  label: 'Show message'
+  mapping:
+    message:
+      type: text
+      label: 'Message'
+    message_type:
+      type: string
+      label: 'Message type'
+
+# Loop through a view variable.
+business_rules.action.type.loop_through_view_result:
+  type: mapping
+  label: 'Loop through a view result variable'
+  mapping:
+    variable:
+      type: string
+      label: 'Views variable'
+    items:
+      type: sequence
+      label: 'Items'
+      sequence:
+        type: business_rules.item
