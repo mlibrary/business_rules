@@ -4,7 +4,7 @@ namespace Drupal\business_rules\Plugin;
 
 use Drupal\business_rules\ConditionInterface;
 use Drupal\business_rules\VariablesSet;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 
 /**
  * Defines an interface for Business rules Condition plugins.
@@ -16,7 +16,7 @@ interface BusinessRulesConditionPluginInterface extends BusinessRulesItemPluginI
    *
    * @param \Drupal\business_rules\ConditionInterface $condition
    *   The configured condition.
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event that has triggered the condition.
    *
    * @return bool

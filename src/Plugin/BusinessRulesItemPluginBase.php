@@ -68,7 +68,7 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
   /**
    * {@inheritdoc}
    */
-  public function processSettings(array $settings) {
+  public function processSettings(array $settings, ItemInterface $item) {
     return $settings;
   }
 

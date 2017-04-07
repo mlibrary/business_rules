@@ -3,7 +3,7 @@
 namespace Drupal\business_rules\Plugin\BusinessRulesAction;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\business_rules\VariablesSet;
@@ -37,7 +37,7 @@ class SetFieldValue extends BusinessRulesActionPlugin {
       '#title'         => t('Value'),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('value'),
-      '#description'   => t('The value to be setted on the field.
+      '#description'   => t('The value to be set on the field.
         <br>For a multi-valor field (cardinality > 1) type one value per line starting by pipeline (|) as the example:
         <br>|Value 1
         <br>|Value 2
@@ -93,7 +93,7 @@ class SetFieldValue extends BusinessRulesActionPlugin {
 
     $result = [
       '#type'   => 'markup',
-      '#markup' => t('Entity %entity filled. Field: %field, value: %value', [
+      '#markup' => t('Entity %entity updated. Field: %field, value: %value', [
         '%entity' => $entity->getEntityTypeId(),
         '%field' => $field,
         '%value' => is_array($value) ? implode(',', $value) : $value,

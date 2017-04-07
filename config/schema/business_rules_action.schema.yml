@@ -70,18 +70,12 @@ business_rules.action.type.fetch_entity_variable:
     field:
       type: string
       label: 'Id Field'
-    value_type:
+    value:
       type: string
-      label: 'If the value to fill the entity is a constant or came from a variable'
-    constant:
-      type: string
-      label: 'Constant value'
+      label: 'Id value'
     empty_variable:
       type: string
       label: 'Empty variable to be filled in'
-    id_variable:
-      type: string
-      label: 'Variable name which contains the entity id'
 
 # Fill entity variable fields Action.
 business_rules.action.type.fill_entity_variable_fields:

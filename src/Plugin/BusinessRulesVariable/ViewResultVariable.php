@@ -2,7 +2,7 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesVariable;
 
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\Entity\Variable;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesVariablePlugin;

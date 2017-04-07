@@ -10,6 +10,7 @@ use Drupal\business_rules\ConditionListBuilder;
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\BusinessRule;
 use Drupal\business_rules\Entity\Condition;
+use Drupal\business_rules\Entity\Variable;
 use Drupal\business_rules\Util\Flowchart\Flowchart;
 use Drupal\business_rules\Util\Graph;
 use Drupal\Core\Ajax\AjaxResponse;
@@ -174,7 +175,7 @@ abstract class ItemForm extends EntityForm {
       $form['actions_box']            = $this->getUsedByActionsDetailsBox();
       $form['actions_box']['#weight'] = 1120;
 
-      if (!$item->isNew()) {
+      if (!$item->isNew() && !$item instanceof Variable) {
         $flowchart = $this->chart->getGraph($item);
 
         if (count($flowchart)) {
@@ -260,7 +261,8 @@ abstract class ItemForm extends EntityForm {
       // @TODO change it to use the item's schema.
       $settings = [];
       foreach ($form['settings'] as $key => $value) {
-        if (substr($key, 0, 1) != '#' && array_key_exists($key, $form_state->getValues()) && !in_array($key, [
+        if (substr($key, 0, 1) != '#' && array_key_exists($key, $form_state->getValues())
+          && !in_array($key, [
             'target_entity_type',
             'target_bundle',
           ])
@@ -273,7 +275,7 @@ abstract class ItemForm extends EntityForm {
       $definition  = $itemManager->getDefinition($type);
       $reflection  = new \ReflectionClass($definition['class']);
       $custom_item = $reflection->newInstance($definition, $definition['id'], $definition);
-      $settings    = $custom_item->processSettings($settings);
+      $settings    = $custom_item->processSettings($settings, $item);
 
       $item->set('settings', $settings);
 
@@ -311,6 +313,18 @@ abstract class ItemForm extends EntityForm {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
+
+    // Validate machine name. We don't want actions and conditions with the same
+    // machine name because Business Rules use this items together and it's id
+    // as the array key.
+    $id = $form_state->getValue('id');
+    if ($id && $this->entity->isNew()) {
+      $action    = Action::load($id);
+      $condition = Condition::load($id);
+      if (!empty($action) || !empty($condition)) {
+        $form_state->setErrorByName('id', t('The machine-readable name is already in use. It must be unique.'));
+      }
+    }
 
     // Validate the form using the plugin validateForm() method.
     $type        = $form_state->getValue('type');

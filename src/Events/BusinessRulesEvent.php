@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\business_rules;
+namespace Drupal\business_rules\Events;
 
 use Symfony\Component\EventDispatcher\GenericEvent;
 

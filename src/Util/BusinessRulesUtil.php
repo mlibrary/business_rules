@@ -90,7 +90,7 @@ class BusinessRulesUtil {
   /**
    * The Business Rules logger.
    *
-   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
+   * @var \Psr\Log\LoggerInterface
    */
   public $logger;
 
@@ -589,7 +589,7 @@ class BusinessRulesUtil {
    * @param array $entity_type
    *   Variable entity type. Empty for all.
    * @param array $bundle
-   *   Variable bundle. Emoty for all.
+   *   Variable bundle. Empty for all.
    *
    * @return array
    *   Options array.
@@ -639,6 +639,46 @@ class BusinessRulesUtil {
     ksort($options);
 
     return $options;
+  }
+
+  /**
+   * Display the entity variable fields.
+   *
+   * @param Variable $variable
+   *   The variable entity.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse|array
+   *   The AjaxResponse or the render array.
+   */
+  public function getVariableFieldsModalInfo(Variable $variable) {
+
+    $fields      = $this->entityFieldManager->getFieldDefinitions($variable->getTargetEntityType(), $variable->getTargetBundle());
+    $field_types = $this->fieldTypePluginManager->getDefinitions();
+
+    $header = [
+      'variable' => t('Variable'),
+      'field'    => t('Field'),
+      'type'     => t('Type'),
+    ];
+
+    $rows = [];
+    foreach ($fields as $field_name => $field_storage) {
+      $field_type = $field_storage->getType();
+      $rows[]     = [
+        'variable' => ['data' => ['#markup' => '{{' . $variable->id() . '->' . $field_name . '}}']],
+        'field'    => ['data' => ['#markup' => $field_storage->getLabel()]],
+        'type'     => ['data' => ['#markup' => $field_types[$field_type]['label']]],
+      ];
+    }
+
+    $content['variable_fields'] = [
+      '#type'   => 'table',
+      '#rows'   => $rows,
+      '#header' => $header,
+      '#sticky' => TRUE,
+    ];
+
+    return $content;
   }
 
 }

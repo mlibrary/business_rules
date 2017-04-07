@@ -3,7 +3,7 @@
 namespace Drupal\business_rules\Plugin;
 
 use Drupal\business_rules\Entity\Variable;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 
 /**
  * Base class for Business rules variable plugins.

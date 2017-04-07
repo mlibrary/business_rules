@@ -2,7 +2,7 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesCondition;
 
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ConditionInterface;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesConditionPlugin;
@@ -58,7 +58,7 @@ class UserHasRole extends BusinessRulesConditionPlugin {
   /**
    * {@inheritdoc}
    */
-  public function processSettings(array $settings) {
+  public function processSettings(array $settings, ItemInterface $item) {
     foreach ($settings['roles'] as $key => $role) {
       if ($role === 0) {
         unset($settings['roles'][$key]);

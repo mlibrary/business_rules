@@ -3,7 +3,7 @@
 namespace Drupal\business_rules\Plugin\BusinessRulesAction;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\Variable;
 use Drupal\business_rules\ItemInterface;

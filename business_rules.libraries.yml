@@ -3,13 +3,6 @@ style:
     theme:
       css/style.css: {}
 
-dBug:
-  css:
-    theme:
-      css/dBug.css: {}
-  js:
-    js/dBug.js: {}
-
 mxClient:
   css:
     theme:

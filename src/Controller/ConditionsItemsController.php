@@ -193,7 +193,7 @@ class ConditionsItemsController extends ControllerBase {
 
     $table['help'] = [
       '#type'   => 'markup',
-      '#markup' => $this->t('If the rule has Target Entity Type and/or Target Bundle, only items with the same Entity/Bundle as the rule are visible on this form.'),
+      '#markup' => $this->t('If the Condition is context dependent, only items with the same Entity/Bundle as the condition or with no context dependency are visible on this form.'),
     ];
 
     $header = [

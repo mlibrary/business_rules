@@ -3,9 +3,9 @@
 namespace Drupal\business_rules\Plugin\BusinessRulesAction;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\BusinessRulesEvent;
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\Variable;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\business_rules\VariableObject;
@@ -29,9 +29,6 @@ use Drupal\Core\Form\FormStateInterface;
  * )
  */
 class FetchEntityVariableAction extends BusinessRulesActionPlugin {
-
-  const VARIABLE = 'variable';
-  const CONSTANT = 'constant';
 
   /**
    * If the entity is fetched.
@@ -61,29 +58,38 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
    */
   private function fetchEntity($id, VariableObject $variable, $id_field, Action $action, $bundle, $original_variable_value) {
     try {
-      $var         = Variable::load($variable->getId());
-      $entity_type = $var->getTargetEntityType();
-      $entity      = \Drupal::entityTypeManager()
-        ->getStorage($entity_type)
-        ->load($id);
+      $var = Variable::load($variable->getId());
+      if ($var) {
+        $entity_type = $var->getTargetEntityType();
+        $entity      = \Drupal::entityTypeManager()
+          ->getStorage($entity_type)
+          ->load($id);
 
-      if (is_object($entity)) {
-        $new_entity            = clone $entity;
-        $this->entityIsFetched = TRUE;
+        if (is_object($entity)) {
+          $new_entity            = clone $entity;
+          $this->entityIsFetched = TRUE;
 
-        return $new_entity;
+          return $new_entity;
+        }
+        else {
+          drupal_set_message(t("Action: %action fail. It's not possible to fetch entity %entity, bundle %bundle, with id=%id", [
+            '%action' => $action->label() . ' [' . $action->id() . ']',
+            '%entity' => $entity_type,
+            '%bundle' => $bundle,
+            '%id'     => $id,
+          ]), 'error');
+
+          return $original_variable_value;
+        }
       }
       else {
-        drupal_set_message(t("Action: %action fail. It's not possible to fetch entity %entity, bundle %bundle, with id=%id", [
-          '%action' => $action->label() . ' [' . $action->id() . ']',
-          '%entity' => $entity_type,
-          '%bundle' => $bundle,
-          '%id'     => $id,
+        drupal_set_message(t("Action: %action fail. Variable: %variable could not be loaded.", [
+          '%action'   => $action->label() . ' [' . $action->id() . ']',
+          '%variable' => $variable->getId(),
         ]), 'error');
 
         return $original_variable_value;
       }
-
     }
     catch (\Exception $e) {
       drupal_set_message($e, 'error');
@@ -110,42 +116,13 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
         '#default_value' => empty($item->getSettings('empty_variable')) ? '' : $item->getSettings('empty_variable'),
       ];
 
-      $settings['value_type'] = [
-        '#type'          => 'radios',
-        '#title'         => t('Value type'),
-        '#required'      => TRUE,
-        '#default_value' => $item->getSettings('value_type') ? $item->getSettings('value_type') : self::VARIABLE,
-        '#options'       => [
-          self::VARIABLE => t('From variable'),
-          self::CONSTANT => t('Manual value'),
-        ],
-      ];
-
-      $settings['constant'] = [
+      $settings['value'] = [
         '#type'          => 'textfield',
         '#title'         => t('Value'),
-        '#default_value' => $item->getSettings('constant'),
-        '#description'   => t('The entity ID to fill the variable.'),
-        '#states'        => [
-          'invisible' => [
-            'input[name="value_type"]' => ['value' => self::VARIABLE],
-          ],
-        ],
+        '#default_value' => $item->getSettings('value'),
+        '#description'   => t('The entity ID value to fill the variable.'),
       ];
 
-      $settings['id_variable'] = [
-        '#type'          => 'select',
-        '#title'         => t('Variable with the entity id'),
-        '#required'      => TRUE,
-        '#description'   => t('Select the variable with contains the entity id to fill this variable'),
-        '#options'       => $this->getAvailableFieldsVariables($item),
-        '#default_value' => empty($item->getSettings('id_variable')) ? '' : $item->getSettings('id_variable'),
-        '#states'        => [
-          'invisible' => [
-            'input[name="value_type"]' => ['value' => self::CONSTANT],
-          ],
-        ],
-      ];
     }
 
     return $settings;
@@ -155,19 +132,8 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
    * {@inheritdoc}
    */
   public function buildForm(array &$form, FormStateInterface $form_state) {
-    unset($form['variables']);
     $form['settings']['field']['#description'] = t('Select the entity id field.');
     $form['settings']['field']['#title']       = t('Entity id field.');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function processSettings(array $settings) {
-    if ($settings['value_type'] == self::CONSTANT) {
-      unset($settings['id_variable']);
-    }
-    return $settings;
   }
 
   /**
@@ -194,11 +160,8 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
    */
   public function getVariables(ItemInterface $item) {
     $variableSet    = parent::getVariables($item);
-    $id_variable    = new VariableObject($item->getSettings('id_variable'));
     $empty_variable = new VariableObject($item->getSettings('empty_variable'));
-    if ($id_variable instanceof VariableObject && $id_variable->getType()) {
-      $variableSet->append($id_variable);
-    }
+
     $variableSet->append($empty_variable);
 
     return $variableSet;
@@ -211,24 +174,17 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
 
     /** @var VariableObject $variable */
     /** @var Action $action */
-    $id_variable = $action->getSettings('id_variable');
-    $id_field    = $action->getSettings('field');
-    $bundle      = $action->getTargetBundle();
-    $value       = NULL;
+    $id_field = $action->getSettings('field');
+    $bundle   = $action->getTargetBundle();
+    $id       = $action->getSettings('value');
+    $id       = parent::processVariables($id, $event_variables);
+    $value    = NULL;
 
     if ($event_variables->count()) {
       foreach ($event_variables->getVariables() as $variable) {
         if ($variable->getType() == 'entity_empty_variable') {
 
           $original_variable_value = $variable->getValue();
-
-          if ($action->getSettings('value_type') == self::VARIABLE) {
-            $var_which_id = $event_variables->getVariable($id_variable);
-            $id           = $var_which_id->getValue();
-          }
-          elseif ($action->getSettings('value_type') == self::CONSTANT) {
-            $id = $action->getSettings('constant');
-          }
 
           if (!stristr($variable->getId(), '->')) {
             $entity = $this->fetchEntity($id, $variable, $id_field, $action, $bundle, $original_variable_value);
@@ -295,34 +251,6 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
       }
     }
     asort($output);
-
-    return $output;
-  }
-
-  /**
-   * Get the available fields variables for the context.
-   *
-   * @param \Drupal\business_rules\Entity\Action $item
-   *   The action.
-   *
-   * @return array
-   *   Array of fields.
-   */
-  public function getAvailableFieldsVariables(Action $item) {
-    $variables = Variable::loadMultiple();
-    $output    = [];
-
-    /** @var Variable $variable */
-
-    foreach ($variables as $variable) {
-      if ($item->getTargetEntityType() == $variable->getTargetEntityType() &&
-        $item->getTargetBundle() == $variable->getTargetBundle() &&
-        $variable->getType() == 'entity_filed_variable' &&
-        $variable->getSettings('field') == $item->getSettings('field')
-      ) {
-        $output[$variable->id()] = $variable->label() . ' [' . $variable->id() . ']';
-      }
-    }
 
     return $output;
   }

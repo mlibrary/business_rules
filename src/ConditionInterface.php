@@ -2,6 +2,8 @@
 
 namespace Drupal\business_rules;
 
+use Drupal\business_rules\Events\BusinessRulesEvent;
+
 /**
  * Provides an interface for defining Condition entities.
  */
@@ -89,7 +91,7 @@ interface ConditionInterface extends ItemInterface {
   /**
    * Process the condition.
    *
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event that has triggered the condition.
    *
    * @return bool

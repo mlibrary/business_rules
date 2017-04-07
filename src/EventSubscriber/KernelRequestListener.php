@@ -2,9 +2,9 @@
 
 namespace Drupal\business_rules\EventSubscriber;
 
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Drupal\business_rules\BusinessRulesEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**

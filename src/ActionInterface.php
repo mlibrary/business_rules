@@ -2,6 +2,8 @@
 
 namespace Drupal\business_rules;
 
+use Drupal\business_rules\Events\BusinessRulesEvent;
+
 /**
  * Provides an interface for defining Action entities.
  */
@@ -10,7 +12,7 @@ interface ActionInterface extends ItemInterface {
   /**
    * Execute the action.
    *
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event that has triggered the action.
    *
    * @return array

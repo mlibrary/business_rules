@@ -2,8 +2,8 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesVariable;
 
-use Drupal\business_rules\BusinessRulesEvent;
 use Drupal\business_rules\Entity\Variable;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesVariablePlugin;
 use Drupal\business_rules\VariableObject;
@@ -32,6 +32,18 @@ class CustomValueVariable extends BusinessRulesVariablePlugin {
    * {@inheritdoc}
    */
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $item) {
+
+    $settings['value_type'] = [
+      '#type'          => 'select',
+      '#title'         => t('Variable type'),
+      '#default_value' => $item->getSettings('value_type'),
+      '#required'      => TRUE,
+      '#options'       => [
+        'string' => t('String'),
+        'number' => t('Number'),
+      ],
+    ];
+
     $settings['value'] = [
       '#type'          => 'textarea',
       '#title'         => t('Custom value'),
@@ -47,10 +59,29 @@ class CustomValueVariable extends BusinessRulesVariablePlugin {
   /**
    * {@inheritdoc}
    */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    if ($form_state->getValue('value_type') == 'number') {
+      if (!empty($form_state->getValue('value')) && !is_numeric($form_state->getValue('value'))) {
+
+        // Allow variables even if the type is numeric. The user needs to know
+        // what he is doing. If the variable value is not numeric, then he will
+        // have issues in the future.
+        $value     = $form_state->getValue('value');
+        $variables = $this->pregMatch($value);
+        if (count($variables) > 1 || !count($variables) || $value != '{{' . $variables[0] . '}}') {
+          $form_state->setErrorByName('value', t('Only numbers are acceptable if the type is numeric.'));
+        }
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function evaluate(Variable $variable, BusinessRulesEvent $event) {
 
     $custom_value = $variable->getSettings('value');
-    $variables = $event->getArgument('variables');
+    $variables    = $event->getArgument('variables');
 
     // Search for another's variables inside the original value.
     preg_match_all('{{((\w+)|(\w+\-\>+\w+)+?)}}', $custom_value, $inside_variables);
@@ -92,7 +123,7 @@ class CustomValueVariable extends BusinessRulesVariablePlugin {
       }
     }
 
-    $variableObject = new VariableObject($variable->id(), $custom_value);
+    $variableObject = new VariableObject($variable->id(), $custom_value, 'custom_value_variable');
 
     return $variableObject;
   }

@@ -3,7 +3,7 @@
 namespace Drupal\business_rules\Plugin\BusinessRulesAction;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\Component\Render\FormattableMarkup;

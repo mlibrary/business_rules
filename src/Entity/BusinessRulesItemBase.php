@@ -2,7 +2,6 @@
 
 namespace Drupal\business_rules\Entity;
 
-use Drupal\business_rules\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 

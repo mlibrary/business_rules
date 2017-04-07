@@ -3,7 +3,7 @@
 namespace Drupal\business_rules\Plugin\BusinessRulesAction;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\BusinessRulesItemObject;
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\Condition;
@@ -116,7 +116,7 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
   /**
    * {@inheritdoc}
    */
-  public function processSettings(array $settings) {
+  public function processSettings(array $settings, ItemInterface $item) {
     if (empty($settings['items'])) {
       $settings['items'] = [];
     }

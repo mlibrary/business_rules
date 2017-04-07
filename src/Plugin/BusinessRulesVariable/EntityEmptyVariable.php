@@ -2,7 +2,7 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesVariable;
 
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\Entity\Variable;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesVariablePlugin;
@@ -70,7 +70,7 @@ class EntityEmptyVariable extends BusinessRulesVariablePlugin {
    */
   public function changeDetails(Variable $variable, array &$row) {
     // Show a link to a modal window which all fields from the Entity Variable.
-    $content  = $this->variableFields($variable);
+    $content  = $this->util->getVariableFieldsModalInfo($variable);
     $keyvalue = $this->util->getKeyValueExpirable('entity_empty_variable');
     $keyvalue->set('variableFields.' . $variable->id(), $content);
 
@@ -123,46 +123,6 @@ class EntityEmptyVariable extends BusinessRulesVariablePlugin {
     }
 
     return $variableSet;
-  }
-
-  /**
-   * Display the entity variable fields.
-   *
-   * @param Variable $variable
-   *   The variable entity.
-   *
-   * @return \Drupal\Core\Ajax\AjaxResponse|array
-   *   The AjaxResponse or the render array.
-   */
-  public function variableFields(Variable $variable) {
-
-    $fields      = $this->entityFieldManager->getFieldDefinitions($variable->getTargetEntityType(), $variable->getTargetBundle());
-    $field_types = $this->fieldTypePluginManager->getDefinitions();
-
-    $header = [
-      'variable' => t('Variable'),
-      'field'    => t('Field'),
-      'type'     => t('Type'),
-    ];
-
-    $rows = [];
-    foreach ($fields as $field_name => $field_storage) {
-      $field_type = $field_storage->getType();
-      $rows[]     = [
-        'variable' => ['data' => ['#markup' => '{{' . $variable->id() . '->' . $field_name . '}}']],
-        'field'    => ['data' => ['#markup' => $field_storage->getLabel()]],
-        'type'     => ['data' => ['#markup' => $field_types[$field_type]['label']]],
-      ];
-    }
-
-    $content['variable_fields'] = [
-      '#type'   => 'table',
-      '#rows'   => $rows,
-      '#header' => $header,
-      '#sticky' => TRUE,
-    ];
-
-    return $content;
   }
 
 }

@@ -2,12 +2,14 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesVariable;
 
-use Drupal\business_rules\BusinessRulesEvent;
 use Drupal\business_rules\Entity\Variable;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesVariablePlugin;
 use Drupal\business_rules\VariableObject;
+use Drupal\business_rules\VariablesSet;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\user\Entity\User;
 
 /**
@@ -77,7 +79,35 @@ class UserVariable extends BusinessRulesVariablePlugin {
   /**
    * {@inheritdoc}
    */
-  public function processSettings(array $settings) {
+  public function changeDetails(Variable $variable, array &$row) {
+    // Show a link to a modal window which all fields from the Entity Variable.
+    $content  = $this->util->getVariableFieldsModalInfo($variable);
+    $keyvalue = $this->util->getKeyValueExpirable('user_variable');
+    $keyvalue->set('variableFields.' . $variable->id(), $content);
+
+    $details_link = Link::createFromRoute(t('Click here to see the entity fields'),
+      'business_rules.ajax.modal',
+      [
+        'method'     => 'nojs',
+        'title'      => t('Entity fields'),
+        'collection' => 'user_variable',
+        'key'        => 'variableFields.' . $variable->id(),
+      ],
+      [
+        'attributes' => [
+          'class' => ['use-ajax'],
+        ],
+      ]
+    )->toString();
+
+    $row['description']['data']['#markup'] .= '<br>' . $details_link;
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function processSettings(array $settings, ItemInterface $item) {
     if ($settings['current_or_defined'] == 'current') {
       unset($settings['user_id']);
     }
@@ -95,7 +125,7 @@ class UserVariable extends BusinessRulesVariablePlugin {
     if ($variable->getSettings('current_or_defined') == 'current') {
       // Get the current user.
       $account = $this->util->container->get('current_user');
-      $user = User::load($account->id());
+      $user    = User::load($account->id());
     }
     elseif ($variable->getSettings('current_or_defined') == 'defined') {
       // Load user by id.
@@ -105,13 +135,29 @@ class UserVariable extends BusinessRulesVariablePlugin {
 
       // Add log error if user id not found.
       if (empty($user)) {
-        $this->util->logger->error('User id: $id not found. Variable: %variable', ['%id' => $user_id, '%variable' => $variable->id()]);
+        $this->util->logger->error('User id: $id not found. Variable: %variable', [
+          '%id'       => $user_id,
+          '%variable' => $variable->id(),
+        ]);
       }
     }
 
-    $varObj = new VariableObject($variable->id(), $user, $variable->getType());
+    $variableSet = new VariablesSet();
 
-    return $varObj;
+    // Prepare the user fields to be used as variables.
+    if ($user instanceof User) {
+      $variableObject = new VariableObject($variable->id(), $user, $variable->getType());
+      $variableSet->append($variableObject);
+
+      $fields = $this->util->entityFieldManager->getFieldDefinitions($variable->getTargetEntityType(), $variable->getTargetBundle());
+
+      foreach ($fields as $field_name => $field_storage) {
+        $variableObject = new VariableObject($variable->id() . '->' . $field_name, $user->get($field_name)->value, $variable->getType());
+        $variableSet->append($variableObject);
+      }
+    }
+
+    return $variableSet;
   }
 
 }

@@ -7,7 +7,7 @@ use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesVariablePlugin;
 use Drupal\business_rules\VariableObject;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 
 /**
  * Class EntityValue.

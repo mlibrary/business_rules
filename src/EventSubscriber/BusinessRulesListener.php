@@ -4,7 +4,7 @@ namespace Drupal\business_rules\EventSubscriber;
 
 use Drupal\business_rules\Util\BusinessRulesProcessor;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 
 /**
  * Class BusinessRulesListener.
@@ -64,7 +64,7 @@ class BusinessRulesListener implements EventSubscriberInterface {
   /**
    * Process the rules.
    *
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event to be processed.
    */
   public function process(BusinessRulesEvent $event) {

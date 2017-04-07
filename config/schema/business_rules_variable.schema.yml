@@ -44,6 +44,9 @@ business_rules.variable.type.custom_value_variable:
   type: mapping
   label: 'Custom value variable'
   mapping:
+    value_type:
+      type: string
+      label: 'Type'
     value:
       type: string
       label: 'Value'
@@ -69,3 +72,23 @@ business_rules.variable.type.view_result_variable:
     arguments:
       type: string
       label: 'Arguments'
+
+business_rules.variable.type.array_variable:
+  type: mapping
+  label: 'Array variable'
+  mapping:
+    fields:
+      type: sequence
+      label: 'Fields'
+      sequence:
+        type: mapping
+        mapping:
+          id:
+            type: string
+            label: 'Id'
+          label:
+            type: text
+            label: 'Label'
+          type:
+            type: string
+            label: 'Type'

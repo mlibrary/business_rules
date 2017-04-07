@@ -3,7 +3,7 @@
 namespace Drupal\business_rules\Plugin\BusinessRulesAction;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\Core\Form\FormStateInterface;
@@ -45,6 +45,9 @@ class SendEmail extends BusinessRulesActionPlugin {
    * {@inheritdoc}
    */
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $item) {
+
+    $form_state->set('business_rules_item', $item);
+
     // Only show settings form if the item is already saved.
     if ($item->isNew()) {
       return [];
@@ -114,8 +117,8 @@ class SendEmail extends BusinessRulesActionPlugin {
   /**
    * {@inheritdoc}
    */
-  public function processSettings(array $settings) {
-    if ($settings['use_site_mail_as_sender'] === 1) {
+  public function processSettings(array $settings, ItemInterface $item) {
+    if (isset($settings['use_site_mail_as_sender']) && $settings['use_site_mail_as_sender'] === 1) {
       $settings['from'] = NULL;
     }
 
@@ -127,8 +130,11 @@ class SendEmail extends BusinessRulesActionPlugin {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
 
-    // We only can validate the form if the step is bigger than 1.
-    if ($form_state->get('business_rules_step') > 1) {
+    /** @var ItemInterface $item */
+    $item = $form_state->get('business_rules_item');
+
+    // We only can validate the form if the item is not new.
+    if (!empty($item) && !$item->isNew()) {
       // Validate the 'From' field.
       if ($form_state->getValue('use_site_mail_as_sender') === '0') {
         // Check if it's a valid email.

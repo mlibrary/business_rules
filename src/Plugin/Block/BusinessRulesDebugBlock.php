@@ -36,11 +36,20 @@ class BusinessRulesDebugBlock extends BlockBase {
     if ($config->get('debug_screen')) {
       $keyvalue   = \Drupal::keyValueExpirable('business_rules.debug');
       $session_id = session_id();
-      $output     = $keyvalue->get($session_id);
+      $debug      = $keyvalue->get($session_id);
       $keyvalue->set($session_id, NULL);
 
       $output['#attached']['library'][] = 'business_rules/style';
       $output['#attached']['library'][] = 'dbug/dbug';
+
+      $output['business_rules_debug'] = [
+        '#type'        => 'details',
+        '#title'       => 'Business Rules Debug',
+        '#collapsed'   => TRUE,
+        '#collapsable' => TRUE,
+      ];
+
+      $output['business_rules_debug']['debug'] = $debug;
     }
 
     return $output;

@@ -136,7 +136,7 @@ abstract class ConditionSet extends BusinessRulesConditionPlugin {
   /**
    * {@inheritdoc}
    */
-  public function processSettings(array $settings) {
+  public function processSettings(array $settings, ItemInterface $item) {
     if (empty($settings['items'])) {
       $settings['items'] = [];
     }

@@ -2,9 +2,10 @@
 
 namespace Drupal\business_rules\Entity;
 
-use Drupal\business_rules\BusinessRulesEvent;
 use Drupal\business_rules\BusinessRulesItemObject;
 use Drupal\business_rules\ConditionInterface;
+use Drupal\business_rules\Events\BusinessRulesEvent;
+use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
  * Defines the Condition entity.
@@ -96,11 +97,20 @@ class Condition extends BusinessRulesItemBase implements ConditionInterface {
    */
   public function save() {
 
-    if (substr($this->id(), 0, strlen('c_')) !== 'c_') {
+    // Prevent condition to have the same name as one existent action.
+    $action = Action::load($this->id());
+    if (!empty($action)) {
       $this->id = 'c_' . $this->id();
     }
 
     return parent::save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function postDelete(EntityStorageInterface $storage, array $entities) {
+    // @TODO: delete the item from Business Rules.
   }
 
   /**

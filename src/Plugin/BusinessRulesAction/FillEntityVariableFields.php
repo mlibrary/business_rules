@@ -3,7 +3,7 @@
 namespace Drupal\business_rules\Plugin\BusinessRulesAction;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\Variable;
 use Drupal\business_rules\ItemInterface;
@@ -188,7 +188,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
       $settings['field_value']['new']['field_value'] = [
         '#type'        => 'textarea',
         '#rows'        => 1,
-        '#description' => t('The value to be setted on the field. For a multi-valor field (cardinality > 1) type one value per line starting by pipeline (|) as the example:
+        '#description' => t('The value to be set on the field. For a multi-valor field (cardinality > 1) type one value per line starting by pipeline (|) as the example:
           <br>|Value 1
           <br>|Value 2
           <br>|Value 3'),
@@ -210,7 +210,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
   /**
    * {@inheritdoc}
    */
-  public function processSettings(array $settings) {
+  public function processSettings(array $settings, ItemInterface $item) {
     // Unset the values from the add new line.
     unset($settings['field_value']);
     unset($settings['entity_field']);

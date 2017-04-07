@@ -2,21 +2,21 @@
 
 namespace Drupal\business_rules\Util;
 
-use Drupal\business_rules\BusinessRulesEvent;
 use Drupal\business_rules\BusinessRulesItemObject;
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\BusinessRule;
 use Drupal\business_rules\Entity\Condition;
 use Drupal\business_rules\Entity\Variable;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\Plugin\BusinessRulesActionManager;
-use Drupal\business_rules\Plugin\BusinessRulesConditionManager;
-use Drupal\business_rules\Plugin\BusinessRulesVariableManager;
 use Drupal\business_rules\VariableObject;
 use Drupal\business_rules\VariablesSet;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\StorageInterface;
 use Drupal\Core\Link;
 use Drupal\dbug\Dbug;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Class BusinessRulesProcessor.
@@ -69,6 +69,13 @@ class BusinessRulesProcessor {
   protected $evaluatedVariables = [];
 
   /**
+   * The event dispatcher.
+   *
+   * @var \Symfony\Component\EventDispatcher\EventDispatcher
+   */
+  protected $eventDispatcher;
+
+  /**
    * Array of already processed rules.
    *
    * @var array
@@ -106,42 +113,30 @@ class BusinessRulesProcessor {
   /**
    * BusinessRulesProcessor constructor.
    *
-   * @param ConfigFactoryInterface $config_factory
-   *   The ConfigFactory.
-   * @param StorageInterface $storage
-   *   The Storage.
-   * @param \Drupal\business_rules\Util\BusinessRulesUtil $util
-   *   The Business Rules Util.
-   * @param \Drupal\business_rules\Plugin\BusinessRulesActionManager $actionManager
-   *   The action manager.
-   * @param \Drupal\business_rules\Plugin\BusinessRulesConditionManager $conditionManager
-   *   The condition manager.
-   * @param \Drupal\business_rules\Plugin\BusinessRulesVariableManager $variableManager
-   *   The variable manager.
+   * @param ContainerInterface $container
+   *   Drupal container.
    */
-  public function __construct(ConfigFactoryInterface $config_factory,
-                              StorageInterface $storage,
-                              BusinessRulesUtil $util,
-                              BusinessRulesActionManager $actionManager,
-                              BusinessRulesConditionManager $conditionManager,
-                              BusinessRulesVariableManager $variableManager) {
-
-    $this->configFactory    = $config_factory;
-    $this->storage          = $storage;
-    $this->util             = $util;
-    $this->actionManager    = $actionManager;
-    $this->conditionManager = $conditionManager;
-    $this->variableManager  = $variableManager;
-    $this->config           = $config_factory->get('business_rules.settings');
+  public function __construct(ContainerInterface $container) {
+    $this->configFactory    = $container->get('config.factory');
+    $this->storage          = $container->get('config.storage');
+    $this->util             = $container->get('business_rules.util');
+    $this->actionManager    = $container->get('plugin.manager.business_rules.action');
+    $this->conditionManager = $container->get('plugin.manager.business_rules.condition');
+    $this->variableManager  = $container->get('plugin.manager.business_rules.variable');
+    $this->config           = $this->configFactory->get('business_rules.settings');
+    $this->eventDispatcher  = $container->get('event_dispatcher');
   }
 
   /**
    * Process rules.
    *
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event.
    */
   public function process(BusinessRulesEvent $event) {
+
+    // Dispatch a event before start the processing.
+    $this->eventDispatcher->dispatch('business_rules.before_process_event', $event);
 
     if (!$event->hasArgument('variables')) {
       $event->setArgument('variables', new VariablesSet());
@@ -153,12 +148,15 @@ class BusinessRulesProcessor {
     $this->processTriggeredRules($triggered_rules, $event);
 
     $this->saveDebugInfo();
+
+    // Dispatch a event after processing the business rule.
+    $this->eventDispatcher->dispatch('business_rules.after_process_event', $event);
   }
 
   /**
    * Check if there is a Business rule configured for the given event.
    *
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event.
    * @param string $trigger
    *   The trigger.
@@ -173,6 +171,9 @@ class BusinessRulesProcessor {
     $rules           = $this->storage->readMultiple($rule_names);
     $triggered_rules = [];
 
+    // Dispatch a event before check the triggered rules.
+    $this->eventDispatcher->dispatch('business_rules.before_check_the_triggered_rules', $event);
+
     foreach ($rules as $rule) {
       $rule = new BusinessRule($rule);
       if ($rule->isEnabled() && $trigger == $rule->getReactsOn() &&
@@ -185,6 +186,9 @@ class BusinessRulesProcessor {
       }
     }
 
+    // Dispatch a event after check the triggered rules.
+    $this->eventDispatcher->dispatch('business_rules.after_check_the_triggered_rules', $event);
+
     return $triggered_rules;
   }
 
@@ -193,7 +197,7 @@ class BusinessRulesProcessor {
    *
    * @param array $triggered_rules
    *   Array of triggered rules.
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event.
    */
   public function processTriggeredRules(array $triggered_rules, BusinessRulesEvent $event) {
@@ -227,6 +231,12 @@ class BusinessRulesProcessor {
         }
       }
 
+      $array = (object) $array;
+      $event = new Event($array);
+      // Dispatch a event before save debug info block.
+      $this->eventDispatcher->dispatch('business_rules.before_save_debug_info_block', $event);
+      $array = (array) $array;
+
       $key_value->set($session_id, $array);
     }
 
@@ -238,12 +248,15 @@ class BusinessRulesProcessor {
    * @param array $items
    *   Array of items to pe processed. Each item must be a instance of
    *   BusinessRulesItemObject.
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event.
    * @param string $parent_id
    *   The Item parent Id. It can be the Business Rule or other item.
    */
   public function processItems(array $items, BusinessRulesEvent $event, $parent_id) {
+    // Dispatch a event before process business rule items.
+    $this->eventDispatcher->dispatch('business_rules.before_process_items', $event);
+
     /** @var BusinessRulesItemObject $item */
     foreach ($items as $item) {
       if ($item->getType() == BusinessRulesItemObject::ACTION) {
@@ -258,6 +271,7 @@ class BusinessRulesProcessor {
       elseif ($item->getType() == BusinessRulesItemObject::CONDITION) {
         $condition = Condition::load($item->getId());
         $success   = $this->isConditionValid($condition, $event);
+
         if ($success) {
           $condition_items = $condition->getSuccessItems();
 
@@ -281,6 +295,8 @@ class BusinessRulesProcessor {
       }
     }
 
+    // Dispatch a event after process business rule items.
+    $this->eventDispatcher->dispatch('business_rules.after_process_items', $event);
   }
 
   /**
@@ -311,14 +327,14 @@ class BusinessRulesProcessor {
         '#collapsed'   => TRUE,
       ];
 
-      $output['triggered_rules'][$rule->id()]['variables'] = [
-        '#type'        => 'details',
-        '#title'       => t('Variables'),
-        '#collapsible' => TRUE,
-        '#collapsed'   => TRUE,
-      ];
-
       if (isset($evaluates_variables[$rule->id()]) && is_array($evaluates_variables[$rule->id()])) {
+        $output['triggered_rules'][$rule->id()]['variables'] = [
+          '#type'        => 'details',
+          '#title'       => t('Variables'),
+          '#collapsible' => TRUE,
+          '#collapsed'   => TRUE,
+        ];
+
         /** @var VariableObject $evaluates_variable */
         foreach ($evaluates_variables[$rule->id()] as $evaluates_variable) {
           $variable = Variable::load($evaluates_variable->getId());
@@ -376,7 +392,7 @@ class BusinessRulesProcessor {
    *
    * @param Action $action
    *   The action.
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event.
    *
    * @return array
@@ -384,11 +400,17 @@ class BusinessRulesProcessor {
    */
   public function executeAction(Action $action, BusinessRulesEvent $event) {
 
+    // Dispatch a event before execute an action.
+    $this->eventDispatcher->dispatch('business_rules.before_execute_action', new Event($event, $action));
+
     $action_variables = $action->getVariables();
     $this->evaluateVariables($action_variables, $event);
     $result = $action->execute($event);
 
     $this->debugArray['action_result'][$this->ruleBeingExecuted->id()][$action->id()] = $result;
+
+    // Dispatch a event after execute an action.
+    $this->eventDispatcher->dispatch('business_rules.after_execute_action', new Event($event, $action));
 
     return $result;
   }
@@ -398,7 +420,7 @@ class BusinessRulesProcessor {
    *
    * @param \Drupal\business_rules\Entity\Condition $condition
    *   The condition.
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event.
    *
    * @return bool
@@ -406,10 +428,16 @@ class BusinessRulesProcessor {
    */
   public function isConditionValid(Condition $condition, BusinessRulesEvent $event) {
 
+    // Dispatch a event before check if condition is valid.
+    $this->eventDispatcher->dispatch('business_rules.before_check_if_condition_is_valid', new Event($event, $condition));
+
     $condition_variables = $condition->getVariables();
     $this->evaluateVariables($condition_variables, $event);
     $result = $condition->process($event);
     $result = $condition->isReverse() ? !$result : $result;
+
+    // Dispatch a event after check if condition is valid.
+    $this->eventDispatcher->dispatch('business_rules.after_check_if_condition_is_valid', new Event($event, $condition));
 
     return $result;
 
@@ -526,10 +554,13 @@ class BusinessRulesProcessor {
    *
    * @param \Drupal\business_rules\VariablesSet $variablesSet
    *   The variable set.
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event.
    */
   public function evaluateVariables(VariablesSet $variablesSet, BusinessRulesEvent $event) {
+    // Dispatch a event before evaluate variables.
+    $this->eventDispatcher->dispatch('business_rules.before_evaluate_variables', new Event($event, $variablesSet));
+
     /** @var VariableObject $variable */
     /** @var VariablesSet $eventVariables */
 
@@ -545,6 +576,8 @@ class BusinessRulesProcessor {
       }
     }
 
+    // Dispatch a event after evaluate variables.
+    $this->eventDispatcher->dispatch('business_rules.after_evaluate_variables', new Event($event, $variablesSet));
   }
 
   /**
@@ -552,7 +585,7 @@ class BusinessRulesProcessor {
    *
    * @param \Drupal\business_rules\Entity\Variable $variable
    *   The variable.
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event.
    *
    * @return VariableObject|VariablesSet
@@ -581,6 +614,7 @@ class BusinessRulesProcessor {
       $this->evaluatedVariables[$variable->id()] = $variable->id();
       $eventVariables->append($value);
       $this->debugArray['variables'][$this->ruleBeingExecuted->id()][$variable->id()] = $value;
+
       return $value;
     }
     elseif ($value instanceof VariablesSet) {
@@ -591,6 +625,7 @@ class BusinessRulesProcessor {
           $this->debugArray['variables'][$this->ruleBeingExecuted->id()][$item->getId()] = $item;
         }
       }
+
       return $value;
     }
     else {

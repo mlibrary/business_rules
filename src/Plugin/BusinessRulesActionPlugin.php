@@ -3,7 +3,7 @@
 namespace Drupal\business_rules\Plugin;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 
 /**
  * Base class for Business rules Action plugins.

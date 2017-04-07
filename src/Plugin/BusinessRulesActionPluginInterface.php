@@ -3,7 +3,7 @@
 namespace Drupal\business_rules\Plugin;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 
 /**
  * Defines an interface for Business rules Action plugins.
@@ -15,7 +15,7 @@ interface BusinessRulesActionPluginInterface extends BusinessRulesItemPluginInte
    *
    * @param \Drupal\business_rules\ActionInterface $action
    *   The configured action.
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event that has triggered the action.
    *
    * @return array

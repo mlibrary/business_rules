@@ -5,14 +5,15 @@
  * Business Rules module.
  */
 
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Markup;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\user\Entity\User;
+
+// @TODO token integration.
 
 /**
  * Implements hook_help().
@@ -24,6 +25,7 @@ function business_rules_help($route_name, RouteMatchInterface $route_match) {
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('Business rules') . '</p>';
+
       return $output;
 
     default:
@@ -48,7 +50,7 @@ function business_rules_entity_presave(EntityInterface $entity) {
       'entity_unchanged' => $entity->original,
       'reacts_on'        => $reacts_on_definition,
     ]);
-    /** @var Drupal\Component\EventDispatcher\ $event_dispatcher */
+    /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
     $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
   }
@@ -73,7 +75,7 @@ function business_rules_entity_update(EntityInterface $entity) {
       'entity_unchanged' => $entity->original,
       'reacts_on'        => $reacts_on_definition,
     ]);
-    /** @var Drupal\Component\EventDispatcher\ $event_dispatcher */
+    /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
     $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
   }
@@ -97,7 +99,7 @@ function business_rules_entity_insert(EntityInterface $entity) {
       'entity_unchanged' => $entity->original,
       'reacts_on'        => $reacts_on_definition,
     ]);
-    /** @var Drupal\Component\EventDispatcher\ $event_dispatcher */
+    /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
     $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
   }
@@ -121,7 +123,7 @@ function business_rules_entity_delete(EntityInterface $entity) {
       'entity_unchanged' => $entity->original,
       'reacts_on'        => $reacts_on_definition,
     ]);
-    /** @var Drupal\Component\EventDispatcher\ $event_dispatcher */
+    /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
     $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
   }
@@ -147,18 +149,21 @@ function business_rules_form_alter(&$form, FormStateInterface $form_state, $form
       $event = new BusinessRulesEvent($entity, [
         'form_id'          => $form_id,
         'form_state'       => $form_state,
+        'form'             => $form,
         'entity_type_id'   => $entity->getEntityTypeId(),
         'bundle'           => $entity->bundle(),
         'entity'           => $entity,
         'entity_unchanged' => $entity->original,
         'reacts_on'        => $reacts_on_definition,
       ]);
-      /** @var Drupal\Component\EventDispatcher\ $event_dispatcher */
-      $event_dispatcher = \Drupal::service('event_dispatcher');
-      $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
 
       $form_state->set('business_rules_event', $event);
+
+      // We can't dispatch an event here, otherwise it would be processed before
+      // the form validation. In this case, the FormValidator will take care of
+      // the event process.
       $form['#validate'][] = 'Drupal\business_rules\Plugin\BusinessRulesReactsOn\FormValidation::validateForm';
+
     }
   }
 
@@ -182,9 +187,34 @@ function business_rules_entity_view(array &$build, EntityInterface $entity, Enti
       'entity_unchanged' => $entity->original,
       'reacts_on'        => $reacts_on_definition,
     ]);
-    /** @var Drupal\Component\EventDispatcher\ $event_dispatcher */
+    /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
     $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+  }
+}
+
+/**
+ * Implements hook_entity_load().
+ */
+function business_rules_entity_load(array $entities, $entity_type_id) {
+  foreach ($entities as $entity) {
+    if ($entity instanceof ContentEntityInterface) {
+      $reacts_on_definition = \Drupal::getContainer()
+        ->get('plugin.manager.business_rules.reacts_on')
+        ->getDefinition('entity_is_loaded');
+
+      $entity_type_id = $entity->getEntityTypeId();
+      $event          = new BusinessRulesEvent($entity, [
+        'entity_type_id'   => $entity_type_id,
+        'bundle'           => $entity->bundle(),
+        'entity'           => $entity,
+        'entity_unchanged' => $entity->original,
+        'reacts_on'        => $reacts_on_definition,
+      ]);
+      /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
+      $event_dispatcher = \Drupal::service('event_dispatcher');
+      $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+    }
   }
 }
 
@@ -204,7 +234,7 @@ function business_rules_user_login($account) {
     'entity_unchanged' => NULL,
     'reacts_on'        => $reacts_on_definition,
   ]);
-  /** @var Drupal\Component\EventDispatcher\ $event_dispatcher */
+  /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
   $event_dispatcher = \Drupal::service('event_dispatcher');
   $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
 }
@@ -228,7 +258,7 @@ function business_rules_user_logout($account) {
     'entity_unchanged' => NULL,
     'reacts_on'        => $reacts_on_definition,
   ]);
-  /** @var Drupal\Component\EventDispatcher\ $event_dispatcher */
+  /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
   $event_dispatcher = \Drupal::service('event_dispatcher');
   $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
 }

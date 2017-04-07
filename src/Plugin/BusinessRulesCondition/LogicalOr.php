@@ -2,7 +2,7 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesCondition;
 
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\BusinessRulesItemObject;
 use Drupal\business_rules\ConditionInterface;
 use Drupal\business_rules\Entity\Condition;

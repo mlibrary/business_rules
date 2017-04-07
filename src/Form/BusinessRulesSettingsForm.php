@@ -36,6 +36,7 @@ class BusinessRulesSettingsForm extends ConfigFormBase {
     $form['debug_screen'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Show debug information on screen'),
+      '#description'   => $this->t('You will need to add the Business rules debug block (visible only when this option is checked).'),
       '#default_value' => $config->get('debug_screen'),
     ];
 

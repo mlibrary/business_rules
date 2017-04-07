@@ -2,6 +2,7 @@
 
 namespace Drupal\business_rules;
 
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 
 /**
@@ -12,7 +13,7 @@ interface VariableInterface extends ConfigEntityInterface, ItemInterface {
   /**
    * Evaluate the variable.
    *
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The dispatched event.
    *
    * @return \Drupal\business_rules\VariableObject|\Drupal\business_rules\VariablesSet

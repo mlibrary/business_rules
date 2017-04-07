@@ -3,9 +3,10 @@
 namespace Drupal\business_rules\Plugin\BusinessRulesAction;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
+use Drupal\business_rules\Plugin\BusinessRulesReactsOn\FormValidation;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -55,27 +56,22 @@ class DisplayErrorMessageOnForm extends BusinessRulesActionPlugin {
       $message   = $this->processVariables($message, $variables);
       $message   = new FormattableMarkup($message, []);
 
+      /** @var FormStateInterface $form_state */
       $form_state = $event->getArgument('form_state');
-      if (count($form_state->getValues()) > 0) {
-        $form_state->setErrorByName($field, $message);
 
-        $result = [
-          '#type' => 'markup',
-          '#markup' => t('Error setted on form. Field: %field, message: %message', [
-            '%field' => $field,
-            '%message' => $message,
-          ]),
-        ];
-      }
-      else {
-        $result = [
-          '#type' => 'markup',
-          '#markup' => t('No errors setted on form.'),
-        ];
-      }
+      $form_state->setErrorByName($field, $message);
+
+      $result = [
+        '#type'   => 'markup',
+        '#markup' => t('Error setted on form. Field: %field, message: %message', [
+          '%field'   => $field,
+          '%message' => $message,
+        ]),
+      ];
+
+      return $result;
     }
 
-    return $result;
   }
 
 }

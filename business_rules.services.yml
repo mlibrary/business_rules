@@ -7,12 +7,7 @@ services:
   business_rules.processor:
     class: Drupal\business_rules\Util\BusinessRulesProcessor
     arguments:
-      - '@config.factory'
-      - '@config.storage'
-      - '@business_rules.util'
-      - '@plugin.manager.business_rules.action'
-      - '@plugin.manager.business_rules.condition'
-      - '@plugin.manager.business_rules.variable'
+      - '@service_container'
 
   business_rules.event_listener:
     class: Drupal\business_rules\EventSubscriber\BusinessRulesListener

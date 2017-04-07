@@ -3,7 +3,7 @@
 namespace Drupal\business_rules\Plugin;
 
 use Drupal\business_rules\Entity\Variable;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 
 /**
  * Defines an interface for Business rules variable plugins.
@@ -15,7 +15,7 @@ interface BusinessRulesVariablePluginInterface extends BusinessRulesItemPluginIn
    *
    * @param \Drupal\business_rules\Entity\Variable $variable
    *   The variable to be evaluated.
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The dispatched event.
    *
    * @return \Drupal\business_rules\VariableObject|\Drupal\business_rules\VariablesSet

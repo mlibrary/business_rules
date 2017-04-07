@@ -119,14 +119,16 @@ interface BusinessRulesItemPluginInterface extends PluginInspectionInterface {
    *
    * @param array $settings
    *   The settings to be processed before save the Business Rule Item.
+   * @param \Drupal\business_rules\ItemInterface $item
+   *   The item being processed.
    *
    * @return array
-   *   The processed settings.
+   *    The processed settings.
    */
-  public function processSettings(array $settings);
+  public function processSettings(array $settings, ItemInterface $item);
 
   /**
-   * Process the item the variables for it's values.
+   * Process the item replacing the variables for it's values.
    *
    * @param mixed $content
    *   The item to be replaced by the variable value.

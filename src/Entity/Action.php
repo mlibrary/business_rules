@@ -3,7 +3,8 @@
 namespace Drupal\business_rules\Entity;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\BusinessRulesEvent;
+use Drupal\business_rules\Events\BusinessRulesEvent;
+use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
  * Defines the Action entity.
@@ -73,7 +74,9 @@ class Action extends BusinessRulesItemBase implements ActionInterface {
    */
   public function save() {
 
-    if (substr($this->id(), 0, strlen('a_')) !== 'a_') {
+    // Prevent action to have the same name as one existent condition.
+    $condition = Condition::load($this->id());
+    if (!empty($condition)) {
       $this->id = 'a_' . $this->id();
     }
 
@@ -81,9 +84,16 @@ class Action extends BusinessRulesItemBase implements ActionInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public static function postDelete(EntityStorageInterface $storage, array $entities) {
+    // @TODO: delete the item from Business Rules.
+  }
+
+  /**
    * Execute the action.
    *
-   * @param \Drupal\business_rules\BusinessRulesEvent $event
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event that has triggered the action.
    *
    * @return array
