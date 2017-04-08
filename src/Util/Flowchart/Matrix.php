@@ -537,4 +537,5 @@ class Matrix {
 
     return $empty;
   }
+
 }

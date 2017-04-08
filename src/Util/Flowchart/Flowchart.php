@@ -169,10 +169,14 @@ class Flowchart {
         if ($item instanceof Condition) {
           if (!empty($parent->getParent()) && $parent->getParent()->getItem() instanceof BusinessRule) {
             if ($direction == 'right') {
-              $off_x = 1;
+              if (count($item->getFailItems())) {
+                $off_x = 1;
+              }
             }
             if ($direction == 'left') {
-              $off_x = -1;
+              if (count($item->getSuccessItems())) {
+                $off_x = -1;
+              }
             }
           }
         }
@@ -198,7 +202,9 @@ class Flowchart {
         /** @var \Drupal\business_rules\BusinessRulesItemObject $child */
         foreach ($children as $child) {
           $child = $child->loadEntity();
-          $this->mountMatrix($child, $parent_element);
+          if (!empty($child)) {
+            $this->mountMatrix($child, $parent_element);
+          }
         }
       }
       elseif ($item instanceof Condition) {
@@ -207,13 +213,17 @@ class Flowchart {
         foreach ($success_items as $success_item) {
           $success_item = $success_item->loadEntity();
           $yes          = t('Yes');
-          $this->mountMatrix($success_item, $parent_element, 'success', $yes->render());
+          if (!empty($success_item)) {
+            $this->mountMatrix($success_item, $parent_element, 'success', $yes->render());
+          }
         }
         $fail_items = $item->getFailItems();
         foreach ($fail_items as $fail_item) {
           $fail_item = $fail_item->loadEntity();
           $no        = t('No');
-          $this->mountMatrix($fail_item, $parent_element, 'fail', $no->render());
+          if (!empty($fail_item)) {
+            $this->mountMatrix($fail_item, $parent_element, 'fail', $no->render());
+          }
         }
       }
       elseif ($item instanceof Action) {
@@ -222,7 +232,9 @@ class Flowchart {
           $children = BusinessRulesItemObject::itemsArrayToItemsObject($children);
           foreach ($children as $child) {
             $child = $child->loadEntity();
-            $this->mountMatrix($child, $parent_element);
+            if (!empty($child)) {
+              $this->mountMatrix($child, $parent_element);
+            }
           }
         }
       }

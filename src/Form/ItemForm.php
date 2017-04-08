@@ -4,11 +4,7 @@ namespace Drupal\business_rules\Form;
 
 include_once \Drupal::root() . '/libraries/mxgraph/mxserver.php';
 
-use Drupal\business_rules\ActionListBuilder;
-use Drupal\business_rules\BusinessRuleListBuilder;
-use Drupal\business_rules\ConditionListBuilder;
 use Drupal\business_rules\Entity\Action;
-use Drupal\business_rules\Entity\BusinessRule;
 use Drupal\business_rules\Entity\Condition;
 use Drupal\business_rules\Entity\Variable;
 use Drupal\Core\Ajax\AjaxResponse;
@@ -164,13 +160,13 @@ abstract class ItemForm extends EntityForm {
       $form['variables']            = $this->util->getVariablesDetailsBox($item);
       $form['variables']['#weight'] = 1000;
 
-      $form['business_rules_box']            = $this->getUsedByBusinessRulesDetailsBox();
+      $form['business_rules_box']            = $this->util->getUsedByBusinessRulesDetailsBox($item);
       $form['business_rules_box']['#weight'] = 1100;
 
-      $form['conditions_box']            = $this->getUsedByConditionsDetailsBox();
+      $form['conditions_box']            = $this->util->getUsedByConditionsDetailsBox($item);
       $form['conditions_box']['#weight'] = 1110;
 
-      $form['actions_box']            = $this->getUsedByActionsDetailsBox();
+      $form['actions_box']            = $this->util->getUsedByActionsDetailsBox($item);
       $form['actions_box']['#weight'] = 1120;
 
       if (!$item->isNew() && !$item instanceof Variable) {
@@ -304,6 +300,8 @@ abstract class ItemForm extends EntityForm {
       }
 
     }
+
+    return $status;
   }
 
   /**
@@ -436,157 +434,6 @@ abstract class ItemForm extends EntityForm {
     }
 
     return $form;
-  }
-
-  /**
-   * Return a details box which rules in where this item is being used.
-   *
-   * @return array
-   *   The render array.
-   */
-  public function getUsedByBusinessRulesDetailsBox() {
-
-    /** @var \Drupal\business_rules\Entity\BusinessRule $rule */
-    $rules   = BusinessRule::loadMultiple();
-    $used_by = [];
-    $details = [];
-
-    foreach ($rules as $rule) {
-      if (in_array($this->entity->id(), array_keys($rule->getItems()))) {
-        $used_by[] = $rule;
-      }
-    }
-
-    if (count($used_by)) {
-
-      $storage = $this->entityTypeManager->getStorage('business_rule');
-      $list    = new BusinessRuleListBuilder($rule->getEntityType(), $storage);
-
-      $details = [
-        '#type'        => 'details',
-        '#title'       => $this->t('Business Rules using this item'),
-        '#collapsed'   => TRUE,
-        '#collapsable' => TRUE,
-      ];
-
-      $header = $list->buildHeader();
-
-      $rows = [];
-      foreach ($used_by as $rule) {
-        $rows[] = $list->buildRow($rule);
-      }
-
-      $details['used_by'] = [
-        '#type'   => 'table',
-        '#header' => $header,
-        '#rows'   => $rows,
-      ];
-    }
-
-    return $details;
-
-  }
-
-  /**
-   * Return a details box which conditions using this item.
-   *
-   * @return array
-   *   The render array.
-   */
-  public function getUsedByConditionsDetailsBox() {
-
-    /** @var \Drupal\business_rules\Entity\Condition $condition */
-    $conditions = Condition::loadMultiple();
-    $used_by    = [];
-    $details    = [];
-
-    foreach ($conditions as $key => $condition) {
-      if (in_array($this->entity->id(), array_keys($condition->getSuccessItems()))) {
-        $used_by[$key] = $condition;
-      }
-    }
-
-    foreach ($conditions as $key => $condition) {
-      if (in_array($this->entity->id(), array_keys($condition->getFailItems()))) {
-        $used_by[$key] = $condition;
-      }
-    }
-
-    if (count($used_by)) {
-
-      $storage = $this->entityTypeManager->getStorage('business_rules_condition');
-      $list    = new ConditionListBuilder($condition->getEntityType(), $storage);
-
-      $details = [
-        '#type'        => 'details',
-        '#title'       => $this->t('Conditions using this item'),
-        '#collapsed'   => TRUE,
-        '#collapsable' => TRUE,
-      ];
-
-      $header = $list->buildHeader();
-
-      $rows = [];
-      foreach ($used_by as $condition) {
-        $rows[] = $list->buildRow($condition);
-      }
-
-      $details['used_by'] = [
-        '#type'   => 'table',
-        '#header' => $header,
-        '#rows'   => $rows,
-      ];
-    }
-
-    return $details;
-  }
-
-  /**
-   * Return a details box which actions using this item.
-   *
-   * @return array
-   *   The render array.
-   */
-  public function getUsedByActionsDetailsBox() {
-
-    /** @var \Drupal\business_rules\Entity\Condition $action */
-    $actions = Action::loadMultiple();
-    $used_by = [];
-    $details = [];
-
-    foreach ($actions as $key => $action) {
-      if (($action->getSettings('items')) && in_array($this->entity->id(), array_keys($action->getSettings('items')))) {
-        $used_by[$key] = $action;
-      }
-    }
-
-    if (count($used_by)) {
-
-      $storage = $this->entityTypeManager->getStorage('business_rules_action');
-      $list    = new ActionListBuilder($action->getEntityType(), $storage);
-
-      $details = [
-        '#type'        => 'details',
-        '#title'       => $this->t('Actions using this item'),
-        '#collapsed'   => TRUE,
-        '#collapsable' => TRUE,
-      ];
-
-      $header = $list->buildHeader();
-
-      $rows = [];
-      foreach ($used_by as $action) {
-        $rows[] = $list->buildRow($action);
-      }
-
-      $details['used_by'] = [
-        '#type'   => 'table',
-        '#header' => $header,
-        '#rows'   => $rows,
-      ];
-    }
-
-    return $details;
   }
 
   /**

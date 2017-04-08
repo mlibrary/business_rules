@@ -2,8 +2,15 @@
 
 namespace Drupal\business_rules\Util;
 
+use Drupal\business_rules\ActionListBuilder;
+use Drupal\business_rules\BusinessRuleListBuilder;
+use Drupal\business_rules\ConditionListBuilder;
+use Drupal\business_rules\Entity\Action;
+use Drupal\business_rules\Entity\BusinessRule;
 use Drupal\business_rules\Entity\BusinessRulesItemBase;
+use Drupal\business_rules\Entity\Condition;
 use Drupal\business_rules\Entity\Variable;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\VariableListBuilder;
 use Drupal\Core\Entity\ContentEntityType;
@@ -679,6 +686,314 @@ class BusinessRulesUtil {
     ];
 
     return $content;
+  }
+
+  /**
+   * Remove the item references after it's deletion.
+   *
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
+   *   The event.
+   */
+  public function removeItemReferences(BusinessRulesEvent $event) {
+    /** @var \Drupal\business_rules\Entity\BusinessRulesItemBase $item */
+    $item       = $event->getSubject();
+    $conditions = $this->getConditionsUsingItem($item);
+    $actions    = $this->getActionsUsingItem($item);
+    $rules      = $this->getBusinessRulesUsingThisItem($item);
+
+    // Variable's references work in a different manner.
+    if ($item instanceof Variable) {
+      return;
+    }
+
+    // Remove item from conditions.
+    /** @var \Drupal\business_rules\Entity\Condition $condition */
+    foreach ($conditions as $condition) {
+      $success_items = $condition->getSuccessItems();
+      /** @var \Drupal\business_rules\BusinessRulesItemObject $success_item */
+      foreach ($success_items as $success_item) {
+        if ($success_item->getId() == $item->id()) {
+          $condition->removeSuccessItem($success_item);
+        }
+      }
+
+      $fail_items = $condition->getFailItems();
+      /** @var \Drupal\business_rules\BusinessRulesItemObject $fail_item */
+      foreach ($fail_items as $fail_item) {
+        if ($fail_item->getId() == $item->id()) {
+          $condition->removeFailItem($fail_item);
+        }
+      }
+
+      $condition->save();
+    }
+
+    // Remove item from actions.
+    /** @var \Drupal\business_rules\Entity\Action $action */
+    foreach ($actions as $action) {
+      $action_items = $action->getSettings('items');
+      unset($action_items[$item->id()]);
+      $action->setSetting('items', $action_items);
+
+      $action->save();
+    }
+
+    // Remove item from business rules.
+    /** @var \Drupal\business_rules\Entity\BusinessRule $rule */
+    foreach ($rules as $rule) {
+      $rule_items = $rule->getItems();
+      /** @var \Drupal\business_rules\BusinessRulesItemObject $rule_item */
+      foreach ($rule_items as $rule_item) {
+        if ($rule_item->getId() == $item->id()) {
+          $rule->removeItem($rule_item);
+        }
+      }
+
+      $rule->save();
+    }
+
+  }
+
+  /**
+   * Get all conditions using the item.
+   *
+   * @param \Drupal\business_rules\ItemInterface $item
+   *   The item to look for conditions using it.
+   *
+   * @return array
+   *   Conditions using the item.
+   */
+  public function getConditionsUsingItem(ItemInterface $item) {
+    $conditions = Condition::loadMultiple();
+    $used_by    = [];
+
+    /** @var \Drupal\business_rules\Entity\Condition $condition */
+    if ($item instanceof Variable) {
+      foreach ($conditions as $condition) {
+        /** @var \Drupal\business_rules\VariablesSet $variables */
+        $variables = $condition->getVariables();
+        if ($variables->count()) {
+          /** @var \Drupal\business_rules\VariableObject $variable */
+          foreach ($variables->getVariables() as $variable) {
+            if ($variable->getId() == $item->id()) {
+              $used_by[$variable->getId()] = $condition;
+            }
+          }
+        }
+      }
+    }
+    else {
+      foreach ($conditions as $key => $condition) {
+        if (in_array($item->id(), array_keys($condition->getSuccessItems()))) {
+          $used_by[$key] = $condition;
+        }
+      }
+
+      foreach ($conditions as $key => $condition) {
+        if (in_array($item->id(), array_keys($condition->getFailItems()))) {
+          $used_by[$key] = $condition;
+        }
+      }
+    }
+
+    return $used_by;
+  }
+
+  /**
+   * Get all actions using the item.
+   *
+   * @param \Drupal\business_rules\ItemInterface $item
+   *   The item to look for actions using it.
+   *
+   * @return array
+   *   Actions using the item.
+   */
+  public function getActionsUsingItem(ItemInterface $item) {
+
+    $actions = Action::loadMultiple();
+    $used_by = [];
+
+    /** @var \Drupal\business_rules\Entity\Action $action */
+    if ($item instanceof Variable) {
+      foreach ($actions as $action) {
+        /** @var \Drupal\business_rules\VariablesSet $variables */
+        $variables = $action->getVariables();
+        if ($variables->count()) {
+          /** @var \Drupal\business_rules\VariableObject $variable */
+          foreach ($variables->getVariables() as $variable) {
+            if ($variable->getId() == $item->id()) {
+              $used_by[$variable->getId()] = $action;
+            }
+          }
+        }
+      }
+    }
+    else {
+      foreach ($actions as $key => $action) {
+        if (($action->getSettings('items')) && in_array($item->id(), array_keys($action->getSettings('items')))) {
+          $used_by[$key] = $action;
+        }
+      }
+    }
+
+    return $used_by;
+  }
+
+  /**
+   * Get all Business Rules using the item.
+   *
+   * @param \Drupal\business_rules\ItemInterface $item
+   *   The item to look for business rules using it.
+   *
+   * @return array
+   *   Actions using the item.
+   */
+  public function getBusinessRulesUsingThisItem(ItemInterface $item) {
+    $rules   = BusinessRule::loadMultiple();
+    $used_by = [];
+
+    /** @var \Drupal\business_rules\Entity\BusinessRule $rule */
+    foreach ($rules as $rule) {
+      if (in_array($item->id(), array_keys($rule->getItems()))) {
+        $used_by[] = $rule;
+      }
+    }
+
+    return $used_by;
+  }
+
+  /**
+   * Return a details box which rules in where this item is being used.
+   *
+   * @param \Drupal\business_rules\ItemInterface $item
+   *   The item to get the business rules using it.
+   *
+   * @return array
+   *   The render array.
+   */
+  public function getUsedByBusinessRulesDetailsBox(ItemInterface $item) {
+
+    $used_by = $this->getBusinessRulesUsingThisItem($item);
+    $details = [];
+
+    if (count($used_by)) {
+      /** @var \Drupal\business_rules\Entity\BusinessRule $rule */
+      $rule = $used_by[array_keys($used_by)[0]];
+
+      $storage = $this->entityTypeManager->getStorage('business_rule');
+      $list    = new BusinessRuleListBuilder($rule->getEntityType(), $storage);
+
+      $details = [
+        '#type'        => 'details',
+        '#title'       => t('Business Rules using this item'),
+        '#collapsed'   => TRUE,
+        '#collapsable' => TRUE,
+      ];
+
+      $header = $list->buildHeader();
+
+      $rows = [];
+      foreach ($used_by as $rule) {
+        $rows[] = $list->buildRow($rule);
+      }
+
+      $details['used_by'] = [
+        '#type'   => 'table',
+        '#header' => $header,
+        '#rows'   => $rows,
+      ];
+    }
+
+    return $details;
+
+  }
+
+  /**
+   * Return a details box which conditions using this item.
+   *
+   * @param \Drupal\business_rules\ItemInterface $item
+   *   The item to get the conditions using it.
+   *
+   * @return array
+   *   The render array.
+   */
+  public function getUsedByConditionsDetailsBox(ItemInterface $item) {
+
+    $used_by = $this->getConditionsUsingItem($item);
+    $details = [];
+
+    if (count($used_by)) {
+      /** @var \Drupal\business_rules\Entity\Condition $condition */
+      $condition = $used_by[array_keys($used_by)[0]];
+      $storage   = $this->entityTypeManager->getStorage('business_rules_condition');
+      $list      = new ConditionListBuilder($condition->getEntityType(), $storage);
+
+      $details = [
+        '#type'        => 'details',
+        '#title'       => t('Conditions using this item'),
+        '#collapsed'   => TRUE,
+        '#collapsable' => TRUE,
+      ];
+
+      $header = $list->buildHeader();
+
+      $rows = [];
+      foreach ($used_by as $condition) {
+        $rows[] = $list->buildRow($condition);
+      }
+
+      $details['used_by'] = [
+        '#type'   => 'table',
+        '#header' => $header,
+        '#rows'   => $rows,
+      ];
+    }
+
+    return $details;
+  }
+
+  /**
+   * Return a details box which actions using this item.
+   *
+   * @param \Drupal\business_rules\ItemInterface $item
+   *   The item to get the actions using it.
+   *
+   * @return array
+   *   The render array.
+   */
+  public function getUsedByActionsDetailsBox(ItemInterface $item) {
+
+    $used_by = $this->getActionsUsingItem($item);
+    $details = [];
+
+    /** @var \Drupal\business_rules\Entity\Condition $action */
+    if (count($used_by)) {
+      $action  = $used_by[array_keys($used_by)[0]];
+      $storage = $this->entityTypeManager->getStorage('business_rules_action');
+      $list    = new ActionListBuilder($action->getEntityType(), $storage);
+
+      $details = [
+        '#type'        => 'details',
+        '#title'       => t('Actions using this item'),
+        '#collapsed'   => TRUE,
+        '#collapsable' => TRUE,
+      ];
+
+      $header = $list->buildHeader();
+
+      $rows = [];
+      foreach ($used_by as $action) {
+        $rows[] = $list->buildRow($action);
+      }
+
+      $details['used_by'] = [
+        '#type'   => 'table',
+        '#header' => $header,
+        '#rows'   => $rows,
+      ];
+    }
+
+    return $details;
   }
 
 }

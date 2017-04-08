@@ -15,7 +15,22 @@ class ConditionDeleteForm extends EntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return $this->t('Are you sure you want to delete %name?', ['%name' => $this->entity->label()]);
+    return $this->t('Are you sure you want to delete %name? All references to this condition will be removed as well.', ['%name' => $this->entity->label()]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function form(array $form, FormStateInterface $form_state) {
+    $form = parent::form($form, $form_state);
+
+    /** @var \Drupal\business_rules\Util\BusinessRulesUtil $util */
+    $util = \Drupal::service('business_rules.util');
+    $form['rules_using_this_item'] = $util->getUsedByBusinessRulesDetailsBox($this->entity);
+    $form['conditions_using_this_item'] = $util->getUsedByConditionsDetailsBox($this->entity);
+    $form['actions_using_this_item'] = $util->getUsedByActionsDetailsBox($this->entity);
+
+    return $form;
   }
 
   /**

@@ -13,6 +13,7 @@ services:
     class: Drupal\business_rules\EventSubscriber\BusinessRulesListener
     arguments:
       - '@business_rules.processor'
+      - '@business_rules.util'
     tags:
       - { name: event_subscriber }
 
