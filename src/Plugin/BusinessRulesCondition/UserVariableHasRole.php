@@ -69,6 +69,13 @@ class UserVariableHasRole extends BusinessRulesConditionPlugin {
   /**
    * {@inheritdoc}
    */
+  public function buildForm(array &$form, FormStateInterface $form_state) {
+    unset($form['variables']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function processSettings(array $settings, ItemInterface $item) {
     foreach ($settings['roles'] as $key => $role) {
       if ($role === 0) {

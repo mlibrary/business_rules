@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  * @BusinessRulesAction(
  *   id = "fill_entity_variable_fields",
  *   label = @Translation("Set values to entity variable"),
- *   group = @Translation("Variables"),
+ *   group = @Translation("Variable"),
  *   description = @Translation("Set fields values to an entity variable."),
  *   isContextDependent = FALSE,
  *   hasTargetEntity = TRUE,

@@ -107,4 +107,5 @@ class Action extends BusinessRulesItemBase implements ActionInterface {
 
     return $defined_action->execute($this, $event);
   }
+
 }

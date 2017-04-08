@@ -38,7 +38,8 @@ class ConditionForm extends ItemForm {
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
-    if ($this->step > 1) {
+    if (!$this->entity->isNew()) {
+
       $form['reverse'] = [
         '#type'          => 'checkbox',
         '#title'         => $this->t('Reverse value'),
@@ -46,9 +47,6 @@ class ConditionForm extends ItemForm {
         '#default_value' => $this->entity->isReverse(),
         '#weight'        => 31,
       ];
-    }
-
-    if (!$this->entity->isNew()) {
 
       // Do not show success/fail items if it is part of a condition set.
       if (!$this->isPartOfConditionSet($this->entity)) {
@@ -359,7 +357,9 @@ class ConditionForm extends ItemForm {
     $items = [];
     /** @var Condition $c */
     foreach ($conditions as $c) {
-      $items = array_merge($items, $c->getSettings('items'));
+      if (is_array($c->getSettings('items'))) {
+        $items = array_merge($items, $c->getSettings('items'));
+      }
     }
 
     foreach ($items as $item) {

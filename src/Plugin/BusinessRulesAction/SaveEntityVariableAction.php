@@ -20,7 +20,7 @@ use Drupal\Core\Form\FormStateInterface;
  * @BusinessRulesAction(
  *   id = "save_entity_variable",
  *   label = @Translation("Save entity variable"),
- *   group = @Translation("Variables"),
+ *   group = @Translation("Variable"),
  *   description = @Translation("Save a entity stored in a variable."),
  *   isContextDependent = FALSE,
  *   hasTargetEntity = TRUE,

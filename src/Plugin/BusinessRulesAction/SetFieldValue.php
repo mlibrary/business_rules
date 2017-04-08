@@ -110,7 +110,7 @@ class SetFieldValue extends BusinessRulesActionPlugin {
 
     if ($variables->count()) {
       foreach ($variables->getVariables() as $variable) {
-        if (is_string($variable->getValue())) {
+        if (is_string($variable->getValue()) || is_numeric($variable->getValue())) {
           $content = str_replace('{{' . $variable->getId() . '}}', $variable->getValue(), $content);
         }
         elseif (is_array($variable->getValue())) {

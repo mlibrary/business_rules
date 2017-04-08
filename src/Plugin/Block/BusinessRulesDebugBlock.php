@@ -39,17 +39,19 @@ class BusinessRulesDebugBlock extends BlockBase {
       $debug      = $keyvalue->get($session_id);
       $keyvalue->set($session_id, NULL);
 
-      $output['#attached']['library'][] = 'business_rules/style';
-      $output['#attached']['library'][] = 'dbug/dbug';
+      if (count($debug)) {
+        $output['#attached']['library'][] = 'business_rules/style';
+        $output['#attached']['library'][] = 'dbug/dbug';
 
-      $output['business_rules_debug'] = [
-        '#type'        => 'details',
-        '#title'       => 'Business Rules Debug',
-        '#collapsed'   => TRUE,
-        '#collapsable' => TRUE,
-      ];
+        $output['business_rules_debug'] = [
+          '#type'        => 'details',
+          '#title'       => 'Business Rules Debug',
+          '#collapsed'   => TRUE,
+          '#collapsable' => TRUE,
+        ];
 
-      $output['business_rules_debug']['debug'] = $debug;
+        $output['business_rules_debug']['debug'] = $debug;
+      }
     }
 
     return $output;

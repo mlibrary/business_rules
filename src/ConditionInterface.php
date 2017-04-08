@@ -98,4 +98,5 @@ interface ConditionInterface extends ItemInterface {
    *   Boolean value that indicates if the condition is true.
    */
   public function process(BusinessRulesEvent $event);
+
 }

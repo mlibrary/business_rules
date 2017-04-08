@@ -189,4 +189,3 @@ my_module\Plugin\BusinessRulesAction
     -field -> use only if you are referencing to a entity field.
     -items -> use always the plugin has another business rule items. i.e. 
      actions or conditions.
-     

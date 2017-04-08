@@ -6,8 +6,6 @@ use Drupal\business_rules\BusinessRulesItemObject;
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\BusinessRule;
 use Drupal\business_rules\Entity\Condition;
-use Drupal\business_rules\Util\Flowchart\Flowchart;
-use Drupal\business_rules\Util\Graph;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Entity\EntityForm;
@@ -133,7 +131,7 @@ class BusinessRuleForm extends EntityForm {
       $form['description'] = [
         '#type'          => 'textarea',
         '#title'         => $this->t('Description'),
-        '#description'   => $this->t('A good description of this Action.'),
+        '#description'   => $this->t('A good description for Business Rule.'),
         '#required'      => TRUE,
         '#default_value' => $business_rule->getDescription(),
       ];

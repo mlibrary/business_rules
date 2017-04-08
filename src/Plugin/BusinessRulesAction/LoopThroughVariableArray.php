@@ -16,7 +16,7 @@ use Drupal\Core\Form\FormStateInterface;
  * @BusinessRulesAction(
  *   id = "loop_through_variable_array",
  *   label = @Translation("Loop through a variable array"),
- *   group = @Translation("Variables"),
+ *   group = @Translation("Variable"),
  *   description = @Translation("Loop through a variable array and execute actions and/or conditions: NOT IMPLEMENTED YET."),
  *   isContextDependent = FALSE,
  *   hasTargetEntity = FALSE,

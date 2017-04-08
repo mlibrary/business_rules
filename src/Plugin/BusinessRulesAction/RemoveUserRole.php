@@ -11,18 +11,18 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Entity\User;
 
 /**
- * Class AddRoleToUser.
+ * Class RemoveUserRole.
  *
  * @package Drupal\business_rules\Plugin\BusinessRulesAction
  *
  * @BusinessRulesAction(
- *   id = "add_user_role",
- *   label = @Translation("Add role to user"),
+ *   id = "remove_user_role",
+ *   label = @Translation("Remove role from user"),
  *   group = @Translation("User"),
- *   description = @Translation("Add role(s) to user."),
+ *   description = @Translation("Remove role(s) from user."),
  * )
  */
-class AddRoleToUser extends BusinessRulesActionPlugin {
+class RemoveUserRole extends BusinessRulesActionPlugin {
 
   /**
    * {@inheritdoc}
@@ -70,7 +70,7 @@ class AddRoleToUser extends BusinessRulesActionPlugin {
       '#required'      => TRUE,
       '#options'       => $this->util->getUserRolesOptions(),
       '#default_value' => is_array($item->getSettings('roles')) ? $item->getSettings('roles') : [],
-      '#description'   => t('Roles to add.'),
+      '#description'   => t('Roles to remove.'),
     ];
 
     return $settings;
@@ -150,14 +150,14 @@ class AddRoleToUser extends BusinessRulesActionPlugin {
     }
 
     foreach ($roles as $role) {
-      $user->addRole($role);
+      $user->removeRole($role);
     }
 
     $user->save();
 
     $result = [
       '#type'   => 'markup',
-      '#markup' => t('User: %user<br>Roles added: %roles', [
+      '#markup' => t('User: %user<br>Roles removed: %roles', [
         '%user'  => $user->getAccountName(),
         '%roles' => implode(', ', $roles),
       ]),

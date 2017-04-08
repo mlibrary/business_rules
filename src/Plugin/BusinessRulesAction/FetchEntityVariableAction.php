@@ -20,7 +20,7 @@ use Drupal\Core\Form\FormStateInterface;
  * @BusinessRulesAction(
  *   id = "fetch_entity_variable",
  *   label = @Translation("Fetch entity variable by id"),
- *   group = @Translation("Variables"),
+ *   group = @Translation("Variable"),
  *   description = @Translation("Fetch an entity variable by id provided by another variable or a constant value."),
  *   isContextDependent = FALSE,
  *   hasTargetEntity = TRUE,

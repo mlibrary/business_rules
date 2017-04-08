@@ -2,6 +2,7 @@
 
 namespace Drupal\business_rules\Entity;
 
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 
@@ -17,6 +18,13 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
    * @var string
    */
   protected $description;
+
+  /**
+   * The event dispatcher.
+   *
+   * @var \Symfony\Component\EventDispatcher\EventDispatcher
+   */
+  protected $eventDispatcher;
 
   /**
    * The Item ID.
@@ -72,7 +80,8 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
    */
   public function __construct(array $values, $entity_type) {
     parent::__construct($values, $entity_type);
-    $this->itemManager = $this->getItemManager();
+    $this->itemManager     = $this->getItemManager();
+    $this->eventDispatcher = \Drupal::getContainer()->get('event_dispatcher');
   }
 
   /**
@@ -243,5 +252,20 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
 
     return $variables;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function delete() {
+    parent::delete();
+
+    if (!$this->isNew()) {
+      // Dispatch an event about the item deletion.
+      $event = new BusinessRulesEvent($this);
+      $this->eventDispatcher->dispatch('business_rules.item_pos_delete', $event);
+      // @TODO add listener to this event and remove deleted item from items.
+    }
+  }
+
 }
 // @TODO add tags to Business Rules and it's items.

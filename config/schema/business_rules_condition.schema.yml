@@ -148,16 +148,16 @@ business_rules.condition.type.user_variable_has_role:
       label: 'Criteria' #all|one
 
 # Variable data comparison Condition.
-business_rules.condition.type.variable_comparison:
+business_rules.condition.type.variable_data_comparison:
   type: mapping
   label: 'Compare value between two variables'
   mapping:
-    variable_1:
+    value_1:
       type: string
-      label: 'Variable 1'
+      label: 'Value 1'
     operator:
       type: string
       label: 'Operator'
-    variable_2:
+    value_2:
       type: string
-      label: 'Variable 2'
+      label: 'Value 2'

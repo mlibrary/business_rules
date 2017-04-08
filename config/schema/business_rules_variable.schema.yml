@@ -44,9 +44,6 @@ business_rules.variable.type.custom_value_variable:
   type: mapping
   label: 'Custom value variable'
   mapping:
-    value_type:
-      type: string
-      label: 'Type'
     value:
       type: string
       label: 'Value'

@@ -142,4 +142,5 @@ interface ItemInterface extends ConfigEntityInterface {
    *   The variables being used by the item.
    */
   public function getVariables();
+
 }

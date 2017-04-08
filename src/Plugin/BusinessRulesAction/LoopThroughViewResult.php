@@ -24,7 +24,7 @@ use Drupal\Core\Url;
  * @BusinessRulesAction(
  *   id = "loop_through_view_result",
  *   label = @Translation("Loop through a view result variable"),
- *   group = @Translation("Variables"),
+ *   group = @Translation("Variable"),
  *   description = @Translation("Loop through a view result variable and execute actions and/or conditions."),
  *   isContextDependent = FALSE,
  *   hasTargetEntity = FALSE,

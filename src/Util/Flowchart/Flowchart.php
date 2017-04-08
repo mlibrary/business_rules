@@ -135,6 +135,9 @@ class Flowchart {
     }
     else {
 
+      $off_x     = 0;
+      $off_y     = 0;
+      $direction = 'bottom';
       if ($parent->getItem() instanceof BusinessRule) {
         $direction = 'bottom';
       }
@@ -159,11 +162,21 @@ class Flowchart {
         elseif ($parent_cell['index_x'] < $root_cell['index_x']) {
           $direction = 'left';
         }
+
+        if ($item instanceof Condition) {
+          if ($direction == 'right') {
+            $off_x = 1;
+          }
+          if ($direction == 'left') {
+            $off_x = -1;
+          }
+
+        }
       }
 
       $element = new Element($item, $parent, '', $arrowLabel);
 
-      $this->matrix->putElement($element, $parent, $direction);
+      $this->matrix->putElement($element, $parent, $direction, $off_x, $off_y);
     }
 
     if ($this->itemHasChildren($item)) {
@@ -409,7 +422,7 @@ class Flowchart {
   private function getOriginUuid(array $cell) {
     $root_element = $this->matrix->getRootElement();
     if (empty($cell['element']->getParent()) || ($root_element->getItem() == $cell['element']->getParent()
-          ->getItem()) && $root_element->getItem() instanceof BusinessRule
+      ->getItem()) && $root_element->getItem() instanceof BusinessRule
     ) {
       return $root_element->getUuid();
     }

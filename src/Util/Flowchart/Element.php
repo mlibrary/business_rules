@@ -4,6 +4,11 @@ namespace Drupal\business_rules\Util\Flowchart;
 
 use Drupal\Core\Entity\EntityInterface;
 
+/**
+ * Class Element.
+ *
+ * @package Drupal\business_rules\Util\Flowchart
+ */
 class Element {
 
   /**
@@ -30,7 +35,7 @@ class Element {
   /**
    * The Item parent.
    *
-   * @var \Drupal\Core\Entity\EntityInterface
+   * @var \Drupal\business_rules\Util\Flowchart\Element
    */
   protected $parent;
 
@@ -41,9 +46,21 @@ class Element {
    */
   protected $uuid;
 
+  /**
+   * Element constructor.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface|null $item
+   *    The entity.
+   * @param \Drupal\business_rules\Util\Flowchart\Element|null $parent
+   *    The parent entity.
+   * @param string $originUUid
+   *    The uuid for the origin element. The arrow beginning.
+   * @param string $arrowLabel
+   *    The arrow label.
+   */
   public function __construct(EntityInterface $item = NULL, Element $parent = NULL, $originUUid = '', $arrowLabel = '') {
     $this->setItem($item);
-    $this->setParent($parent);
+    $this->parent = $parent;
     $this->setOriginUuid($originUUid);
     $this->setArrowLabel($arrowLabel);
     $this->uuid = \Drupal::service('uuid')->generate();
@@ -73,6 +90,7 @@ class Element {
    * Get the item element.
    *
    * @return \Drupal\Core\Entity\EntityInterface
+   *   The item.
    */
   public function getItem() {
     return $this->item;
@@ -111,8 +129,8 @@ class Element {
   /**
    * Get the parent item.
    *
-   * @return \Drupal\Core\Entity\EntityInterface
-   *   The parent item.
+   * @return \Drupal\business_rules\Util\Flowchart\Element
+   *   The parent element.
    */
   public function getParent() {
     return $this->parent;
@@ -121,10 +139,10 @@ class Element {
   /**
    * Set the parent item.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $parent
+   * @param \Drupal\business_rules\Util\Flowchart\Element $parent
    *   The parent item.
    */
-  public function setParent($parent) {
+  public function setParent(Element $parent) {
     $this->parent = $parent;
   }
 

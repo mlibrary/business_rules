@@ -8,11 +8,8 @@ use Drupal\business_rules\Entity\BusinessRule;
 use Drupal\business_rules\Entity\Condition;
 use Drupal\business_rules\Entity\Variable;
 use Drupal\business_rules\Events\BusinessRulesEvent;
-use Drupal\business_rules\Plugin\BusinessRulesActionManager;
 use Drupal\business_rules\VariableObject;
 use Drupal\business_rules\VariablesSet;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Config\StorageInterface;
 use Drupal\Core\Link;
 use Drupal\dbug\Dbug;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -29,7 +26,7 @@ class BusinessRulesProcessor {
   /**
    * The action manager.
    *
-   * @var BusinessRulesActionManager
+   * @var \Drupal\business_rules\Plugin\BusinessRulesActionManager
    */
   protected $actionManager;
 
@@ -50,7 +47,7 @@ class BusinessRulesProcessor {
   /**
    * The config factory.
    *
-   * @var ConfigFactoryInterface
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   protected $configFactory;
 
@@ -83,6 +80,14 @@ class BusinessRulesProcessor {
   protected $processedRules = [];
 
   /**
+   * Process Id. Used to identify the process and avoid infinite loops.
+   *
+   * @var string
+   *   The process id.
+   */
+  protected $processId;
+
+  /**
    * The business rule id being executed.
    *
    * @var BusinessRule
@@ -92,7 +97,7 @@ class BusinessRulesProcessor {
   /**
    * The storage.
    *
-   * @var StorageInterface
+   * @var \Drupal\Core\Config\StorageInterface
    */
   private $storage;
 
@@ -135,6 +140,10 @@ class BusinessRulesProcessor {
    */
   public function process(BusinessRulesEvent $event) {
 
+    if ($this->avoidInfiniteLoop($event)) {
+      return;
+    }
+
     // Dispatch a event before start the processing.
     $this->eventDispatcher->dispatch('business_rules.before_process_event', $event);
 
@@ -151,6 +160,48 @@ class BusinessRulesProcessor {
 
     // Dispatch a event after processing the business rule.
     $this->eventDispatcher->dispatch('business_rules.after_process_event', $event);
+  }
+
+  /**
+   * Check if the event was already processed during the current request.
+   *
+   * Get the processed events subject and reactsOn event then compare with the
+   * current event subject and reactsOn. If the there is one event with the
+   * current subject and reactsOn arguments is already processed, then stop the
+   * tell the processor to stop processing. It's necessary to avoid infinite
+   * loops when there is a business rule being executed on entity update for
+   * example.
+   *
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
+   *   The event being processed.
+   *
+   * @return bool
+   *   TRUE|FALSE
+   */
+  private function avoidInfiniteLoop(BusinessRulesEvent $event) {
+
+    $keyvalue         = $this->util->getKeyValueExpirable('process');
+    $processed_events = $keyvalue->getAll();
+    $serialized_data  = serialize($event->getSubject()) . serialize($event->getArgument('reacts_on'));
+    if (count($processed_events)) {
+      foreach ($processed_events as $processed_event) {
+        if ($serialized_data == $processed_event) {
+          return TRUE;
+        }
+      }
+    }
+    $this->processId = $this->util->container->get('uuid')->generate();
+    $keyvalue->set($this->processId, $serialized_data);
+
+    return FALSE;
+  }
+
+  /**
+   * Destructor.
+   */
+  public function __destruct() {
+    $keyvalue = $this->util->getKeyValueExpirable('process');
+    $keyvalue->deleteAll();
   }
 
   /**
@@ -261,36 +312,49 @@ class BusinessRulesProcessor {
     foreach ($items as $item) {
       if ($item->getType() == BusinessRulesItemObject::ACTION) {
         $action = Action::load($item->getId());
-        $this->executeAction($action, $event);
+        if (!empty($action)) {
+          $this->executeAction($action, $event);
 
-        $this->debugArray['actions'][$this->ruleBeingExecuted->id()][] = [
-          'item'   => $action,
-          'parent' => $parent_id,
-        ];
-      }
-      elseif ($item->getType() == BusinessRulesItemObject::CONDITION) {
-        $condition = Condition::load($item->getId());
-        $success   = $this->isConditionValid($condition, $event);
-
-        if ($success) {
-          $condition_items = $condition->getSuccessItems();
-
-          $this->debugArray['conditions'][$this->ruleBeingExecuted->id()]['success'][] = [
-            'item'   => $condition,
+          $this->debugArray['actions'][$this->ruleBeingExecuted->id()][] = [
+            'item'   => $action,
             'parent' => $parent_id,
           ];
         }
         else {
-          $condition_items = $condition->getFailItems();
-
-          $this->debugArray['conditions'][$this->ruleBeingExecuted->id()]['fail'][] = [
-            'item'   => $condition,
-            'parent' => $parent_id,
-          ];
+          $this->util->logger->error('Action id: %id not found', ['%id' => $item->getId()]);
+          drupal_set_message(t('Business Rules - Action id: %id not found.', ['%id' => $item->getId()]), 'error');
         }
+      }
+      elseif ($item->getType() == BusinessRulesItemObject::CONDITION) {
+        $condition = Condition::load($item->getId());
 
-        if (is_array($condition_items)) {
-          $this->processItems($condition_items, $event, $condition->id());
+        if (empty($condition)) {
+          $this->util->logger->error('Condition id: %id not found', ['%id' => $item->getId()]);
+          drupal_set_message(t('Business Rules Condition id: %id not found.', ['%id' => $item->getId()]), 'error');
+        }
+        else {
+          $success = $this->isConditionValid($condition, $event);
+
+          if ($success) {
+            $condition_items = $condition->getSuccessItems();
+
+            $this->debugArray['conditions'][$this->ruleBeingExecuted->id()]['success'][] = [
+              'item'   => $condition,
+              'parent' => $parent_id,
+            ];
+          }
+          else {
+            $condition_items = $condition->getFailItems();
+
+            $this->debugArray['conditions'][$this->ruleBeingExecuted->id()]['fail'][] = [
+              'item'   => $condition,
+              'parent' => $parent_id,
+            ];
+          }
+
+          if (is_array($condition_items)) {
+            $this->processItems($condition_items, $event, $condition->id());
+          }
         }
       }
     }
@@ -464,84 +528,89 @@ class BusinessRulesProcessor {
 
     foreach ($items as $item) {
       if ($item->getType() == BusinessRulesItemObject::ACTION) {
-        $action      = Action::load($item->getId());
-        $action_link = Link::createFromRoute($action->id(), 'entity.business_rules_action.edit_form', ['business_rules_action' => $action->id()]);
+        $action = Action::load($item->getId());
+        if (!empty($action)) {
+          $action_link = Link::createFromRoute($action->id(), 'entity.business_rules_action.edit_form', ['business_rules_action' => $action->id()]);
 
-        $style = 'fail';
-        foreach ($actions_executed as $executed) {
-          $action_parent   = $executed['parent'];
-          $executed_action = $executed['item'];
-          if ($action_parent == $parent_id) {
-            $style = ($executed_action->id() == $action->id()) ? 'success' : 'fail';
-            if ($style == 'success') {
-              break;
+          $style = 'fail';
+          foreach ($actions_executed as $executed) {
+            $action_parent   = $executed['parent'];
+            $executed_action = $executed['item'];
+            if ($action_parent == $parent_id) {
+              $style = ($executed_action->id() == $action->id()) ? 'success' : 'fail';
+              if ($style == 'success') {
+                break;
+              }
             }
           }
-        }
 
-        $action_label           = t('Action');
-        $output[$item->getId()] = [
-          '#type'        => 'details',
-          '#title'       => $action_label . ': ' . $action->label(),
-          '#description' => $action_link->toString() . '<br>' . $action->getDescription(),
-          '#attributes'  => ['class' => [$style]],
-          '#collapsible' => TRUE,
-          '#collapsed'   => TRUE,
-        ];
-
-        if (isset($this->debugArray['action_result'][$this->ruleBeingExecuted->id()][$item->getId()])) {
-          $output[$item->getId()]['action_result'][$this->ruleBeingExecuted->id()] = $this->debugArray['action_result'][$this->ruleBeingExecuted->id()][$item->getId()];
-        }
-      }
-      elseif ($item->getType() == BusinessRulesItemObject::CONDITION) {
-        $condition      = Condition::load($item->getId());
-        $condition_link = Link::createFromRoute($condition->id(), 'entity.business_rules_condition.edit_form', ['business_rules_condition' => $condition->id()]);
-
-        $style = 'fail';
-        foreach ($conditions_success as $success) {
-          $condition_parent   = $success['parent'];
-          $executed_condition = $success['item'];
-          if ($condition_parent == $parent_id) {
-            $style = ($executed_condition->id() == $condition->id()) ? 'success' : 'fail';
-            if ($style == 'success') {
-              break;
-            }
-          }
-        }
-
-        $title                  = $condition->isReverse() ? t('(Not)') . ' ' . $condition->label() : $condition->label();
-        $condition_label        = t('Condition');
-        $output[$item->getId()] = [
-          '#type'        => 'details',
-          '#title'       => $condition_label . ': ' . $title,
-          '#description' => $condition_link->toString() . '<br>' . $condition->getDescription(),
-          '#attributes'  => ['class' => [$style]],
-          '#collapsible' => TRUE,
-          '#collapsed'   => TRUE,
-        ];
-
-        $success_items = $condition->getSuccessItems();
-        if (is_array($success_items) && count($success_items)) {
-          $output[$item->getId()]['success']   = [
+          $action_label           = t('Action');
+          $output[$item->getId()] = [
             '#type'        => 'details',
-            '#title'       => t('Success items'),
+            '#title'       => $action_label . ': ' . $action->label(),
+            '#description' => $action_link->toString() . '<br>' . $action->getDescription(),
             '#attributes'  => ['class' => [$style]],
             '#collapsible' => TRUE,
             '#collapsed'   => TRUE,
           ];
-          $output[$item->getId()]['success'][] = $this->getDebugItems($success_items, $condition->id());
+
+          if (isset($this->debugArray['action_result'][$this->ruleBeingExecuted->id()][$item->getId()])) {
+            $output[$item->getId()]['action_result'][$this->ruleBeingExecuted->id()] = $this->debugArray['action_result'][$this->ruleBeingExecuted->id()][$item->getId()];
+          }
         }
 
-        $fail_items = $condition->getFailItems();
-        if (is_array($fail_items) && count($fail_items)) {
-          $output[$item->getId()]['fail']   = [
+      }
+      elseif ($item->getType() == BusinessRulesItemObject::CONDITION) {
+        $condition = Condition::load($item->getId());
+        if (!empty($condition)) {
+          $condition_link = Link::createFromRoute($condition->id(), 'entity.business_rules_condition.edit_form', ['business_rules_condition' => $condition->id()]);
+
+          $style = 'fail';
+          foreach ($conditions_success as $success) {
+            $condition_parent   = $success['parent'];
+            $executed_condition = $success['item'];
+            if ($condition_parent == $parent_id) {
+              $style = ($executed_condition->id() == $condition->id()) ? 'success' : 'fail';
+              if ($style == 'success') {
+                break;
+              }
+            }
+          }
+
+          $title                  = $condition->isReverse() ? t('(Not)') . ' ' . $condition->label() : $condition->label();
+          $condition_label        = t('Condition');
+          $output[$item->getId()] = [
             '#type'        => 'details',
-            '#title'       => t('Fail items'),
-            '#attributes'  => ['class' => [$style == 'success' ? 'fail' : 'success']],
+            '#title'       => $condition_label . ': ' . $title,
+            '#description' => $condition_link->toString() . '<br>' . $condition->getDescription(),
+            '#attributes'  => ['class' => [$style]],
             '#collapsible' => TRUE,
             '#collapsed'   => TRUE,
           ];
-          $output[$item->getId()]['fail'][] = $this->getDebugItems($fail_items, $condition->id());
+
+          $success_items = $condition->getSuccessItems();
+          if (is_array($success_items) && count($success_items)) {
+            $output[$item->getId()]['success']   = [
+              '#type'        => 'details',
+              '#title'       => t('Success items'),
+              '#attributes'  => ['class' => [$style]],
+              '#collapsible' => TRUE,
+              '#collapsed'   => TRUE,
+            ];
+            $output[$item->getId()]['success'][] = $this->getDebugItems($success_items, $condition->id());
+          }
+
+          $fail_items = $condition->getFailItems();
+          if (is_array($fail_items) && count($fail_items)) {
+            $output[$item->getId()]['fail']   = [
+              '#type'        => 'details',
+              '#title'       => t('Fail items'),
+              '#attributes'  => ['class' => [$style == 'success' ? 'fail' : 'success']],
+              '#collapsible' => TRUE,
+              '#collapsed'   => TRUE,
+            ];
+            $output[$item->getId()]['fail'][] = $this->getDebugItems($fail_items, $condition->id());
+          }
         }
       }
     }

@@ -2,10 +2,6 @@
 
 namespace Drupal\business_rules\Form;
 
-use Drupal\business_rules\ConditionListBuilder;
-use Drupal\business_rules\Entity\Condition;
-use Drupal\Core\Form\FormStateInterface;
-
 /**
  * Class ActionForm.
  *

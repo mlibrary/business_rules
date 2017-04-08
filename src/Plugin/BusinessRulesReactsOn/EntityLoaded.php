@@ -5,7 +5,7 @@ namespace Drupal\business_rules\Plugin\BusinessRulesReactsOn;
 use Drupal\business_rules\Plugin\BusinessRulesReactsOnPlugin;
 
 /**
- * Class EntityLoaded
+ * Class EntityLoaded.
  *
  * @package Drupal\business_rules\Plugin\BusinessRulesReactsOn
  *

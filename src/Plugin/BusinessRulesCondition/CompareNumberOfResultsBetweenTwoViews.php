@@ -154,49 +154,11 @@ class CompareNumberOfResultsBetweenTwoViews extends BusinessRulesConditionPlugin
     }
 
     // Check the condition.
-    if ($this->criteriaMet($result1, $operator, $result2)) {
+    if ($this->util->criteriaMet($result1, $operator, $result2)) {
       return TRUE;
     }
     else {
       return FALSE;
-    }
-  }
-
-  /**
-   * Criteria checker.
-   *
-   * @param string $value1
-   *   The value to be compared.
-   * @param string $operator
-   *   The operator.
-   * @param string $value2
-   *   The value to test against.
-   *
-   * @return bool
-   *   Criteria met/not met.
-   */
-  protected function criteriaMet($value1, $operator, $value2) {
-    switch ($operator) {
-      case '<':
-        return $value1 < $value2;
-
-      case '<=':
-        return $value1 <= $value2;
-
-      case '>':
-        return $value1 > $value2;
-
-      case '>=':
-        return $value1 >= $value2;
-
-      case '==':
-        return $value1 == $value2;
-
-      case '!=':
-        return $value1 != $value2;
-
-      default:
-        return FALSE;
     }
   }
 

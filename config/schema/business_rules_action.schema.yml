@@ -206,3 +206,55 @@ business_rules.action.type.loop_through_view_result:
       label: 'Items'
       sequence:
         type: business_rules.item
+
+# Calculate a value
+business_rules.action.type.calculate_value:
+  type: mapping
+  label: 'Calculate a value'
+  mapping:
+    variable:
+      type: string
+      label: 'Variable to store the result'
+    formula:
+      type: string
+      label: 'Formula'
+
+business_rules.action.type.add_user_role:
+  type: mapping
+  label: 'Add role to user'
+  mapping:
+    user_container:
+      type: string
+      label: 'User container' #current|by_id|variable
+    uid:
+      type: string
+      label: 'User id'
+    variable:
+      type: string
+      label: 'User variable' #The variable containing the user. Only variables type: "User variable".
+    roles:
+      type: sequence
+      label: 'Roles'
+      sequence:
+        type: string
+        label: 'Role'
+
+business_rules.action.type.remove_user_role:
+  type: mapping
+  label: 'Remove role from user'
+  mapping:
+    user_container:
+      type: string
+      label: 'User container' #current|by_id|variable
+    uid:
+      type: string
+      label: 'User id'
+    variable:
+      type: string
+      label: 'User variable' #The variable containing the user. Only variables type: "User variable".
+    roles:
+      type: sequence
+      label: 'Roles'
+      sequence:
+        type: string
+        label: 'Role'

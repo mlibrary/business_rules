@@ -6,7 +6,6 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ConditionInterface;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesConditionPlugin;
-use Drupal\business_rules\Util\BusinessRulesUtil;
 use Drupal\business_rules\VariablesSet;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
@@ -106,7 +105,7 @@ class DataComparison extends BusinessRulesConditionPlugin {
       '#required'      => TRUE,
       '#type'          => 'textarea',
       '#description'   => t('The value to compare the field value.
-        <br>To use variables on the message, just type the variable machine name as {{variable_id}}. If the variable is an Entity Variable, you can access the fields values using {{variable_id->field}}'),
+        <br>To use variables, just type the variable machine name as {{variable_id}}. If the variable is an Entity Variable, you can access the fields values using {{variable_id->field}}'),
       '#prefix'        => '<div id="value_to_compare-wrapper">',
       '#suffix'        => '</div>',
     ];
@@ -187,7 +186,7 @@ class DataComparison extends BusinessRulesConditionPlugin {
         if (!is_array($variable->getValue())) {
           foreach ($values_to_compare as $key => $value_to_compare) {
             $value = $variable->getValue();
-            if (is_string($value)) {
+            if (is_string($value) || is_numeric($value)) {
               $values_to_compare[$key] = str_replace('{{' . $variable->getId() . '}}', $value, $value_to_compare);
             }
           }
@@ -231,7 +230,7 @@ class DataComparison extends BusinessRulesConditionPlugin {
         It will return TRUE if at least one element was found.
         <br>If the comparison field is a list of values, enter the element(s) id(s)
         <br>Enter the element(s) id(s), one per line.
-        <br>To use variables on the message, just type the variable machine name as {{variable_id}}. If the variable is an Entity Variable, you can access the fields values using {{variable_id->field}}');
+        <br>To use variables, just type the variable machine name as {{variable_id}}. If the variable is an Entity Variable, you can access the fields values using {{variable_id->field}}');
     }
     elseif ($operator == 'empty') {
       $type        = 'markup';
@@ -240,7 +239,7 @@ class DataComparison extends BusinessRulesConditionPlugin {
     else {
       $type        = 'textfield';
       $description = t('The value to compare the field value.
-        <br>To use variables on the message, just type the variable machine name as {{variable_id}}. If the variable is an Entity Variable, you can access the fields values using {{variable_id->field}}');
+        <br>To use variables, just type the variable machine name as {{variable_id}}. If the variable is an Entity Variable, you can access the fields values using {{variable_id->field}}');
     }
 
     return [

@@ -36,7 +36,7 @@ class KernelRequestListener implements EventSubscriberInterface {
       ->get('plugin.manager.business_rules.reacts_on')
       ->getDefinition('kernel_request');
 
-    $new_event = new BusinessRulesEvent($event, [
+    $new_event = new BusinessRulesEvent(NULL, [
       'entity_type_id'   => NULL,
       'bundle'           => NULL,
       'entity'           => NULL,
