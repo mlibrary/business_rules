@@ -3,8 +3,8 @@
 namespace Drupal\business_rules\Plugin;
 
 use Drupal\business_rules\ConditionInterface;
-use Drupal\business_rules\VariablesSet;
 use Drupal\business_rules\Events\BusinessRulesEvent;
+use Drupal\business_rules\VariablesSet;
 
 /**
  * Defines an interface for Business rules Condition plugins.
@@ -29,7 +29,7 @@ interface BusinessRulesConditionPluginInterface extends BusinessRulesItemPluginI
    *
    * @param mixed $content
    *   The item to be replaced by the variable value.
-   * @param VariablesSet $event_variables
+   * @param \Drupal\business_rules\VariablesSet $event_variables
    *   Array of Variables provided by the event.
    *
    * @return mixed

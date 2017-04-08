@@ -55,7 +55,7 @@ class DisplayErrorMessageOnForm extends BusinessRulesActionPlugin {
       $message   = $this->processVariables($message, $variables);
       $message   = new FormattableMarkup($message, []);
 
-      /** @var FormStateInterface $form_state */
+      /** @var \Drupal\Core\Form\FormStateInterface $form_state */
       $form_state = $event->getArgument('form_state');
 
       $form_state->setErrorByName($field, $message);

@@ -179,7 +179,7 @@ class ActionSet extends BusinessRulesActionPlugin {
    *   The form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state object.
-   * @param ItemInterface $action
+   * @param \Drupal\business_rules\ItemInterface $action
    *   The current action.
    *
    * @return array

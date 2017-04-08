@@ -3,9 +3,9 @@
 namespace Drupal\business_rules\Plugin\BusinessRulesAction;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\Variable;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\business_rules\VariableObject;
@@ -50,7 +50,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
    *   The form state object.
    */
   public static function fieldValueSave(array $form, FormStateInterface $form_state) {
-    /** @var Action $action */
+    /** @var \Drupal\business_rules\Entity\Action $action */
     $field = $form_state->getValue('entity_field');
     $value = $form_state->getValue('field_value');
 
@@ -277,8 +277,8 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
           '#type'   => 'markup',
           '#markup' => t('Entity variable: %variable field: %field filled with value: %value.', [
             '%variable' => $entity_variable_id,
-            '%field' => $field_value['entity_field'],
-            '%value' => is_array($value) ? implode(',', $value) : $value,
+            '%field'    => $field_value['entity_field'],
+            '%value'    => is_array($value) ? implode(',', $value) : $value,
           ]),
         ];
 
@@ -365,6 +365,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
     }
     else {
       $url = new Url('entity.business_rules_action.edit_form', ['business_rules_action' => $action->id()]);
+
       return new RedirectResponse($url->toString());
     }
 

@@ -13,7 +13,7 @@ abstract class BusinessRulesVariablePlugin extends BusinessRulesItemPluginBase i
   /**
    * {@inheritdoc}
    */
-  public abstract function evaluate(Variable $variable, BusinessRulesEvent $event);
+  abstract public function evaluate(Variable $variable, BusinessRulesEvent $event);
 
   /**
    * {@inheritdoc}

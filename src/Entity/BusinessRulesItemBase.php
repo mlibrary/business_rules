@@ -90,7 +90,7 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
    * @return \Drupal\Core\Plugin\DefaultPluginManager
    *   The plugin manager to be used.
    */
-  public abstract function getItemManager();
+  abstract public function getItemManager();
 
   /**
    * {@inheritdoc}
@@ -231,7 +231,7 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
   public static function loadMultipleByType($type, array $ids = NULL) {
     $items  = self::loadMultiple($ids);
     $result = [];
-    /** @var ItemInterface $item */
+    /** @var \Drupal\business_rules\ItemInterface $item */
     foreach ($items as $item) {
       if ($item->getType() == $type) {
         $result[] = $item;

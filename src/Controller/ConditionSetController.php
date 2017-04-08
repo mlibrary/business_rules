@@ -212,7 +212,7 @@ class ConditionSetController extends ControllerBase {
     ];
 
     $rows = [];
-    /** @var Condition $item */
+    /** @var \Drupal\business_rules\Entity\Condition $item */
     foreach ($this->items as $item) {
       if (!in_array($item->id(), array_keys($this->savedItems)) && $item->id() != $condition->id()) {
 

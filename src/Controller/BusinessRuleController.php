@@ -2,8 +2,8 @@
 
 namespace Drupal\business_rules\Controller;
 
-use Drupal\Core\Controller\ControllerBase;
 use Drupal\business_rules\Entity\BusinessRule;
+use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
@@ -14,7 +14,7 @@ class BusinessRuleController extends ControllerBase {
   /**
    * Disables a BusinessRule object.
    *
-   * @param BusinessRule $business_rule
+   * @param \Drupal\business_rules\Entity\BusinessRule $business_rule
    *   The BusinessRule object to disable.
    *
    * @return \Symfony\Component\HttpFoundation\RedirectResponse
@@ -22,13 +22,14 @@ class BusinessRuleController extends ControllerBase {
    */
   public function disable(BusinessRule $business_rule) {
     $business_rule->disable()->save();
+
     return new RedirectResponse($business_rule->url('collection', ['absolute' => TRUE]));
   }
 
   /**
    * Enables a BusinessRule object.
    *
-   * @param BusinessRule $business_rule
+   * @param \Drupal\business_rules\Entity\BusinessRule $business_rule
    *   The BusinessRule object to disable.
    *
    * @return \Symfony\Component\HttpFoundation\RedirectResponse
@@ -36,6 +37,7 @@ class BusinessRuleController extends ControllerBase {
    */
   public function enable(BusinessRule $business_rule) {
     $business_rule->enable()->save();
+
     return new RedirectResponse($business_rule->url('collection', ['absolute' => TRUE]));
   }
 

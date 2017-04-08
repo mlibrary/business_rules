@@ -46,13 +46,10 @@ abstract class ConditionSet extends BusinessRulesConditionPlugin {
     $current_conditions = $condition->getSettings('items');
     $conditions_matched = [];
     if (count($conditions)) {
-      /** @var Condition $c */
+      /** @var \Drupal\business_rules\Entity\Condition $c */
       foreach ($conditions as $c) {
         if ($condition->id() != $c->id() && self::checkInnerCondition($condition, $c) && !in_array($c->id(), array_keys($current_conditions))) {
           // Only condition s with no actions can be added to a condition set.
-          // @TODO prevent conditions living in a condition_set to have actions.
-          // @TODO add conditions using this condition on condition details box.
-          // @TODO create variable current_entity.
           if (!count($c->getSuccessItems()) && !count($c->getFailItems())) {
             $conditions_matched[] = $c;
           }
@@ -157,7 +154,7 @@ abstract class ConditionSet extends BusinessRulesConditionPlugin {
    *   The form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state object.
-   * @param ItemInterface $condition
+   * @param \Drupal\business_rules\ItemInterface $condition
    *   The current condition.
    *
    * @return array

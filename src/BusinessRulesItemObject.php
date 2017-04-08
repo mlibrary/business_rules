@@ -130,7 +130,7 @@ class BusinessRulesItemObject {
    * Set the item id.
    *
    * @param string $id
-   *    The item id.
+   *   The item id.
    */
   public function setId($id) {
     $this->id = $id;

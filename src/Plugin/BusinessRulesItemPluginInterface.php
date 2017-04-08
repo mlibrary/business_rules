@@ -43,7 +43,7 @@ interface BusinessRulesItemPluginInterface extends PluginInspectionInterface {
    *   The business rule item.
    *
    * @return \Drupal\Core\Url
-   *    The Url.
+   *   The Url.
    */
   public function getEditUrl(ItemInterface $item);
 
@@ -123,7 +123,7 @@ interface BusinessRulesItemPluginInterface extends PluginInspectionInterface {
    *   The item being processed.
    *
    * @return array
-   *    The processed settings.
+   *   The processed settings.
    */
   public function processSettings(array $settings, ItemInterface $item);
 

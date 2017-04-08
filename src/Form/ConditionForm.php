@@ -97,7 +97,7 @@ class ConditionForm extends ItemForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    /** @var Condition $condition */
+    /** @var \Drupal\business_rules\Entity\Condition $condition */
     $condition = $this->entity;
     if (!$condition->isNew()) {
       $success_items = $form_state->getValue('success');
@@ -153,7 +153,7 @@ class ConditionForm extends ItemForm {
    */
   public function formItems(array $form, FormStateInterface $form_state, $items_type) {
 
-    /** @var Condition $condition */
+    /** @var \Drupal\business_rules\Entity\Condition $condition */
     $condition = $this->entity;
 
     $user_input = $form_state->getUserInput();
@@ -355,7 +355,7 @@ class ConditionForm extends ItemForm {
     $conditions = array_merge($conditions, Condition::loadMultipleByType('logical_or'));
 
     $items = [];
-    /** @var Condition $c */
+    /** @var \Drupal\business_rules\Entity\Condition $c */
     foreach ($conditions as $c) {
       if (is_array($c->getSettings('items'))) {
         $items = array_merge($items, $c->getSettings('items'));

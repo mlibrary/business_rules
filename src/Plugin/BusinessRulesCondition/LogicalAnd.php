@@ -2,10 +2,10 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesCondition;
 
-use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\BusinessRulesItemObject;
 use Drupal\business_rules\ConditionInterface;
 use Drupal\business_rules\Entity\Condition;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 
 /**
  * Class LogicalOr.
@@ -40,7 +40,7 @@ class LogicalAnd extends ConditionSet {
     $items = $condition->getSettings('items');
     $items = BusinessRulesItemObject::itemsArrayToItemsObject($items);
 
-    /** @var BusinessRulesItemObject $item */
+    /** @var \Drupal\business_rules\BusinessRulesItemObject $item */
     foreach ($items as $item) {
       $c = Condition::load($item->getId());
       if (!$this->processor->isConditionValid($c, $event)) {

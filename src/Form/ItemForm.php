@@ -338,7 +338,7 @@ abstract class ItemForm extends EntityForm {
    * @return \Drupal\Core\Plugin\DefaultPluginManager
    *   The item PluginManager.
    */
-  public abstract function getItemManager();
+  abstract public function getItemManager();
 
   /**
    * Get the fields for entity type and bundle.
@@ -446,7 +446,7 @@ abstract class ItemForm extends EntityForm {
    */
   public function getUsedByBusinessRulesDetailsBox() {
 
-    /** @var BusinessRule $rule */
+    /** @var \Drupal\business_rules\Entity\BusinessRule $rule */
     $rules   = BusinessRule::loadMultiple();
     $used_by = [];
     $details = [];
@@ -597,7 +597,7 @@ abstract class ItemForm extends EntityForm {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state object.
    *
-   * @return AjaxResponse
+   * @return \Drupal\Core\Ajax\AjaxResponse
    *   The AjaxResponse.
    */
   public function targetBundleCallback(array &$form, FormStateInterface $form_state) {
@@ -622,7 +622,7 @@ abstract class ItemForm extends EntityForm {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state object.
    *
-   * @return AjaxResponse
+   * @return \Drupal\Core\Ajax\AjaxResponse
    *   The AjaxResponse.
    */
   public function targetEntityTypeCallback(array &$form, FormStateInterface $form_state) {

@@ -36,7 +36,7 @@ class Flowchart {
   /**
    * Show the Business Rule workflow for one item.
    *
-   * @param EntityInterface $item
+   * @param \Drupal\Core\Entity\EntityInterface $item
    *   The item.
    *
    * @return array
@@ -156,21 +156,25 @@ class Flowchart {
         $root_cell   = $this->matrix->getCellByElementUuid($this->matrix->getRootElement()
           ->getUuid());
         $parent_cell = $this->matrix->getCellByElementUuid($parent->getUuid());
-        if ($parent_cell['index_x'] >= $root_cell['index_x']) {
+        if (empty($parent->getParent())) {
+          $direction = 'bottom';
+        }
+        elseif ($parent_cell['index_x'] >= $root_cell['index_x']) {
           $direction = 'right';
         }
         elseif ($parent_cell['index_x'] < $root_cell['index_x']) {
           $direction = 'left';
         }
-
+        // If item is condition and grandparent is the root, then change X off.
         if ($item instanceof Condition) {
-          if ($direction == 'right') {
-            $off_x = 1;
+          if (!empty($parent->getParent()) && $parent->getParent()->getItem() instanceof BusinessRule) {
+            if ($direction == 'right') {
+              $off_x = 1;
+            }
+            if ($direction == 'left') {
+              $off_x = -1;
+            }
           }
-          if ($direction == 'left') {
-            $off_x = -1;
-          }
-
         }
       }
 
@@ -191,7 +195,7 @@ class Flowchart {
 
       if ($item instanceof BusinessRule) {
         $children = $item->getItems();
-        /** @var BusinessRulesItemObject $child */
+        /** @var \Drupal\business_rules\BusinessRulesItemObject $child */
         foreach ($children as $child) {
           $child = $child->loadEntity();
           $this->mountMatrix($child, $parent_element);
@@ -199,7 +203,7 @@ class Flowchart {
       }
       elseif ($item instanceof Condition) {
         $success_items = $item->getSuccessItems();
-        /** @var BusinessRulesItemObject $success_item */
+        /** @var \Drupal\business_rules\BusinessRulesItemObject $success_item */
         foreach ($success_items as $success_item) {
           $success_item = $success_item->loadEntity();
           $yes          = t('Yes');
@@ -339,7 +343,7 @@ class Flowchart {
    * Get the connection's graph definition.
    *
    * @param array $cell
-   *    The matrix cell.
+   *   The matrix cell.
    *
    * @return string
    *   The connection graph.
@@ -432,7 +436,7 @@ class Flowchart {
       $element       = $cell['element'];
       $element_above = $this->matrix->getElementAbove($element);
 
-      if ($element_above instanceof Element &&
+      if ($element_above instanceof Element && !empty($element_above->getParent()) &&
         $element_above->getParent()->getItem() === $parent->getItem()
       ) {
         // This connection doesn't have label.

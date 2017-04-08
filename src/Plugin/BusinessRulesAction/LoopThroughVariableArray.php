@@ -13,7 +13,7 @@ use Drupal\Core\Form\FormStateInterface;
  *
  * @package Drupal\business_rules\Plugin\BusinessRulesAction
  *
- * @BusinessRulesAction(
+ * BusinessRulesAction(
  *   id = "loop_through_variable_array",
  *   label = @Translation("Loop through a variable array"),
  *   group = @Translation("Variable"),
@@ -24,7 +24,7 @@ use Drupal\Core\Form\FormStateInterface;
  *   hasTargetField = FALSE,
  * )
  */
-class LoopThroughVariableArray extends BusinessRulesActionPlugin {
+class LoopThroughVariableArray {//extends BusinessRulesActionPlugin {
 
   /**
    * {@inheritdoc}

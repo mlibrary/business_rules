@@ -1,4 +1,4 @@
-The Business rules is inspired on Rules module and allows site administrators to
+The Business rules module is inspired on Rules module and allows site administrators to
 define conditionally executed actions based on occurring events. It's based on 
 variables and completely build for Drupal 8.
 
@@ -19,7 +19,7 @@ happens just clear your cache.
  of rules every time entity is being viewed, you need to disable caches for 
  entities.
 
-#####Project homepage: http://www.drupal.org/business_rules
+#####Project homepage: https://www.drupal.org/business_rules
 
 On this module, there is no Conditions or Actions inside Business rules, all 
 component needs to be created outside the Business rule and can be reusable 

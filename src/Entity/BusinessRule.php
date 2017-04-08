@@ -49,7 +49,7 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
   /**
    * The ConfigFactory.
    *
-   * @var ConfigFactory
+   * @var \Drupal\Core\Config\ConfigFactory
    */
   protected $configFactory;
 
@@ -383,7 +383,7 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
   /**
    * Check if the item is on the same context as the Business Rule.
    *
-   * @param BusinessRulesItemObject $itemObject
+   * @param \Drupal\business_rules\BusinessRulesItemObject $itemObject
    *   The business rule object.
    *
    * @return bool

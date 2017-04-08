@@ -42,11 +42,11 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
    *
    * @param string $id
    *   The entity id.
-   * @param VariableObject $variable
+   * @param \Drupal\business_rules\VariableObject $variable
    *   The VariableObject.
    * @param string $id_field
    *   The field id.
-   * @param Action $action
+   * @param \Drupal\business_rules\Entity\Action $action
    *   The Business rule Action action.
    * @param string $bundle
    *   The bundle.
@@ -141,7 +141,7 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
    */
   public function execute(ActionInterface $action, BusinessRulesEvent $event) {
 
-    /** @var VariablesSet $variables */
+    /** @var \Drupal\business_rules\VariablesSet $variables */
     $id_variable         = $action->getSettings('id_variable');
     $variables           = $event->getArgument('variables');
     $processed_variables = $this->processVariables($action, $variables);
@@ -172,8 +172,8 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
    */
   public function processVariables($action, VariablesSet $event_variables) {
 
-    /** @var VariableObject $variable */
-    /** @var Action $action */
+    /** @var \Drupal\business_rules\VariableObject $variable */
+    /** @var \Drupal\business_rules\Entity\Action $action */
     $id_field = $action->getSettings('field');
     $bundle   = $action->getTargetBundle();
     $id       = $action->getSettings('value');
@@ -240,7 +240,7 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
     $variables = Variable::loadMultiple();
     $output    = [];
 
-    /** @var Variable $variable */
+    /** @var \Drupal\business_rules\Entity\Variable $variable */
 
     foreach ($variables as $variable) {
       if ($item->getTargetEntityType() == $variable->getTargetEntityType() &&

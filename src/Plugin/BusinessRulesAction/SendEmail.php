@@ -130,7 +130,7 @@ class SendEmail extends BusinessRulesActionPlugin {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
 
-    /** @var ItemInterface $item */
+    /** @var \Drupal\business_rules\ItemInterface $item */
     $item = $form_state->get('business_rules_item');
 
     // We only can validate the form if the item is not new.

@@ -135,7 +135,7 @@ class RemoveUserRole extends BusinessRulesActionPlugin {
     switch ($user_container) {
       case 'current':
         /** @var \Drupal\Core\Session\AccountProxyInterface $account */
-        /** @var User $user */
+        /** @var \Drupal\user\Entity\User $user */
         $account = $this->util->container->get('current_user');
         $user    = User::load($account->id());
         break;

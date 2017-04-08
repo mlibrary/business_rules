@@ -103,14 +103,16 @@ class ConditionsItemsController extends ControllerBase {
    *   The condition item type: success|fail.
    * @param string $item_type
    *   The item type action|condition.
+   * @param string $item_id
+   *   The item id.
    *
-   * @return RedirectResponse
+   * @return \Zend\Diactoros\Response\RedirectResponse
    *   The RedirectResponse.
    */
   public function addItem($condition_id, $condition_item_type, $item_type, $item_id) {
     $condition = Condition::load($condition_id);
-    $weight = $condition->getMaxItemWeight($condition_item_type == 'success') + 1;
-    $itemObj = new BusinessRulesItemObject($item_id, $item_type, $weight);
+    $weight    = $condition->getMaxItemWeight($condition_item_type == 'success') + 1;
+    $itemObj   = new BusinessRulesItemObject($item_id, $item_type, $weight);
 
     if ($condition_item_type == 'success') {
       $condition->addSuccessItem($itemObj);
@@ -165,7 +167,7 @@ class ConditionsItemsController extends ControllerBase {
     }
 
     $table['#title'] = $this->t('Add @label_plural on %condition', [
-      '%condition'         => $condition->label(),
+      '%condition'    => $condition->label(),
       '@label_plural' => $this->labelPlural,
     ]);
 
@@ -221,10 +223,10 @@ class ConditionsItemsController extends ControllerBase {
           $item->getDescription();
 
         $link = Link::createFromRoute($item->label(), 'business_rules.condition.items.add', [
-          'condition_id' => $condition_id,
+          'condition_id'        => $condition_id,
           'condition_item_type' => $condition_item_type,
-          'item_id'       => $item->Id(),
-          'item_type'     => $item_type,
+          'item_id'             => $item->Id(),
+          'item_type'           => $item_type,
         ]);
 
         $rows[$item->id()] = [

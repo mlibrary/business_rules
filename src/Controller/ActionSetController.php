@@ -92,7 +92,7 @@ class ActionSetController extends ControllerBase {
    */
   public function __construct(ContainerInterface $container) {
     $this->entityTypeManager = $container->get('entity_type.manager');
-    $this->util = $container->get('business_rules.util');
+    $this->util              = $container->get('business_rules.util');
   }
 
   /**
@@ -100,6 +100,8 @@ class ActionSetController extends ControllerBase {
    *
    * @param string $action_id
    *   The action id.
+   * @param string $item_id
+   *   The item id.
    *
    * @return \Symfony\Component\HttpFoundation\RedirectResponse
    *   The RedirectResponse.
@@ -210,7 +212,7 @@ class ActionSetController extends ControllerBase {
     ];
 
     $rows = [];
-    /** @var Action $item */
+    /** @var \Drupal\business_rules\Entity\Action $item */
     foreach ($this->items as $item) {
       if (!in_array($item->id(), array_keys($this->savedItems)) && $item->id() != $action->id()) {
 

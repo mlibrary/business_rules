@@ -34,7 +34,7 @@ class SaveEntityVariableAction extends BusinessRulesActionPlugin {
    * Delete all expirable key value pairs.
    */
   public function __destruct() {
-    $key_value = \Drupal::keyValueExpirable('business_rules.save_entity_variable');
+    $key_value = $this->util->getKeyValueExpirable('save_entity_variable');
     $key_value->deleteAll();
   }
 
@@ -69,10 +69,10 @@ class SaveEntityVariableAction extends BusinessRulesActionPlugin {
    * {@inheritdoc}
    */
   public function execute(ActionInterface $action, BusinessRulesEvent $event) {
-    /** @var VariablesSet $variables */
-    /** @var Entity $entity */
+    /** @var \Drupal\business_rules\VariablesSet $variables */
+    /** @var \Drupal\Core\Entity\Entity $entity */
     $variables = $event->getArgument('variables');
-    $key_value = \Drupal::keyValueExpirable('business_rules.save_entity_variable');
+    $key_value = $this->util->getKeyValueExpirable('save_entity_variable');
     if ($variables->count()) {
       $entity = $variables->getVariable($action->getSettings('variable'))
         ->getValue();
@@ -119,12 +119,11 @@ class SaveEntityVariableAction extends BusinessRulesActionPlugin {
    * @return array
    *   Array of available variables.
    */
-  public function getAvailableEmptyVariables(Action $item) {
+  protected function getAvailableEmptyVariables(Action $item) {
     $variables = Variable::loadMultiple();
     $output    = [];
 
-    /** @var Variable $variable */
-
+    /** @var \Drupal\business_rules\Entity\Variable $variable */
     foreach ($variables as $variable) {
       if ($item->getTargetEntityType() == $variable->getTargetEntityType() &&
         $item->getTargetBundle() == $variable->getTargetBundle() &&

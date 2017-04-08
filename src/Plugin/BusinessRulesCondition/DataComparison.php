@@ -41,7 +41,7 @@ class DataComparison extends BusinessRulesConditionPlugin {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state object.
    *
-   * @return AjaxResponse
+   * @return \Drupal\Core\Ajax\AjaxResponse
    *   The AjaxResponse.
    */
   public static function dataComparisonOperatorCallback(array &$form, FormStateInterface $form_state) {

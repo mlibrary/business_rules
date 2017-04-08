@@ -64,7 +64,7 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
 
     $variables = Variable::loadMultipleByType('view_result_variable');
     $options   = [];
-    /** @var Variable $variable */
+    /** @var \Drupal\business_rules\Entity\Variable $variable */
     foreach ($variables as $variable) {
       $options[$variable->id()] = $variable->label();
     }
@@ -133,7 +133,7 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
    * {@inheritdoc}
    */
   public function execute(ActionInterface $action, BusinessRulesEvent $event) {
-    /** @var VariablesSet $event_variables */
+    /** @var \Drupal\business_rules\VariablesSet $event_variables */
     $event_variables = $event->getArgument('variables');
     $view_variable   = $event_variables->getVariable($action->getSettings('variable'));
     $action_items    = $action->getSettings('items');
@@ -160,7 +160,7 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
    *   The form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state object.
-   * @param ItemInterface $action
+   * @param \Drupal\business_rules\ItemInterface $action
    *   The current action.
    *
    * @return array

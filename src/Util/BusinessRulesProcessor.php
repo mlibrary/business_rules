@@ -90,7 +90,7 @@ class BusinessRulesProcessor {
   /**
    * The business rule id being executed.
    *
-   * @var BusinessRule
+   * @var \Drupal\business_rules\Entity\BusinessRule
    */
   public $ruleBeingExecuted;
 
@@ -118,7 +118,7 @@ class BusinessRulesProcessor {
   /**
    * BusinessRulesProcessor constructor.
    *
-   * @param ContainerInterface $container
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   Drupal container.
    */
   public function __construct(ContainerInterface $container) {
@@ -252,7 +252,7 @@ class BusinessRulesProcessor {
    *   The event.
    */
   public function processTriggeredRules(array $triggered_rules, BusinessRulesEvent $event) {
-    /** @var BusinessRule $rule */
+    /** @var \Drupal\business_rules\Entity\BusinessRule $rule */
     foreach ($triggered_rules as $rule) {
       $items = $rule->getItems();
       if (!in_array($rule->id(), array_keys($this->processedRules))) {
@@ -308,7 +308,7 @@ class BusinessRulesProcessor {
     // Dispatch a event before process business rule items.
     $this->eventDispatcher->dispatch('business_rules.before_process_items', $event);
 
-    /** @var BusinessRulesItemObject $item */
+    /** @var \Drupal\business_rules\BusinessRulesItemObject $item */
     foreach ($items as $item) {
       if ($item->getType() == BusinessRulesItemObject::ACTION) {
         $action = Action::load($item->getId());
@@ -370,7 +370,7 @@ class BusinessRulesProcessor {
    *   The render array.
    */
   public function getDebugRenderArray() {
-    /** @var BusinessRule $rule */
+    /** @var \Drupal\business_rules\Entity\BusinessRule $rule */
 
     $triggered_rules     = isset($this->debugArray['triggered_rules']) ? $this->debugArray['triggered_rules'] : [];
     $evaluates_variables = isset($this->debugArray['variables']) ? $this->debugArray['variables'] : [];
@@ -399,7 +399,7 @@ class BusinessRulesProcessor {
           '#collapsed'   => TRUE,
         ];
 
-        /** @var VariableObject $evaluates_variable */
+        /** @var \Drupal\business_rules\VariableObject $evaluates_variable */
         foreach ($evaluates_variables[$rule->id()] as $evaluates_variable) {
           $variable = Variable::load($evaluates_variable->getId());
           if ($variable instanceof Variable) {
@@ -454,7 +454,7 @@ class BusinessRulesProcessor {
   /**
    * Executes one Action.
    *
-   * @param Action $action
+   * @param \Drupal\business_rules\Entity\Action $action
    *   The action.
    * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event.
@@ -520,8 +520,8 @@ class BusinessRulesProcessor {
    */
   protected function getDebugItems(array $items, $parent_id) {
     /** @var BusinessRulesItemObject $item */
-    /** @var Action $executed_action */
-    /** @var Condition $executed_condition */
+    /** @var \Drupal\business_rules\Entity\Action $executed_action */
+    /** @var \Drupal\business_rules\Entity\Condition $executed_condition */
     $actions_executed   = isset($this->debugArray['actions'][$this->ruleBeingExecuted->id()]) ? $this->debugArray['actions'][$this->ruleBeingExecuted->id()] : [];
     $conditions_success = isset($this->debugArray['conditions'][$this->ruleBeingExecuted->id()]['success']) ? $this->debugArray['conditions'][$this->ruleBeingExecuted->id()]['success'] : [];
     $output             = [];
@@ -630,9 +630,8 @@ class BusinessRulesProcessor {
     // Dispatch a event before evaluate variables.
     $this->eventDispatcher->dispatch('business_rules.before_evaluate_variables', new Event($event, $variablesSet));
 
-    /** @var VariableObject $variable */
-    /** @var VariablesSet $eventVariables */
-
+    /** @var \Drupal\business_rules\VariableObject $variable */
+    /** @var \Drupal\business_rules\VariablesSet $eventVariables */
     if ($variablesSet->count()) {
       foreach ($variablesSet->getVariables() as $variable) {
         $varObject = Variable::load($variable->getId());
@@ -657,7 +656,7 @@ class BusinessRulesProcessor {
    * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event.
    *
-   * @return VariableObject|VariablesSet
+   * @return \Drupal\business_rules\VariableObject|\Drupal\business_rules\VariablesSet
    *   The evaluated variable or a VariableSet which processed variables.
    *
    * @throws \Exception
@@ -670,9 +669,8 @@ class BusinessRulesProcessor {
     }
 
     /** @var \Drupal\business_rules\Plugin\BusinessRulesVariablePlugin $defined_variable */
-    /** @var VariablesSet $eventVariables */
-    /** @var VariableObject $item */
-
+    /** @var \Drupal\business_rules\VariablesSet $eventVariables */
+    /** @var \Drupal\business_rules\VariableObject $item */
     $eventVariables     = $event->getArgument('variables');
     $variable_variables = $variable->getVariables();
 

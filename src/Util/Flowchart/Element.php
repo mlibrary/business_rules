@@ -50,13 +50,13 @@ class Element {
    * Element constructor.
    *
    * @param \Drupal\Core\Entity\EntityInterface|null $item
-   *    The entity.
+   *   The entity.
    * @param \Drupal\business_rules\Util\Flowchart\Element|null $parent
-   *    The parent entity.
+   *   The parent entity.
    * @param string $originUUid
-   *    The uuid for the origin element. The arrow beginning.
+   *   The uuid for the origin element. The arrow beginning.
    * @param string $arrowLabel
-   *    The arrow label.
+   *   The arrow label.
    */
   public function __construct(EntityInterface $item = NULL, Element $parent = NULL, $originUUid = '', $arrowLabel = '') {
     $this->setItem($item);

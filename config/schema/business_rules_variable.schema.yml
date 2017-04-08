@@ -70,22 +70,22 @@ business_rules.variable.type.view_result_variable:
       type: string
       label: 'Arguments'
 
-business_rules.variable.type.array_variable:
-  type: mapping
-  label: 'Array variable'
-  mapping:
-    fields:
-      type: sequence
-      label: 'Fields'
-      sequence:
-        type: mapping
-        mapping:
-          id:
-            type: string
-            label: 'Id'
-          label:
-            type: text
-            label: 'Label'
-          type:
-            type: string
-            label: 'Type'
+#business_rules.variable.type.array_variable:
+#  type: mapping
+#  label: 'Array variable'
+#  mapping:
+#    fields:
+#      type: sequence
+#      label: 'Fields'
+#      sequence:
+#        type: mapping
+#        mapping:
+#          id:
+#            type: string
+#            label: 'Id'
+#          label:
+#            type: text
+#            label: 'Label'
+#          type:
+#            type: string
+#            label: 'Type'

@@ -162,7 +162,7 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
   /**
    * Display the view variable fields.
    *
-   * @param Variable $variable
+   * @param \Drupal\business_rules\Entity\Variable $variable
    *   The variable entity.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse|array

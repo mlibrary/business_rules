@@ -106,7 +106,7 @@ class UserVariableHasRole extends BusinessRulesConditionPlugin {
     $roles            = $condition->getSettings('roles');
     $criteria         = $condition->getSettings('criteria');
     $user_variable_id = $condition->getSettings('user_variable');
-    /** @var VariablesSet $event_variables */
+    /** @var \Drupal\business_rules\VariablesSet $event_variables */
     $event_variables = $event->getArgument('variables');
     /** @var \Drupal\user\Entity\User $user_variable */
     $user_variable = $event_variables->getVariable($user_variable_id)

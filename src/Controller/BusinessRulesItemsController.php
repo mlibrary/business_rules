@@ -35,7 +35,7 @@ class BusinessRulesItemsController extends ControllerBase {
   /**
    * The Business Rules Flowchart.
    *
-   * @var Flowchart
+   * @var \Drupal\business_rules\Util\Flowchart\Flowchart
    */
   protected $flowchart;
 
@@ -85,7 +85,7 @@ class BusinessRulesItemsController extends ControllerBase {
   /**
    * The add new item button.
    *
-   * @var Link
+   * @var \Drupal\Core\Link
    */
   protected $newItemButton;
 
@@ -122,7 +122,7 @@ class BusinessRulesItemsController extends ControllerBase {
    * @param string $item_id
    *   The item id.
    *
-   * @return RedirectResponse
+   * @return \Symfony\Component\HttpFoundation\RedirectResponse
    *   The RedirectResponse.
    */
   public function addItem($business_rule, $item_type, $item_id) {
@@ -162,7 +162,7 @@ class BusinessRulesItemsController extends ControllerBase {
    */
   public function itemsTable($business_rule, $item_type, $method) {
     $this->init($item_type);
-    /** @var BusinessRule $rule */
+    /** @var \Drupal\business_rules\Entity\BusinessRule $rule */
     $rule             = BusinessRule::load($business_rule);
     $this->items      = $rule->filterContextAvailableItems($this->items);
     $this->savedItems = $rule->getItems();

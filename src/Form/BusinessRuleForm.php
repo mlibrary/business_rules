@@ -24,7 +24,7 @@ class BusinessRuleForm extends EntityForm {
   /**
    * The Business Rule flowchart.
    *
-   * @var Flowchart
+   * @var \Drupal\business_rules\Util\Flowchart\Flowchart
    */
   private $chart;
 

@@ -93,7 +93,7 @@ class LoopThroughViewResultController extends ControllerBase {
    * @param string $item_type
    *   The item type action|condition.
    *
-   * @return RedirectResponse
+   * @return \Zend\Diactoros\Response\RedirectResponse
    *   The RedirectResponse.
    */
   public function addItem($action_id, $item_type, $item_id) {

@@ -40,7 +40,7 @@ class LogicalOr extends ConditionSet {
     $items = $condition->getSettings('items');
     $items = BusinessRulesItemObject::itemsArrayToItemsObject($items);
 
-    /** @var BusinessRulesItemObject $item */
+    /** @var \Drupal\business_rules\BusinessRulesItemObject $item */
     foreach ($items as $item) {
       $c = Condition::load($item->getId());
       if ($this->processor->isConditionValid($c, $event)) {

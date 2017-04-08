@@ -513,7 +513,7 @@ class BusinessRulesUtil {
     $details             = [];
 
     if (is_array($variables)) {
-      /** @var Variable $variable */
+      /** @var \Drupal\business_rules\Entity\Variable $variable */
       foreach ($variables as $variable) {
         // Check targetBundle.
         if (((($variable->getTargetBundle() == $target_bundle || empty($target_bundle) || empty($variable->getTargetBundle()))
@@ -598,7 +598,7 @@ class BusinessRulesUtil {
     $options = [];
 
     $variables = Variable::loadMultiple();
-    /** @var Variable $variable */
+    /** @var \Drupal\business_rules\Entity\Variable $variable */
     foreach ($variables as $variable) {
       if ((!count($variable_types) || in_array($variable->getType(), $variable_types))
         && (!count($entity_type) || in_array($variable->getTargetEntityType(), $entity_type))
@@ -644,7 +644,7 @@ class BusinessRulesUtil {
   /**
    * Display the entity variable fields.
    *
-   * @param Variable $variable
+   * @param \Drupal\business_rules\Entity\Variable $variable
    *   The variable entity.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse|array
