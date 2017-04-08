@@ -159,10 +159,10 @@ class Flowchart {
         if (empty($parent->getParent())) {
           $direction = 'bottom';
         }
-        elseif ($parent_cell['index_x'] >= $root_cell['index_x']) {
+        elseif ($parent_cell['index_x'] >= $root_cell['index_x'] && $this->matrix->rightCellIsEmpty($parent)) {
           $direction = 'right';
         }
-        elseif ($parent_cell['index_x'] < $root_cell['index_x']) {
+        else {
           $direction = 'left';
         }
         // If item is condition and grandparent is the root, then change X off.

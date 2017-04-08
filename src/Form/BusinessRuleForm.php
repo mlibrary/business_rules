@@ -82,7 +82,7 @@ class BusinessRuleForm extends EntityForm {
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
-    /** @var BusinessRule $business_rule */
+    /** @var \Drupal\business_rules\Entity\BusinessRule $business_rule */
     $business_rule = $this->entity;
 
     if ($this->step === 1 && $business_rule->isNew()) {
@@ -213,7 +213,7 @@ class BusinessRuleForm extends EntityForm {
       return $form;
     }
     else {
-      /** @var BusinessRule $business_rule */
+      /** @var \Drupal\business_rules\Entity\BusinessRule $business_rule */
       $business_rule = $this->entity;
 
       $items = $form_state->getValue('items');
@@ -358,7 +358,7 @@ class BusinessRuleForm extends EntityForm {
   public function formItems(array $form, FormStateInterface $form_state) {
     $user_input = $form_state->getUserInput();
 
-    /** @var BusinessRule $rule */
+    /** @var \Drupal\business_rules\Entity\BusinessRule $rule */
     $rule = $this->entity;
 
     $label        = $this->t('Item');

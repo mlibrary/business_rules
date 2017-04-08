@@ -519,7 +519,7 @@ class BusinessRulesProcessor {
    *   The render array.
    */
   protected function getDebugItems(array $items, $parent_id) {
-    /** @var BusinessRulesItemObject $item */
+    /** @var \Drupal\business_rules\BusinessRulesItemObject $item */
     /** @var \Drupal\business_rules\Entity\Action $executed_action */
     /** @var \Drupal\business_rules\Entity\Condition $executed_condition */
     $actions_executed   = isset($this->debugArray['actions'][$this->ruleBeingExecuted->id()]) ? $this->debugArray['actions'][$this->ruleBeingExecuted->id()] : [];

@@ -92,6 +92,8 @@ class LoopThroughViewResultController extends ControllerBase {
    *   The action id.
    * @param string $item_type
    *   The item type action|condition.
+   * @param string $item_id
+   *   The item id.
    *
    * @return \Zend\Diactoros\Response\RedirectResponse
    *   The RedirectResponse.

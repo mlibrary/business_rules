@@ -484,4 +484,57 @@ class Matrix {
     return $elements;
   }
 
+  /**
+   * Check if the cell at right from the element is empty.
+   *
+   * @param \Drupal\business_rules\Util\Flowchart\Element $element
+   *   The element.
+   *
+   * @return bool
+   *   TRUE|FALSE.
+   */
+  public function rightCellIsEmpty(Element $element) {
+    $cell    = $this->getCellByElementUuid($element->getUuid());
+    $index_x = $cell['index_x'];
+    $index_y = $cell['index_y'];
+
+    $right_cell = $this->getCellByPosition($index_x + 1, $index_y);
+    if (empty($right_cell['element'])) {
+      $empty = TRUE;
+    }
+    else {
+      $empty = FALSE;
+    }
+
+    return $empty;
+  }
+
+  /**
+   * Check if the cell at left from the element is empty.
+   *
+   * @param \Drupal\business_rules\Util\Flowchart\Element $element
+   *   The element.
+   *
+   * @return bool
+   *   TRUE|FALSE.
+   */
+  public function leftCellIsEmpty(Element $element) {
+    $cell    = $this->getCellByElementUuid($element->getUuid());
+    $index_x = $cell['index_x'];
+    $index_y = $cell['index_y'];
+
+    if ($index_x == 0) {
+      return TRUE;
+    }
+
+    $left_cell = $this->getCellByPosition($index_x - 1, $index_y);
+    if (empty($left_cell['element'])) {
+      $empty = TRUE;
+    }
+    else {
+      $empty = FALSE;
+    }
+
+    return $empty;
+  }
 }

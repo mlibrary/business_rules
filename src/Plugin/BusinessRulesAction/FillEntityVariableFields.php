@@ -324,7 +324,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
     $variables = Variable::loadMultiple();
     $output    = [];
 
-    /** @var Variable $variable */
+    /** @var \Drupal\business_rules\Entity\Variable $variable */
     foreach ($variables as $variable) {
       if ($item->getTargetEntityType() == $variable->getTargetEntityType() &&
         $item->getTargetBundle() == $variable->getTargetBundle() &&

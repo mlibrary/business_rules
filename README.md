@@ -1,6 +1,6 @@
-The Business rules module is inspired on Rules module and allows site administrators to
-define conditionally executed actions based on occurring events. It's based on 
-variables and completely build for Drupal 8.
+The Business rules module is inspired on Rules module and allows site
+administrators to define conditionally executed actions based on occurring
+events. It's based on variables and completely build for Drupal 8.
 
 This module has a fully featured user interface to completely allow the site 
 administrator to understand and create the site business rules.
