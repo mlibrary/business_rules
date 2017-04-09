@@ -18,7 +18,7 @@ use Drupal\Core\Form\FormStateInterface;
  *   id = "display_error_message_on_form",
  *   label = @Translation("Display error message in a form"),
  *   group = @Translation("Entity"),
- *   description = @Translation("Generates a validation error in entity a form."),
+ *   description = @Translation("Generates a validation error in an entity form."),
  *   reactsOnIds = {"form_validation"},
  *   isContextDependent = TRUE,
  *   hasTargetEntity = TRUE,

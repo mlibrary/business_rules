@@ -263,7 +263,6 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
       // Dispatch an event about the item deletion.
       $event = new BusinessRulesEvent($this);
       $this->eventDispatcher->dispatch('business_rules.item_pos_delete', $event);
-      // @TODO add listener to this event and remove deleted item from items.
     }
   }
 

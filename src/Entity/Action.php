@@ -84,13 +84,6 @@ class Action extends BusinessRulesItemBase implements ActionInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public static function postDelete(EntityStorageInterface $storage, array $entities) {
-    // @TODO: delete the item from Business Rules.
-  }
-
-  /**
    * Execute the action.
    *
    * @param \Drupal\business_rules\Events\BusinessRulesEvent $event

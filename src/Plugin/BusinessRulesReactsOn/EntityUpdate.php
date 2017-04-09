@@ -11,7 +11,7 @@ use Drupal\business_rules\Plugin\BusinessRulesReactsOnPlugin;
  *
  * @BusinessRulesReactsOn(
  *   id = "entity_update",
- *   label = @Translation("After save Entity"),
+ *   label = @Translation("After saving Entity"),
  *   description = @Translation("Reacts after entity has been updated."),
  *   group = @Translation("Entity"),
  *   eventName = "business_rules.entity_update",

@@ -12,8 +12,8 @@ use Drupal\business_rules\Plugin\BusinessRulesReactsOnPlugin;
  *
  * @BusinessRulesReactsOn(
  *   id = "kernel_request",
- *   label = @Translation("Drupal is initializing"),
- *   description = @Translation("Reacts on every request when Drupal is being initialized."),
+ *   label = @Translation("Kernel request"),
+ *   description = @Translation("Reacts on every kernel request. Use carefully."),
  *   group = @Translation("System"),
  *   eventName = "business_rules.kernel_request",
  *   hasTargetEntity = FALSE,

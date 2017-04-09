@@ -109,13 +109,6 @@ class Condition extends BusinessRulesItemBase implements ConditionInterface {
   /**
    * {@inheritdoc}
    */
-  public static function postDelete(EntityStorageInterface $storage, array $entities) {
-    // @TODO: delete the item from Business Rules.
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function isReverse() {
     return (bool) $this->reverse;
   }

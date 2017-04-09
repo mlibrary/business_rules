@@ -11,7 +11,7 @@ use Drupal\business_rules\Plugin\BusinessRulesReactsOnPlugin;
  *
  * @BusinessRulesReactsOn(
  *   id = "entity_presave",
- *   label = @Translation("Before save entity"),
+ *   label = @Translation("Before saving entity"),
  *   description = @Translation("Reacts before save the entity."),
  *   group = @Translation("Entity"),
  *   eventName = "business_rules.entity_presave",
