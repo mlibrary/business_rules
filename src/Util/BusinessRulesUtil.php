@@ -996,4 +996,18 @@ class BusinessRulesUtil {
     return $details;
   }
 
+  /**
+   * Convert the string in a safe lowercase format.
+   *
+   * @param string $string
+   *   The string to convert to a safe lower value.
+   *
+   * @return string
+   *   The safe lowercase string.
+   */
+  public function toSafeLowerString(&$string) {
+    $string = trim(strtolower(htmlentities(strip_tags($string))));
+    return $string;
+  }
+
 }

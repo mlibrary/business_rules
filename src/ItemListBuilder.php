@@ -18,6 +18,7 @@ abstract class ItemListBuilder extends ConfigEntityListBuilder {
     $header['id']          = ['data' => ['#markup' => $this->t('Machine name')]];
     $header['type']        = ['data' => ['#markup' => $this->t('Type')]];
     $header['description'] = ['data' => ['#markup' => $this->t('Description')]];
+    $header['tags']        = $this->t('Tags');
     $header['filter']      = [
       'data'  => ['#markup' => 'filter'],
       'style' => 'display: none',
@@ -34,12 +35,14 @@ abstract class ItemListBuilder extends ConfigEntityListBuilder {
     $row['id']          = ['data' => ['#markup' => $entity->id()]];
     $row['type']        = ['data' => ['#markup' => $entity->getTypeLabel()]];
     $row['description'] = ['data' => ['#markup' => $entity->getDescription()]];
+    $row['tags']        = implode(', ', $entity->getTags());
 
     $search_string = $entity->label() . ' ' .
       $entity->id() . ' ' .
       $entity->getTypeLabel() . ' ' .
       $entity->getTypeLabel() . ' ' .
-      $entity->getDescription();
+      $entity->getDescription() . ' ' .
+      implode(' ', $entity->getTags());
 
     $row['filter'] = [
       'data'  => [['#markup' => '<span class="table-filter-text-source">' . $search_string . '</span>']],
@@ -54,6 +57,7 @@ abstract class ItemListBuilder extends ConfigEntityListBuilder {
    */
   public function render() {
 
+    $view_mode = \Drupal::request()->get('view_mode');
     $output['#attached']['library'][] = 'system/drupal.system.modules';
 
     $output['filters'] = [
@@ -76,12 +80,68 @@ abstract class ItemListBuilder extends ConfigEntityListBuilder {
       ],
     ];
 
-    $output += parent::render();
-    if (!isset($output['table']['#attributes']['class'])) {
-      $output['table']['#attributes']['class'] = ['searchable-list'];
+    $class = $this->entityType->getClass();
+    if ($view_mode == 'tags') {
+      $tags  = $class::loadAllTags();
+      $table = parent::render();
+
+      foreach ($tags as $tag) {
+        $tagged_items              = $table;
+        $output["tags_table_$tag"] = [
+          '#type'  => 'details',
+          '#title' => $tag,
+          '#open'  => FALSE,
+        ];
+
+        foreach ($tagged_items['table']['#rows'] as $key => $tagged_item) {
+          $item      = $class::load($key);
+          $item_tags = $item->getTags();
+          if (!in_array($tag, $item_tags)) {
+            unset($tagged_items['table']['#rows'][$key]);
+          }
+        }
+
+        $output["tags_table_$tag"][$tag] = $tagged_items;
+        if (!isset($output['table']['#attributes']['class'])) {
+          $output["tags_table_$tag"][$tag]['table']['#attributes']['class'] = ['searchable-list'];
+        }
+        else {
+          $output["tags_table_$tag"][$tag]['table']['#attributes']['class'][] = ['searchable-list'];
+        }
+
+      }
+
+      $untagged_items = $table;
+      foreach ($untagged_items['table']['#rows'] as $key => $tagged_item) {
+        $item      = $class::load($key);
+        $item_tags = $item->getTags();
+        if (count($item_tags)) {
+          unset($untagged_items['table']['#rows'][$key]);
+        }
+      }
+
+      $output['tags_table_no_tags'] = [
+        '#type'  => 'details',
+        '#title' => $this->t('Untagged items'),
+        '#open'  => FALSE,
+      ];
+      $output['tags_table_no_tags'][''] = $untagged_items;
+
+      if (!isset($output['table']['#attributes']['class'])) {
+        $output['tags_table_no_tags']['']['table']['#attributes']['class'] = ['searchable-list'];
+      }
+      else {
+        $output['tags_table_no_tags']['']['table']['#attributes']['class'][] = ['searchable-list'];
+      }
     }
     else {
-      $output['table']['#attributes']['class'][] = ['searchable-list'];
+      $output += parent::render();
+      if (!isset($output['table']['#attributes']['class'])) {
+        $output['table']['#attributes']['class'] = ['searchable-list'];
+      }
+      else {
+        $output['table']['#attributes']['class'][] = ['searchable-list'];
+      }
     }
 
     return $output;

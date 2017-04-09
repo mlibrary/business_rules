@@ -35,6 +35,12 @@ business_rules.condition.*:
       label: 'Items to execute if condition fail'
       sequence:
         type: business_rules.item
+    tags:
+      type: sequence
+      label: 'Tags'
+      sequence:
+        type: string
+        label: 'Tag'
     settings:
       type: business_rules.condition.type.[%parent.type]
 

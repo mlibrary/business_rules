@@ -55,6 +55,14 @@ interface ItemInterface extends ConfigEntityInterface {
   public function getSettings($settingId = '');
 
   /**
+   * Get the tags value.
+   *
+   * @return array
+   *   The tags value.
+   */
+  public function getTags();
+
+  /**
    * Return the target entity bundle id which this item is applicable.
    *
    * @return string
@@ -95,6 +103,14 @@ interface ItemInterface extends ConfigEntityInterface {
   public function getTypes();
 
   /**
+   * Get the variables being used by the item.
+   *
+   * @return \Drupal\business_rules\VariablesSet
+   *   The variables being used by the item.
+   */
+  public function getVariables();
+
+  /**
    * Is the item context dependent?
    *
    * @return bool
@@ -109,6 +125,14 @@ interface ItemInterface extends ConfigEntityInterface {
    *   The item label.
    */
   public function label();
+
+  /**
+   * Load all Business Rule's tags.
+   *
+   * @return array
+   *   Array of tags.
+   */
+  public static function loadAllTags();
 
   /**
    * Load multiple items by type.
@@ -136,11 +160,10 @@ interface ItemInterface extends ConfigEntityInterface {
   public function setSetting($settingId, $value);
 
   /**
-   * Get the variables being used by the item.
+   * Set the tags value.
    *
-   * @return \Drupal\business_rules\VariablesSet
-   *   The variables being used by the item.
+   * @param array $tags
+   *   The tags.
    */
-  public function getVariables();
-
+  public function setTags(array $tags);
 }

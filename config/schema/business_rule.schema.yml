@@ -30,9 +30,16 @@ business_rules.business_rule.*:
       label: 'Business rule Items'
       sequence:
         type: business_rules.item
+    tags:
+      type: sequence
+      label: 'Tags'
+      sequence:
+        type: string
+        label: 'Tag'
 
 business_rules.item:
   type: mapping
+  label: 'Item'
   mapping:
     type:
       type: string

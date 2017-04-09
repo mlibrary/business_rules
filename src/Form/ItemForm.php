@@ -146,6 +146,18 @@ abstract class ItemForm extends EntityForm {
         '#weight'        => 40,
       ];
 
+      $form['tags'] = [
+        '#type'                          => 'textfield',
+        '#title'                         => $this->t('Tags'),
+        '#default_value'                 => implode(', ', $item->getTags()),
+        '#description'                   => $this->t('List of comma-separated tags.'),
+        '#required'                      => FALSE,
+        '#weight'                        => 41,
+        '#autocomplete_route_name'       => 'business_rules.autocomplete_tags',
+        '#autocomplete_route_parameters' => [],
+
+      ];
+
       $form['settings']            = $this->getEntityInformationForm($definition);
       $form['settings']['#weight'] = 50;
 
@@ -272,6 +284,7 @@ abstract class ItemForm extends EntityForm {
       $settings    = $custom_item->processSettings($settings, $item);
 
       $item->set('settings', $settings);
+      $item->setTags(explode(',', $form_state->getValue('tags')));
 
       $status = $item->save();
 

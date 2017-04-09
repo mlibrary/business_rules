@@ -23,6 +23,12 @@ business_rules.action.*:
     target_bundle:
       type: string
       label: 'Bundle'
+    tags:
+      type: sequence
+      label: 'Tags'
+      sequence:
+        type: string
+        label: 'Tag'
     settings:
       type: business_rules.action.type.[%parent.type]
 

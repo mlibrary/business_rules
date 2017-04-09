@@ -136,6 +136,17 @@ class BusinessRuleForm extends EntityForm {
         '#default_value' => $business_rule->getDescription(),
       ];
 
+      $form['tags'] = [
+        '#type'                          => 'textfield',
+        '#title'                         => $this->t('Tags'),
+        '#default_value'                 => implode(', ', $business_rule->getTags()),
+        '#description'                   => $this->t('List of comma-separated tags.'),
+        '#required'                      => FALSE,
+        '#autocomplete_route_name'       => 'business_rules.autocomplete_tags',
+        '#autocomplete_route_parameters' => [],
+
+      ];
+
       $form['status'] = [
         '#type'          => 'checkbox',
         '#title'         => $this->t('Enabled'),
@@ -230,6 +241,8 @@ class BusinessRuleForm extends EntityForm {
       foreach ($br_items as $item) {
         $business_rule->addItem($item);
       }
+
+      $business_rule->setTags(explode(',', $form_state->getValue('tags')));
       $status = $business_rule->save();
 
       switch ($status) {
@@ -256,6 +269,8 @@ class BusinessRuleForm extends EntityForm {
         }
       }
     }
+
+    return $status;
 
   }
 

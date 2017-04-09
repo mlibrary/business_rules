@@ -52,6 +52,7 @@ class ActionHtmlRouteProvider extends AdminHtmlRouteProvider {
           // Make sure this is not a TranslatableMarkup object as the
           // TitleResolver translates this string again.
           '_title' => (string) $entity_type->getLabel(),
+          'view_mode' => 'list',
         ])
         ->setRequirement('_permission', $entity_type->getAdminPermission())
         ->setOption('_admin_route', TRUE);

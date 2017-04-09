@@ -34,7 +34,7 @@ use Drupal\business_rules\VariableInterface;
  *     "add-form" = "/admin/config/workflow/business_rules/variable/add",
  *     "edit-form" = "/admin/config/workflow/business_rules/variable/{business_rules_variable}/edit",
  *     "delete-form" = "/admin/config/workflow/business_rules/variable/{business_rules_variable}/delete",
- *     "collection" = "/admin/config/workflow/business_rules/variable"
+ *     "collection" = "/admin/config/workflow/business_rules/variable/collection/{view_mode}"
  *   }
  * )
  */

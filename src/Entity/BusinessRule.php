@@ -4,7 +4,6 @@ namespace Drupal\business_rules\Entity;
 
 use Drupal\business_rules\BusinessRuleInterface;
 use Drupal\business_rules\BusinessRulesItemObject;
-use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 
 /**
@@ -38,7 +37,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *     "edit-form" = "/admin/config/workflow/business_rule/{business_rule}/edit",
  *     "delete-form" = "/admin/config/workflow/business_rule/{business_rule}/delete",
  *     "variables-form" = "/admin/config/workflow/business_rule/{business_rule}/variables",
- *     "collection" = "/admin/config/workflow/business_rule",
+ *     "collection" = "/admin/config/workflow/business_rule/collection/{view_mode}",
  *     "enable" = "/admin/config/workflow/business_rule/{business_rule}/enable",
  *     "disable" = "/admin/config/workflow/business_rule/{business_rule}/disable",
  *   }
@@ -103,6 +102,13 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
   protected $status;
 
   /**
+   * The tags to mark this entity.
+   *
+   * @var array
+   */
+  protected $tags = [];
+
+  /**
    * The target entity bundle id which this rule is applicable.
    *
    * @var string
@@ -164,8 +170,9 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
    */
   public function getItem($item_id) {
     if (isset($this->items[$item_id])) {
-      $item = $this->items[$item_id];
+      $item    = $this->items[$item_id];
       $itemObj = new BusinessRulesItemObject($item['id'], $item['type'], $item['weight']);
+
       return $itemObj;
     }
     else {
@@ -178,7 +185,7 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
    */
   public function getItemMaxWeight() {
     $items = $this->getItems();
-    $max = -10;
+    $max   = -10;
     if (is_array($items)) {
       foreach ($items as $item) {
         if ($max < $item->getWeight()) {
@@ -252,8 +259,28 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
   /**
    * {@inheritdoc}
    */
+  public function getTags() {
+    return $this->tags;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setTags(array $tags) {
+    $formatted_tags = [];
+    foreach ($tags as $tag) {
+      $this->util->toSafeLowerString($tag);
+      $formatted_tags[$tag] = $tag;
+    }
+    ksort($formatted_tags);
+    $this->tags = $formatted_tags;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function addItem(BusinessRulesItemObject $item) {
-    $item_array = $item->toArray();
+    $item_array                  = $item->toArray();
     $this->items[$item->getId()] = $item_array[$item->getId()];
   }
 
@@ -274,6 +301,7 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
         if ($key === '') {
           return t('All');
         }
+
         return $value;
       }
     }
@@ -335,11 +363,11 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
     foreach ($items as $key => $value) {
       // Evaluate Target Entity Type.
       if ((($value->getTargetEntityType() == $entity_type || empty($value->getTargetEntityType())) &&
-      // Evaluate target bundle.
-        ($value->getTargetBundle() == $bundle || empty($value->getTargetBundle())) &&
-      // Evaluate ReactsOn events.
-        (in_array($this->getReactsOn(), $value->getReactOnEvents()) || count($value->getReactOnEvents()) === 0)) ||
-      // Item is context dependent.
+          // Evaluate target bundle.
+          ($value->getTargetBundle() == $bundle || empty($value->getTargetBundle())) &&
+          // Evaluate ReactsOn events.
+          (in_array($this->getReactsOn(), $value->getReactOnEvents()) || count($value->getReactOnEvents()) === 0)) ||
+        // Item is context dependent.
         (!$value->isContextDependent())
       ) {
         $available_items[$key] = $value;
@@ -381,13 +409,7 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
   }
 
   /**
-   * Check if the item is on the same context as the Business Rule.
-   *
-   * @param \Drupal\business_rules\BusinessRulesItemObject $itemObject
-   *   The business rule object.
-   *
-   * @return bool
-   *   If the item is on the same context as the business rule.
+   * {@inheritdoc}
    */
   public function checkItemContext(BusinessRulesItemObject $itemObject) {
 
@@ -406,11 +428,11 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
     $bundle      = $this->getTargetBundle();
     // Evaluate Target Entity Type.
     if ((($item->getTargetEntityType() == $entity_type || empty($item->getTargetEntityType())) &&
-    // Evaluate target bundle.
-      ($item->getTargetBundle() == $bundle || empty($item->getTargetBundle())) &&
-    // Evaluate ReactsOn events.
-      (in_array($this->getReactsOn(), $item->getReactOnEvents()) || count($item->getReactOnEvents()) === 0)) ||
-    // Item is not context dependent.
+        // Evaluate target bundle.
+        ($item->getTargetBundle() == $bundle || empty($item->getTargetBundle())) &&
+        // Evaluate ReactsOn events.
+        (in_array($this->getReactsOn(), $item->getReactOnEvents()) || count($item->getReactOnEvents()) === 0)) ||
+      // Item is not context dependent.
       (!$item->isContextDependent())
     ) {
       return TRUE;
@@ -418,6 +440,25 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
     else {
       return FALSE;
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function loadAllTags() {
+    $business_rules = self::loadMultiple();
+    $tags           = [];
+    /** @var \Drupal\business_rules\Entity\BusinessRule $business_rule */
+    foreach ($business_rules as $business_rule) {
+      if (count($business_rule->getTags())) {
+        foreach ($business_rule->getTags() as $key => $value) {
+          $tags[$key] = $value;
+        }
+      }
+    }
+    ksort($tags);
+
+    return $tags;
   }
 
 }

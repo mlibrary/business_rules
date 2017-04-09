@@ -24,7 +24,7 @@ entity.business_rule.enable:
     entity_type: 'business_rule'
   requirements:
     _permission: 'administer site configuration'
-##########################################################################################################
+
 # Show table which the available conditions for condition_set
 business_rules.condition_set.items.table:
   path: '/admin/config/workflow/business_rule/condition/{condition_id}/items/{method}/condition_set/table'
@@ -54,7 +54,7 @@ business_rules.condition_set.items.remove:
     item_type: 'action|condition'
     condition_item_type: 'success|fail'
     method: 'nojs|ajax'
-############################################################################################################
+
 # Show table which the available actions for action_set
 business_rules.action_set.items.table:
   path: '/admin/config/workflow/business_rule/action/{action_id}/items/{method}/action_set/table'
@@ -193,3 +193,11 @@ business_rules.plugins.action.fill_entity_variable_fields.remove_field:
   requirements:
     _permission: 'administer site configuration'
     method: 'nojs|ajax'
+
+business_rules.autocomplete_tags:
+  path: '/admin/config/workflow/business_rule/tags/auto-complete'
+  defaults:
+    _controller: '\Drupal\business_rules\Controller\AutocompleteTags::handleAutocomplete'
+    _format: json
+  requirements:
+    _permission: 'administer site configuration'

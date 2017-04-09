@@ -55,6 +55,13 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
   protected $settings = [];
 
   /**
+   * The tags to mark this entity.
+   *
+   * @var array
+   */
+  protected $tags = [];
+
+  /**
    * The target entity bundle id which this item is applicable.
    *
    * @var string
@@ -76,12 +83,21 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
   protected $type;
 
   /**
+   * The Business Rules Util.
+   *
+   * @var \Drupal\business_rules\Util\BusinessRulesUtil
+   */
+  protected $util;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(array $values, $entity_type) {
     parent::__construct($values, $entity_type);
     $this->itemManager     = $this->getItemManager();
     $this->eventDispatcher = \Drupal::getContainer()->get('event_dispatcher');
+    $this->util            = \Drupal::getContainer()
+      ->get('business_rules.util');
   }
 
   /**
@@ -150,6 +166,26 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
     else {
       throw new \Exception('You must enter a value to the settingId');
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTags() {
+    return $this->tags;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setTags(array $tags) {
+    $formatted_tags = [];
+    foreach ($tags as $tag) {
+      $this->util->toSafeLowerString($tag);
+      $formatted_tags[$tag] = $tag;
+    }
+    ksort($formatted_tags);
+    $this->tags = $formatted_tags;
   }
 
   /**
@@ -266,5 +302,23 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function loadAllTags() {
+    $business_rules = self::loadMultiple();
+    $tags           = [];
+    /** @var \Drupal\business_rules\Entity\BusinessRule $business_rule */
+    foreach ($business_rules as $business_rule) {
+      if (count($business_rule->getTags())) {
+        foreach ($business_rule->getTags() as $key => $value) {
+          $tags[$key] = $value;
+        }
+      }
+    }
+    ksort($tags);
+
+    return $tags;
+  }
+
 }
-// @TODO add tags to Business Rules and it's items.

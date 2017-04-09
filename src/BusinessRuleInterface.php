@@ -18,6 +18,17 @@ interface BusinessRuleInterface extends ConfigEntityInterface {
   public function addItem(BusinessRulesItemObject $item);
 
   /**
+   * Check if the item is on the same context as the Business Rule.
+   *
+   * @param \Drupal\business_rules\BusinessRulesItemObject $itemObject
+   *   The business rule object.
+   *
+   * @return bool
+   *   If the item is on the same context as the business rule.
+   */
+  public function checkItemContext(BusinessRulesItemObject $itemObject);
+
+  /**
    * Return a list of Conditions|Actions compatible with the Rule.
    *
    * @param array $items
@@ -27,6 +38,22 @@ interface BusinessRuleInterface extends ConfigEntityInterface {
    *   The available items considering the rule context.
    */
   public function filterContextAvailableItems(array $items);
+
+  /**
+   * Get the current Business Rule's actions.
+   *
+   * @return array
+   *   Array of actions.
+   */
+  public function getActions();
+
+  /**
+   * Get the current Business Rule's conditions.
+   *
+   * @return array
+   *   Array of conditions.
+   */
+  public function getConditions();
 
   /**
    * The rule description.
@@ -88,6 +115,14 @@ interface BusinessRuleInterface extends ConfigEntityInterface {
   public function getReactsOnLabel();
 
   /**
+   * Get the tags value.
+   *
+   * @return array
+   *   The tags value.
+   */
+  public function getTags();
+
+  /**
    * The target entity bundle id which this rule is applicable.
    *
    * @var string
@@ -128,6 +163,14 @@ interface BusinessRuleInterface extends ConfigEntityInterface {
   public function isEnabled();
 
   /**
+   * Load all Business Rule's tags.
+   *
+   * @return array
+   *   Array of tags.
+   */
+  public static function loadAllTags();
+
+  /**
    * Remove one item from the Business rule's items.
    *
    * @param \Drupal\business_rules\BusinessRulesItemObject $item
@@ -142,5 +185,13 @@ interface BusinessRuleInterface extends ConfigEntityInterface {
    *   Set the enabled status: true|false.
    */
   public function setEnabled($status);
+
+  /**
+   * Set the tags value.
+   *
+   * @param array $tags
+   *   The tags.
+   */
+  public function setTags(array $tags);
 
 }

@@ -35,7 +35,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *     "add-form" = "/admin/config/workflow/business_rules/action/add",
  *     "edit-form" = "/admin/config/workflow/business_rules/action/{business_rules_action}/edit",
  *     "delete-form" = "/admin/config/workflow/business_rules/action/{business_rules_action}/delete",
- *     "collection" = "/admin/config/workflow/business_rules/action"
+ *     "collection" = "/admin/config/workflow/business_rules/action/collection/{view_mode}"
  *   }
  * )
  */
