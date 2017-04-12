@@ -9,9 +9,8 @@ use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\RemoveCommand;
-use Drupal\Core\Entity\Entity;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -43,7 +42,7 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
 
   const MAKE_REQUIRED        = 'make_required';
   const MAKE_OPTIONAL        = 'make_optional';
-  const MAKE_READY_ONLY      = 'make_ready_only';
+  const MAKE_READ_ONLY       = 'make_read_only';
   const MAKE_DEPENDENT       = 'make_dependant';
   const MAKE_HIDDEN          = 'make_hidden';
   const CHANGE_OPTIONS_VALUE = 'change_options_value';
@@ -57,12 +56,12 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->actionOptions = [
-      ''                    => t('-Select-'),
-      self::MAKE_REQUIRED   => t('Make field required'),
-      self::MAKE_OPTIONAL   => t('Make field optional'),
-      self::MAKE_READY_ONLY => t('Make field ready only'),
-      self::MAKE_HIDDEN     => t('Make field hidden'),
-      self::MAKE_DEPENDENT  => t('Make field dependent'),
+      ''                   => t('-Select-'),
+      self::MAKE_REQUIRED  => t('Make field required'),
+      self::MAKE_OPTIONAL  => t('Make field optional'),
+      self::MAKE_READ_ONLY => t('Make field read only'),
+      self::MAKE_HIDDEN    => t('Make field hidden'),
+      self::MAKE_DEPENDENT => t('Make field dependent'),
     ];
 
   }
@@ -75,6 +74,8 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
     if ($item->isNew()) {
       return [];
     }
+
+    $form_state->set('action', $item);
 
     $settings['fields'] = [
       '#type'       => 'table',
@@ -89,8 +90,8 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
 
     $settings['info'] = [
       '#type'   => 'markup',
-      '#markup' => t('Multiple value fields cannot be changed to Required or Optional by this module. Create a new rule as "Entity form validation" to achieve this purpose see this issue on https://www.drupal.org/node/1592814.
-        <br>Title field is always required. You can hide it or make it ready-only to stored entities, but never optional.'),
+      '#markup' => t('Multiple value fields cannot be changed to be Required or Optional by this module. Create a new rule as "Entity form validation" to achieve this purpose see this issue on https://www.drupal.org/node/1592814. 
+      <br>Hidden fields are removed from the form array, and not rendered. So be careful if you hide a required field because some field widgets can validate it anyway.'),
     ];
 
     $this->getRows($item, $settings['fields']);
@@ -130,6 +131,20 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
           'weight' => 1,
         ];
 
+        if ($field['action'] == self::MAKE_DEPENDENT) {
+          $info      = t('Depends on field: %parent.', ['%parent' => $field['info']['parent_field']]);
+          $info      = render($info);
+          $info_link = Link::createFromRoute(t('Configure field info'), 'business_rules.plugins.action.change_field_info.info_form', [
+            'action' => $item->id(),
+            'field'  => $field['id'],
+            'method' => 'nojs',
+          ])->toString();
+        }
+        else {
+          $info      = '';
+          $info_link = '';
+        }
+
         $settings[$key] = [
           'field'       => [
             '#type'   => 'markup',
@@ -141,7 +156,7 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
           ],
           'info'        => [
             '#type'   => 'markup',
-            '#markup' => !empty($field['info']) ? $field['info'] : '',
+            '#markup' => $info . ' ' . $info_link,
           ],
           'operations'  => [
             '#type'  => 'operations',
@@ -171,6 +186,12 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
       ],
     ];
 
+  }
+
+  public function submitForm(array $form, FormStateInterface $form_state) {
+    $action = $form_state->get('action');
+    $field_id = $form_state->getValue('field') . '__' . $form_state->getValue('action');
+    $form_state->setRedirect('entity.business_rules_action.edit_form', ['business_rules_action' => $action->id()], ['fragment' => 'field-' . $field_id]);
   }
 
   /**
@@ -224,6 +245,11 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
     if ((empty($field_action) && !empty($field_field)) || (!empty($field_action) && empty($field_field))) {
       $form_state->setErrorByName('fields', t("Please, fill all field data or none of them."));
     }
+
+    // The title field can't be optional.
+    if ($field['new.field']['field'] == 'title' && $field['new.field']['action'] == self::MAKE_OPTIONAL) {
+      $form_state->setErrorByName('fields', t('The title field cannot be optional.'));
+    }
   }
 
   /**
@@ -255,88 +281,73 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
    * {@inheritdoc}
    */
   public function execute(ActionInterface $action, BusinessRulesEvent $event) {
-
-    $element = $event->getArgument('element');
-    $context = $event->getArgument('context');
-    $fields  = $action->getSettings('fields');
-    $widget  = $context['widget'];
-    $form_state = $event->getArgument('form_state');
+    $fields = $action->getSettings('fields');
+    $form   = $event->getArgument('form');
     $entity = $event->getArgument('entity');
 
-    if (!count($fields)) {
-      return [
-        '#type'   => 'markup',
-        '#markup' => t('Nothing to do.'),
-      ];
-    }
-
-    /** @var \Drupal\Core\Field\FieldItemList $fieldItemList */
-    $fieldItemList = $context['items'];
-    /** @var \Drupal\field\Entity\FieldConfig $field_definition */
-    $field_definition = $fieldItemList->getFieldDefinition();
-
     foreach ($fields as $field) {
-      if ($field['field'] == $field_definition->getName()) {
-        // Check if element is an entity reference field.
-        if (isset($element['target_id'])) {
-          $this->changeFieldInfo($element['target_id'], $field['action'], $entity, $field['field']);
-        }
-        // Check if it's the title field.
-        elseif ($field_definition->getName() == 'title') {
-          $this->changeFieldInfo($element['value'], $field['action'], $entity, $field['field']);
-        }
-        // Check if element is a multi-value field.
-        //elseif (isset($element['#delta']) && isset($element['value'])) {
-          // @TODO wait for the core issue fix make changes in a multi value field.
-          // $this->changeFieldInfo($element, $field['action', $element]);
-          // $this->changeFieldInfo($element['value'], $field['action'], $element);
-        //}
-        else {
-          $this->changeFieldInfo($element, $field['action'], $entity, $field['field']);
+
+      foreach ($form as $key => $item) {
+        if ($key == $field['field']) {
+          if (isset($form[$key]['widget']['target_id'])) {
+            $form_field = &$form[$key]['widget']['target_id'];
+          }
+          elseif (isset($form[$key]['widget'])) {
+            $form_field = &$form[$key]['widget'];
+          }
+          else {
+            $form_field = &$form[$key];
+          }
+          break;
         }
       }
+
+      $this->changeFieldInfo($form_field, $field['action'], $entity, $field['field']);
     }
 
-    $event->setArgument('element', $element);
-
-    // Prepare the debug message.
-    $availableFields = $this->util->getBundleEditableFields($action->getTargetEntityType(), $action->getTargetBundle());
-    $result          = [];
-
-    foreach ($fields as $field) {
-      $debug_message = t('Field %field, setting: %setting<br>', [
-        '%field'   => $availableFields[$field['field']],
-        '%setting' => $this->actionOptions[$field['action']],
-      ]);
-
-      $result[] = [
-        '#type'   => 'markup',
-        '#markup' => $debug_message,
-      ];
-    }
-
-    return $result;
+    $event->setArgument('form', $form);
   }
 
-  protected function changeFieldInfo(&$field, $change, Entity $entity, $field_name) {
+  /**
+   * Change info at the form array.
+   *
+   * @param array $field
+   *   The field to change properties.
+   * @param string $change
+   *   The change to be applied.
+   * @param \Drupal\Core\Entity\Entity $entity
+   *   The entity being edited on the form.
+   * @param $field_name
+   *   The field name.
+   */
+  protected function changeFieldInfo(array &$field, $change, $entity, $field_name) {
     switch ($change) {
       case self::MAKE_REQUIRED:
         $field['#required'] = TRUE;
+        if (isset($field[0])) {
+          $field[0]['#required'] = TRUE;
+        }
         break;
 
       case self::MAKE_OPTIONAL:
         $field['#required'] = FALSE;
+        if (isset($field[0])) {
+          $field[0]['#required'] = FALSE;
+        }
         break;
 
-      case self::MAKE_READY_ONLY:
+      case self::MAKE_READ_ONLY:
         $field['#disabled'] = TRUE;
         break;
 
       case self::MAKE_HIDDEN:
-        //unset($field);
-//        $field = [
-//          '#attributes' => ['style' => ''],
-//        ];
+        $field = [];
+        break;
+
+      case self::MAKE_DEPENDENT:
+        // @TODO parei aqui
+        break;
+
     }
   }
 

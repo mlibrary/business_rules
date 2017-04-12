@@ -285,5 +285,18 @@ business_rules.action.type.change_field_info:
             type: string
             label: 'Action'
           info:
-            type: string
+            type: mapping
             label: 'Additional info'
+            mapping:
+              parent_field:
+                type: string
+                label: 'Parent field'
+              view_display:
+                type: string
+                label: 'View'
+              use_parent_as_argument:
+                type: boolean
+                label: 'Use parent field as first view argument'
+              view_arguments:
+                type: string
+                label: 'View arguments'

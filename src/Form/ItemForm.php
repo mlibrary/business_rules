@@ -2,7 +2,6 @@
 
 namespace Drupal\business_rules\Form;
 
-include_once \Drupal::root() . '/libraries/mxgraph/mxserver.php';
 
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\Condition;

@@ -209,3 +209,19 @@ business_rules.plugins.action.change_field_info.remove_field:
   requirements:
     _permission: 'administer site configuration'
     method: 'nojs|ajax'
+
+business_rules.plugins.action.change_field_info.dependent_field:
+  path: '/admin/config/workflow/business_rule/action/{action}/change_field_info/dependent_field/{method}'
+  defaults:
+    _controller: '\Drupal\business_rules\Plugin\BusinessRulesAction\ChangeFieldInfo::dependentField'
+  requirements:
+    _permission: 'administer site configuration'
+    method: 'nojs|ajax'
+
+business_rules.plugins.action.change_field_info.info_form:
+  path: '/admin/config/workflow/business_rule/action/{action}/change_field_info/add_info/{field}'
+  defaults:
+    _form: '\Drupal\business_rules\Form\ChangeFieldInfoForm'
+  requirements:
+    _permission: 'administer site configuration'
+    method: 'nojs|ajax'
