@@ -46,7 +46,7 @@ class BusinessRulesListener implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
 
-    $return = ['business_rules.item_pos_delete' => 'itemPosDelete'];
+    $return['business_rules.item_pos_delete'] = 'itemPosDelete';
 
     // If there is no container service there is not possible to load any event.
     // As this method sometimes is called before the container is ready, the

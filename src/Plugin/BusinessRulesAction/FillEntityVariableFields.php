@@ -148,7 +148,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
           $links = [];
 
           $links['delete']                             = [
-            'title' => t('Delete'),
+            'title' => t('Remove'),
             'url'   => Url::fromRoute('business_rules.plugins.action.fill_entity_variable_fields.remove_field', [
               'action' => $item->id(),
               'field'  => $key,
@@ -359,7 +359,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
 
     if ($method == 'ajax') {
       $response = new AjaxResponse();
-      $response->addCommand(new RemoveCommand('#' . 'field_value-' . $field));
+      $response->addCommand(new RemoveCommand('#field_value-' . $field));
 
       return $response;
     }

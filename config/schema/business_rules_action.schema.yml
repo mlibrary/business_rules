@@ -264,3 +264,26 @@ business_rules.action.type.remove_user_role:
       sequence:
         type: string
         label: 'Role'
+
+business_rules.action.type.change_field_info:
+  type: mapping
+  label: 'Change entity form field'
+  mapping:
+    fields:
+      type: sequence
+      label: 'Fields'
+      sequence:
+        type: mapping
+        mapping:
+          id:
+            type: string
+            label: 'Id'
+          field:
+            type: string
+            label: 'Field'
+          action:
+            type: string
+            label: 'Action'
+          info:
+            type: string
+            label: 'Additional info'

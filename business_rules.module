@@ -142,11 +142,12 @@ function business_rules_form_alter(&$form, FormStateInterface $form_state, $form
 
     if ($entity instanceof ContentEntityInterface) {
 
-      $reacts_on_definition = \Drupal::getContainer()
+      // Prepare the event for formValidation.
+      $form_validation_reacts_on_definition = \Drupal::getContainer()
         ->get('plugin.manager.business_rules.reacts_on')
         ->getDefinition('form_validation');
 
-      $event = new BusinessRulesEvent($entity, [
+      $form_validation_event = new BusinessRulesEvent($entity, [
         'form_id'          => $form_id,
         'form_state'       => $form_state,
         'form'             => $form,
@@ -154,16 +155,53 @@ function business_rules_form_alter(&$form, FormStateInterface $form_state, $form
         'bundle'           => $entity->bundle(),
         'entity'           => $entity,
         'entity_unchanged' => $entity->original,
+        'reacts_on'        => $form_validation_reacts_on_definition,
+      ]);
+
+      $form_state->set('business_rules_event', $form_validation_event);
+
+      // We can't dispatch this event here, otherwise it would be processed
+      // before the form validation. In this case, the FormValidator will take
+      // care of the event process. In this case we are just adding this
+      // validation.
+      $form['#validate'][] = 'Drupal\business_rules\Plugin\BusinessRulesReactsOn\FormValidation::validateForm';
+      unset ($form['field_image']);
+    }
+  }
+
+}
+
+/**
+ * Implements hook_field_widget_form_alter().
+ */
+function business_rules_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
+
+  if ((method_exists($form_state->getFormObject(), 'getEntity') && !$form_state->isCached())) {
+    $entity = $form_state->getFormObject()->getEntity();
+
+    if ($entity instanceof ContentEntityInterface) {
+      // Prepare the event to formAlter.
+      $reacts_on_definition = \Drupal::getContainer()
+        ->get('plugin.manager.business_rules.reacts_on')
+        ->getDefinition('form_alter');
+
+      $event = new BusinessRulesEvent($element, [
+        'form_state'       => $form_state,
+        'element'          => $element,
+        'context'          => $context,
+        'entity_type_id'   => $entity->getEntityTypeId(),
+        'bundle'           => $entity->bundle(),
+        'entity'           => $entity,
+        'entity_unchanged' => $entity->original,
         'reacts_on'        => $reacts_on_definition,
       ]);
 
-      $form_state->set('business_rules_event', $event);
+      /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
+      $event_dispatcher = \Drupal::service('event_dispatcher');
+      $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
 
-      // We can't dispatch an event here, otherwise it would be processed before
-      // the form validation. In this case, the FormValidator will take care of
-      // the event process.
-      $form['#validate'][] = 'Drupal\business_rules\Plugin\BusinessRulesReactsOn\FormValidation::validateForm';
-
+      // Now we need to replace the current form by the changed one.
+      $element = $event->getArgument('element');
     }
   }
 

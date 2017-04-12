@@ -14,7 +14,10 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\VariableListBuilder;
 use Drupal\Core\Entity\ContentEntityType;
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Url;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\FieldStorageConfigInterface;
 use Drupal\user\Entity\Role;
 use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -357,6 +360,44 @@ class BusinessRulesUtil {
         '@type'  => $field_types[$field_type]['label'],
         '@field' => $field_storage->getLabel() . " [$field_name]",
       ]);
+
+    }
+    asort($options);
+
+    return $options;
+  }
+
+  /**
+   * Helper function to return all editable fields from one bundle.
+   *
+   * @param string $entityType
+   *   The entity type.
+   * @param string $bundle
+   *   The entity bundle.
+   *
+   * @return array
+   *   Array of fields ['type' => 'description']
+   */
+  public function getBundleEditableFields($entityType, $bundle) {
+
+    if (empty($entityType) || empty($bundle)) {
+      return [];
+    }
+
+    $fields      = $this->entityFieldManager->getFieldDefinitions($entityType, $bundle);
+    $field_types = $this->fieldTypePluginManager->getDefinitions();
+    $options     = [];
+    foreach ($fields as $field_name => $field_storage) {
+
+      // Do not show: non-configurable field storages but title,
+      $field_type = $field_storage->getType();
+      if (($field_storage instanceof FieldConfig || ($field_storage instanceof BaseFieldDefinition && $field_name == 'title'))
+      ) {
+        $options[$field_name] = t('@type: @field', [
+          '@type'  => $field_types[$field_type]['label'],
+          '@field' => $field_storage->getLabel() . " [$field_name]",
+        ]);
+      }
 
     }
     asort($options);
@@ -1007,6 +1048,7 @@ class BusinessRulesUtil {
    */
   public function toSafeLowerString(&$string) {
     $string = trim(strtolower(htmlentities(strip_tags($string))));
+
     return $string;
   }
 

@@ -231,9 +231,10 @@ class BusinessRulesProcessor {
         ($entity_type == $rule->getTargetEntityType() || empty($rule->getTargetEntityType())) &&
         ($bundle == $rule->getTargetBundle() || empty($rule->getTargetBundle()))
       ) {
-        if (!in_array($rule->id(), array_keys($this->processedRules))) {
+        // The avoidInfiniteLoop should take care of it.
+        //if (!in_array($rule->id(), array_keys($this->processedRules))) {
           $triggered_rules[$rule->id()] = $rule;
-        }
+        //}
       }
     }
 
@@ -255,12 +256,12 @@ class BusinessRulesProcessor {
     /** @var \Drupal\business_rules\Entity\BusinessRule $rule */
     foreach ($triggered_rules as $rule) {
       $items = $rule->getItems();
-      if (!in_array($rule->id(), array_keys($this->processedRules))) {
+      //if (!in_array($rule->id(), array_keys($this->processedRules))) {
         $this->ruleBeingExecuted = $rule;
         $this->processItems($items, $event, $rule->id());
         $this->processedRules[$rule->id()]     = $rule->id();
         $this->debugArray['triggered_rules'][] = $rule;
-      }
+      //}
     }
 
   }
