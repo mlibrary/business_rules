@@ -5,7 +5,7 @@ namespace Drupal\business_rules\Plugin\BusinessRulesReactsOn;
 use Drupal\business_rules\Plugin\BusinessRulesReactsOnPlugin;
 
 /**
- * Class FormAlter
+ * Class FormAlter.
  *
  * @package Drupal\business_rules\Plugin\BusinessRulesReactsOn
  *

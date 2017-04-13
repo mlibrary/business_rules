@@ -166,4 +166,5 @@ interface ItemInterface extends ConfigEntityInterface {
    *   The tags.
    */
   public function setTags(array $tags);
+
 }

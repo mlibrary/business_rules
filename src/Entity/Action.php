@@ -4,7 +4,6 @@ namespace Drupal\business_rules\Entity;
 
 use Drupal\business_rules\ActionInterface;
 use Drupal\business_rules\Events\BusinessRulesEvent;
-use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
  * Defines the Action entity.

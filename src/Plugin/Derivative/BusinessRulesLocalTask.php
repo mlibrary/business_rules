@@ -12,21 +12,21 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class BusinessRulesLocalTask extends DeriverBase implements ContainerDeriverInterface {
 
   /**
-   * @inheritDoc
+   * {@inheritdoc}
    */
   public function __construct(ContainerInterface $container) {
 
   }
 
   /**
-   * @inheritDoc
+   * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, $base_plugin_id) {
     return new static($container);
   }
 
   /**
-   * @inheritDoc
+   * {@inheritdoc}
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
     $this->derivatives = [];

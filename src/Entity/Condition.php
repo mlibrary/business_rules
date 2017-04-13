@@ -5,7 +5,6 @@ namespace Drupal\business_rules\Entity;
 use Drupal\business_rules\BusinessRulesItemObject;
 use Drupal\business_rules\ConditionInterface;
 use Drupal\business_rules\Events\BusinessRulesEvent;
-use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
  * Defines the Condition entity.
