@@ -11,7 +11,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *
  * @ConfigEntityType(
  *   id = "business_rules_action",
- *   label = @Translation("Action"),
+ *   label = @Translation("Business Rules Action"),
  *   handlers = {
  *     "list_builder" = "Drupal\business_rules\ActionListBuilder",
  *     "form" = {

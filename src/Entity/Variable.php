@@ -10,7 +10,7 @@ use Drupal\business_rules\VariableInterface;
  *
  * @ConfigEntityType(
  *   id = "business_rules_variable",
- *   label = @Translation("Variable"),
+ *   label = @Translation("Business Rules Variable"),
  *   handlers = {
  *     "list_builder" = "Drupal\business_rules\VariableListBuilder",
  *     "form" = {

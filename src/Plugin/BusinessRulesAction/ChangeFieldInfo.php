@@ -35,11 +35,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  * )
  */
 class ChangeFieldInfo extends BusinessRulesActionPlugin {
-  // @TODO develop it.
-  // Make field required/optional
-  // Make field dependent
-  // Change field list of values
-
   const MAKE_REQUIRED        = 'make_required';
   const MAKE_OPTIONAL        = 'make_optional';
   const MAKE_READ_ONLY       = 'make_read_only';
@@ -47,6 +42,11 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
   const MAKE_HIDDEN          = 'make_hidden';
   const CHANGE_OPTIONS_VALUE = 'change_options_value';
 
+  /**
+   * The available action options.
+   *
+   * @var array
+   */
   protected $actionOptions = [];
 
   /**
@@ -56,12 +56,13 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->actionOptions = [
-      ''                   => t('-Select-'),
-      self::MAKE_REQUIRED  => t('Make field required'),
-      self::MAKE_OPTIONAL  => t('Make field optional'),
-      self::MAKE_READ_ONLY => t('Make field read only'),
-      self::MAKE_HIDDEN    => t('Make field hidden'),
-      self::MAKE_DEPENDENT => t('Make field dependent'),
+      ''                         => t('-Select-'),
+      self::MAKE_REQUIRED        => t('Make field required'),
+      self::MAKE_OPTIONAL        => t('Make field optional'),
+      self::MAKE_READ_ONLY       => t('Make field read only'),
+      self::MAKE_HIDDEN          => t('Make field hidden'),
+      self::MAKE_DEPENDENT       => t('Make field dependent'),
+      self::CHANGE_OPTIONS_VALUE => t('Change field list of values'),
     ];
 
   }
@@ -132,7 +133,8 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
         ];
 
         if ($field['action'] == self::MAKE_DEPENDENT) {
-          $info      = t('Depends on field: %parent.', ['%parent' => $field['info']['parent_field']]);
+          $parent    = isset($field['info']['parent_field']) ? $field['info']['parent_field'] : t('None');
+          $info      = t('Depends on field: %parent.', ['%parent' => $parent]);
           $info      = render($info);
           $info_link = Link::createFromRoute(t('Configure field info'), 'business_rules.plugins.action.change_field_info.info_form', [
             'action' => $item->id(),
@@ -180,18 +182,48 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
       ],
       'info'       => [],
       'operations' => [
-        '#type'   => 'submit',
-        '#value'  => t('Add'),
-        '#submit' => ['::submitForm', '::save'],
+        '#type'     => 'submit',
+        '#value'    => t('Add'),
+        '#validate' => [get_class($this) . '::validateAddFieldForm'],
+        '#submit'   => [get_class($this) . '::addFieldSubmit'],
       ],
     ];
 
   }
 
-  public function submitForm(array $form, FormStateInterface $form_state) {
-    $action = $form_state->get('action');
-    $field_id = $form_state->getValue('field') . '__' . $form_state->getValue('action');
-    $form_state->setRedirect('entity.business_rules_action.edit_form', ['business_rules_action' => $action->id()], ['fragment' => 'field-' . $field_id]);
+  /**
+   * Add new field on action settings.
+   *
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form_state.
+   */
+  public static function addFieldSubmit(array $form, FormStateInterface $form_state) {
+    /** @var \Drupal\business_rules\Entity\Action $action */
+    $action   = $form_state->get('action');
+    $field    = $form_state->getValue('fields')['new.field'];
+    $id       = $field['field'] . '__' . $field['action'];
+    $settings = $action->getSettings();
+
+    $availableFields = \Drupal::getContainer()
+      ->get('business_rules.util')
+      ->getBundleEditableFields($action->getTargetEntityType(), $action->getTargetBundle());
+
+    $settings['fields'][$id] = [
+      'id'     => $id,
+      'field'  => $field['field'],
+      'action' => $field['action'],
+    ];
+
+    uasort($settings['fields'], function ($a, $b) use ($availableFields) {
+      return ($availableFields[$a['field']] > $availableFields[$b['field']]) ? 1 : -1;
+    });
+
+    $action->setSetting('fields', $settings['fields']);
+    $action->save();
+
+    $form_state->setRedirect('entity.business_rules_action.edit_form', ['business_rules_action' => $action->id()], ['fragment' => 'field-' . $id]);
   }
 
   /**
@@ -235,9 +267,14 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
   }
 
   /**
-   * {@inheritdoc}
+   * Validate the add field operation.
+   *
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form_state.
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public static function validateAddFieldForm(array &$form, FormStateInterface $form_state) {
     $field        = $form_state->getValue('fields');
     $field_field  = $field['new.field']['field'];
     $field_action = $field['new.field']['action'];
@@ -255,6 +292,13 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
   /**
    * {@inheritdoc}
    */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    self::validateAddFieldForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function processSettings(array $settings, ItemInterface $item) {
 
     if ($item->isNew()) {
@@ -265,14 +309,18 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
       $settings['fields'] += $item->getSettings('fields');
     }
 
-    $availableFields               = $this->util->getBundleEditableFields($item->getTargetEntityType(), $item->getTargetBundle());
-    $id                            = $settings['fields']['new.field']['field'] . '__' . $settings['fields']['new.field']['action'];
-    $settings['fields'][$id]       = $settings['fields']['new.field'];
-    $settings['fields'][$id]['id'] = $id;
+    if ($settings['fields']['new.field']['field'] && $settings['fields']['new.field']['action']) {
+      $availableFields               = $this->util->getBundleEditableFields($item->getTargetEntityType(), $item->getTargetBundle());
+      $id                            = $settings['fields']['new.field']['field'] . '__' . $settings['fields']['new.field']['action'];
+      $settings['fields'][$id]       = $settings['fields']['new.field'];
+      $settings['fields'][$id]['id'] = $id;
+
+      uasort($settings['fields'], function ($a, $b) use ($availableFields) {
+        return ($availableFields[$a['field']] > $availableFields[$b['field']]) ? 1 : -1;
+      });
+    }
+
     unset($settings['fields']['new.field']);
-    uasort($settings['fields'], function ($a, $b) use ($availableFields) {
-      return ($availableFields[$a['field']] > $availableFields[$b['field']]) ? 1 : -1;
-    });
 
     return $settings;
   }
@@ -284,6 +332,7 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
     $fields = $action->getSettings('fields');
     $form   = $event->getArgument('form');
     $entity = $event->getArgument('entity');
+
 
     foreach ($fields as $field) {
 
@@ -302,7 +351,7 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
         }
       }
 
-      $this->changeFieldInfo($form_field, $field['action'], $entity, $field['field']);
+      $this->changeFieldInfo($form_field, $field, $form);
     }
 
     $event->setArgument('form', $form);
@@ -320,8 +369,8 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
    * @param $field_name
    *   The field name.
    */
-  protected function changeFieldInfo(array &$field, $change, $entity, $field_name) {
-    switch ($change) {
+  protected function changeFieldInfo(array &$field, $action_field, &$form) {
+    switch ($action_field['action']) {
       case self::MAKE_REQUIRED:
         $field['#required'] = TRUE;
         if (isset($field[0])) {
@@ -345,10 +394,27 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
         break;
 
       case self::MAKE_DEPENDENT:
-        // @TODO parei aqui
+        $parent_field = $action_field['info']['parent_field'];
+        $views_display = $action_field['info']['view_display'];
+        $use_parent_as_argument = $action_field['info']['use_parent_as_argument'];
+        $view_arguments = $action_field['info']['view_arguments'];
+        $form[$parent_field]['widget']['#ajax'] = [
+          'callback' => get_class($this) . '::dependentField',
+          'event'    => 'change',
+          'wrapper'  => 'edit-field-' . $action_field['field'] . '-wrapper',
+          'progress' => [
+            'type' => 'throbber',
+            'message' => t('Updating field @field', ['@field' => $field['#title']]),
+          ],
+        ];
+
         break;
 
     }
+  }
+
+  public static function dependentField(array $form, FormStateInterface $form_state) {
+    return;
   }
 
 }

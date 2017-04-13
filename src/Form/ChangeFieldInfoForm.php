@@ -60,32 +60,32 @@ class ChangeFieldInfoForm extends FormBase {
     $form['parent_field'] = [
       '#type'          => 'select',
       '#title'         => t('Parent field'),
-      '#options'       => $availableFields,
+      '#options'       => ['' => $this->t('-Select-')] + $availableFields,
       '#required'      => TRUE,
-      '#default_value' => $field['info']['parent_field'],
+      '#default_value' => isset($field['info']['parent_field']) ? $field['info']['parent_field'] : '',
       '#suffix'        => '<div class="description">' . t('The field of who this field is dependent.') . '</div>',
     ];
 
     $form['view_display'] = [
       '#type'          => 'select',
       '#title'         => t('View used to select the entities'),
-      '#options'       => $this->util->getViewsOptions('entity_reference'),
+      '#options'       => ['' => $this->t('-Select-')] + $this->util->getViewsOptions('entity_reference'),
       '#required'      => TRUE,
-      '#default_value' => $field['info']['view_display'],
+      '#default_value' => isset($field['info']['view_display']) ? $field['info']['view_display'] : '',
       '#suffix'        => '<div class="description">' . t('Choose se view and display that the selected entities can be referenced. Only views with a display of type "Entity Reference" are eligible.') . '</div>',
     ];
 
     $form['use_parent_as_argument'] = [
       '#type'          => 'checkbox',
       '#title'         => t('Use the parent field value as first argument'),
-      '#default_value' => $field['info']['use_parent_as_argument'],
+      '#default_value' => isset($field['info']['use_parent_as_argument']) ? $field['info']['use_parent_as_argument'] : '',
     ];
 
     $form['view_arguments'] = [
       '#type'          => 'textfield',
       '#title'         => t('View additional arguments'),
       '#required'      => FALSE,
-      '#default_value' => $field['info']['view_arguments'],
+      '#default_value' => isset($field['info']['view_arguments']) ? $field['info']['view_arguments'] : '',
       '#suffix'        => '<div class="description">' . t('Provide a comma separated list of arguments to pass to the view. You can use any available variable here as {{{variable_id}}.') . '</div>',
     ];
 

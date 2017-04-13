@@ -32,14 +32,14 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *     "uuid" = "uuid",
  *   },
  *   links = {
- *     "canonical" = "/admin/config/workflow/business_rule/{business_rule}",
- *     "add-form" = "/admin/config/workflow/business_rule/add",
- *     "edit-form" = "/admin/config/workflow/business_rule/{business_rule}/edit",
- *     "delete-form" = "/admin/config/workflow/business_rule/{business_rule}/delete",
- *     "variables-form" = "/admin/config/workflow/business_rule/{business_rule}/variables",
- *     "collection" = "/admin/config/workflow/business_rule/collection/{view_mode}",
- *     "enable" = "/admin/config/workflow/business_rule/{business_rule}/enable",
- *     "disable" = "/admin/config/workflow/business_rule/{business_rule}/disable",
+ *     "canonical" = "/admin/config/workflow/business_rules/{business_rule}",
+ *     "add-form" = "/admin/config/workflow/business_rules/add",
+ *     "edit-form" = "/admin/config/workflow/business_rules/{business_rule}/edit",
+ *     "delete-form" = "/admin/config/workflow/business_rules/{business_rule}/delete",
+ *     "variables-form" = "/admin/config/workflow/business_rules/{business_rule}/variables",
+ *     "collection" = "/admin/config/workflow/business_rules/collection/{view_mode}",
+ *     "enable" = "/admin/config/workflow/business_rules/{business_rule}/enable",
+ *     "disable" = "/admin/config/workflow/business_rules/{business_rule}/disable",
  *   }
  * )
  */

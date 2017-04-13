@@ -12,7 +12,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *
  * @ConfigEntityType(
  *   id = "business_rules_condition",
- *   label = @Translation("Condition"),
+ *   label = @Translation("Business Rules Condition"),
  *   handlers = {
  *     "list_builder" = "Drupal\business_rules\ConditionListBuilder",
  *     "form" = {
