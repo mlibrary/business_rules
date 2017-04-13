@@ -182,7 +182,8 @@ class BusinessRulesProcessor {
 
     $keyvalue         = $this->util->getKeyValueExpirable('process');
     $processed_events = $keyvalue->getAll();
-    $serialized_data  = serialize($event->getSubject()) . serialize($event->getArgument('reacts_on'));
+    $loop_control     = $event->hasArgument('loop_control') ? $event->getArgument('loop_control') : $event->getSubject();
+    $serialized_data  = serialize($loop_control) . serialize($event->getArgument('reacts_on'));
     if (count($processed_events)) {
       foreach ($processed_events as $processed_event) {
         if ($serialized_data == $processed_event) {
