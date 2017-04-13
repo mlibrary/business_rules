@@ -10,7 +10,6 @@ use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -35,12 +34,10 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  * )
  */
 class ChangeFieldInfo extends BusinessRulesActionPlugin {
-  const MAKE_REQUIRED        = 'make_required';
-  const MAKE_OPTIONAL        = 'make_optional';
-  const MAKE_READ_ONLY       = 'make_read_only';
-  const MAKE_DEPENDENT       = 'make_dependant';
-  const MAKE_HIDDEN          = 'make_hidden';
-  const CHANGE_OPTIONS_VALUE = 'change_options_value';
+  const MAKE_REQUIRED  = 'make_required';
+  const MAKE_OPTIONAL  = 'make_optional';
+  const MAKE_READ_ONLY = 'make_read_only';
+  const MAKE_HIDDEN    = 'make_hidden';
 
   /**
    * The available action options.
@@ -61,8 +58,6 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
       self::MAKE_OPTIONAL        => t('Make field optional'),
       self::MAKE_READ_ONLY       => t('Make field read only'),
       self::MAKE_HIDDEN          => t('Make field hidden'),
-      self::MAKE_DEPENDENT       => t('Make field dependent'),
-      self::CHANGE_OPTIONS_VALUE => t('Change field list of values'),
     ];
 
   }
@@ -83,7 +78,6 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
       '#header'     => [
         'field'      => t('Filed'),
         'action'     => t('Action'),
-        'info'       => t('Info'),
         'operations' => t('Operations'),
       ],
       '#attributes' => ['id' => 'array_variable_fields_table'],
@@ -132,21 +126,6 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
           'weight' => 1,
         ];
 
-        if ($field['action'] == self::MAKE_DEPENDENT) {
-          $parent    = isset($field['info']['parent_field']) ? $field['info']['parent_field'] : t('None');
-          $info      = t('Depends on field: %parent.', ['%parent' => $parent]);
-          $info      = render($info);
-          $info_link = Link::createFromRoute(t('Configure field info'), 'business_rules.plugins.action.change_field_info.info_form', [
-            'action' => $item->id(),
-            'field'  => $field['id'],
-            'method' => 'nojs',
-          ])->toString();
-        }
-        else {
-          $info      = '';
-          $info_link = '';
-        }
-
         $settings[$key] = [
           'field'       => [
             '#type'   => 'markup',
@@ -155,10 +134,6 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
           'action'      => [
             '#type'   => 'markup',
             '#markup' => $this->actionOptions[$field['action']],
-          ],
-          'info'        => [
-            '#type'   => 'markup',
-            '#markup' => $info . ' ' . $info_link,
           ],
           'operations'  => [
             '#type'  => 'operations',
@@ -180,7 +155,6 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
         '#required' => FALSE,
         '#options'  => $this->actionOptions,
       ],
-      'info'       => [],
       'operations' => [
         '#type'     => 'submit',
         '#value'    => t('Add'),
@@ -330,12 +304,19 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
    */
   public function execute(ActionInterface $action, BusinessRulesEvent $event) {
     $fields = $action->getSettings('fields');
-    //$form   = $event->getArgument('form');
-    $entity = $event->getArgument('entity');
+
+    if (!count($fields)) {
+      // Nothing to do.
+      $result = [
+        '#type' => 'markup',
+        '#markup' => t('Nothing to do.'),
+      ];
+
+      return $result;
+    }
 
     $element = $event->getArgument('element');
     $context = $event->getArgument('context');
-    $form_state = $event->getArgument('form_state');
     /** @var \Drupal\Core\Field\FieldItemList $items */
     $items = $context['items'];
     $element_name = $items->getName();
@@ -347,58 +328,21 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
       }
     }
 
-    // Make field dependent.
-    foreach ($fields as $field) {
-      if ($field['action'] == self::MAKE_DEPENDENT && isset($field['info']['parent_field'])) {
-        if ($field['info']['parent_field'] == $element_name) {
-          $parent_field = $field['info']['parent_field'];
-          $views_display = $field['info']['view_display'];
-          $use_parent_as_argument = $field['info']['use_parent_as_argument'];
-          $view_arguments = $field['info']['view_arguments'];
-
-          $element['#ajax'] = [
-            'callback' => '\Drupal\business_rules\Plugin\BusinessRulesAction\ChangeFieldInfo::dependentField',
-            'event'    => 'change',
-            'wrapper'  => 'edit-field-cidade-wrapper',
-            'progress' => [
-              'type' => 'throbber',
-              'message' => t('Updating field Cidade'),
-            ],
-//            'callback' => '\Drupal\business_rules\Plugin\BusinessRulesAction\ChangeFieldInfo::dependentField',
-//            'event'    => 'change',
-//            'wrapper'  => 'edit-' . str_replace('_', '-', $field['field']) . '-wrapper',
-//            'progress' => [
-//              'type' => 'throbber',
-//              'message' => t('Updating field @field', ['@field' => $element['#title']]),
-//            ],
-          ];
-        }
-      }
-    }
-
     $event->setArgument('element', $element);
 
-//    foreach ($fields as $field) {
-//
-//      foreach ($form as $key => $item) {
-//        if ($key == $field['field']) {
-//          if (isset($form[$key]['widget']['target_id'])) {
-//            $form_field = &$form[$key]['widget']['target_id'];
-//          }
-//          elseif (isset($form[$key]['widget'])) {
-//            $form_field = &$form[$key]['widget'];
-//          }
-//          else {
-//            $form_field = &$form[$key];
-//          }
-//          break;
-//        }
-//      }
-//
-//      $this->changeFieldInfo($form_field, $field, $form);
-//    }
-//
-//    $event->setArgument('form', $form);
+    foreach ($fields as $field) {
+      $debug_message = t('<br>%method: %field', [
+        '%field' => $field['field'],
+        '%method' => $this->actionOptions[$field['action']],
+      ]);
+
+      $result[] = [
+        '#type'   => 'markup',
+        '#markup' => $debug_message,
+      ];
+    }
+
+    return $result;
   }
 
   /**
@@ -429,10 +373,6 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
         break;
 
     }
-  }
-
-  public static function dependentField(array $form, FormStateInterface $form_state) {
-    return;
   }
 
 }

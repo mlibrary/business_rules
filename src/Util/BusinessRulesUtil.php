@@ -17,7 +17,6 @@ use Drupal\Core\Entity\ContentEntityType;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldConfig;
-use Drupal\field\FieldStorageConfigInterface;
 use Drupal\user\Entity\Role;
 use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -374,11 +373,13 @@ class BusinessRulesUtil {
    *   The entity type.
    * @param string $bundle
    *   The entity bundle.
+   * @param array $field_types_ids
+   *   Array of field types ids if you want to get specifics field types.
    *
    * @return array
    *   Array of fields ['type' => 'description']
    */
-  public function getBundleEditableFields($entityType, $bundle) {
+  public function getBundleEditableFields($entityType, $bundle, array $field_types_ids = []) {
 
     if (empty($entityType) || empty($bundle)) {
       return [];
@@ -389,14 +390,16 @@ class BusinessRulesUtil {
     $options     = [];
     foreach ($fields as $field_name => $field_storage) {
 
-      // Do not show: non-configurable field storages but title,
+      // Do not show: non-configurable field storages but title.
       $field_type = $field_storage->getType();
       if (($field_storage instanceof FieldConfig || ($field_storage instanceof BaseFieldDefinition && $field_name == 'title'))
       ) {
-        $options[$field_name] = t('@type: @field', [
-          '@type'  => $field_types[$field_type]['label'],
-          '@field' => $field_storage->getLabel() . " [$field_name]",
-        ]);
+        if (count($field_types_ids) == 0 || in_array($field_type, $field_types_ids)) {
+          $options[$field_name] = t('@type: @field', [
+            '@type'  => $field_types[$field_type]['label'],
+            '@field' => $field_storage->getLabel() . " [$field_name]",
+          ]);
+        }
       }
 
     }

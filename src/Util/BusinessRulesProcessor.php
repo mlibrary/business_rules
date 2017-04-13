@@ -182,7 +182,8 @@ class BusinessRulesProcessor {
 
     $keyvalue         = $this->util->getKeyValueExpirable('process');
     $processed_events = $keyvalue->getAll();
-    $serialized_data  = serialize($event->getSubject()) . serialize($event->getArgument('reacts_on'));
+    $loop_control     = $event->hasArgument('loop_control') ? $event->getArgument('loop_control') : $event->getSubject();
+    $serialized_data  = serialize($loop_control) . serialize($event->getArgument('reacts_on'));
     if (count($processed_events)) {
       foreach ($processed_events as $processed_event) {
         if ($serialized_data == $processed_event) {
@@ -231,10 +232,7 @@ class BusinessRulesProcessor {
         ($entity_type == $rule->getTargetEntityType() || empty($rule->getTargetEntityType())) &&
         ($bundle == $rule->getTargetBundle() || empty($rule->getTargetBundle()))
       ) {
-        // The avoidInfiniteLoop should take care of it.
-        //if (!in_array($rule->id(), array_keys($this->processedRules))) {
-          $triggered_rules[$rule->id()] = $rule;
-        //}
+        $triggered_rules[$rule->id()] = $rule;
       }
     }
 
@@ -256,12 +254,10 @@ class BusinessRulesProcessor {
     /** @var \Drupal\business_rules\Entity\BusinessRule $rule */
     foreach ($triggered_rules as $rule) {
       $items = $rule->getItems();
-      //if (!in_array($rule->id(), array_keys($this->processedRules))) {
-        $this->ruleBeingExecuted = $rule;
-        $this->processItems($items, $event, $rule->id());
-        $this->processedRules[$rule->id()]     = $rule->id();
-        $this->debugArray['triggered_rules'][] = $rule;
-      //}
+      $this->ruleBeingExecuted = $rule;
+      $this->processItems($items, $event, $rule->id());
+      $this->processedRules[$rule->id()]     = $rule->id();
+      $this->debugArray['triggered_rules'][] = $rule;
     }
 
   }
