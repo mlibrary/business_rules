@@ -168,8 +168,7 @@ function business_rules_form_alter(&$form, FormStateInterface $form_state, $form
 
       // We can't dispatch this event here, otherwise it would be processed
       // before the form validation. In this case, the FormValidator will take
-      // care of the event process. In this case we are just adding this
-      // validation.
+      // care of the event process and we are just adding this validation.
       $form['#validate'][] = 'Drupal\business_rules\Plugin\BusinessRulesReactsOn\FormValidation::validateForm';
 
     }
