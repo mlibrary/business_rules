@@ -330,84 +330,102 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
    */
   public function execute(ActionInterface $action, BusinessRulesEvent $event) {
     $fields = $action->getSettings('fields');
-    $form   = $event->getArgument('form');
+    //$form   = $event->getArgument('form');
     $entity = $event->getArgument('entity');
 
+    $element = $event->getArgument('element');
+    $context = $event->getArgument('context');
+    $form_state = $event->getArgument('form_state');
+    /** @var \Drupal\Core\Field\FieldItemList $items */
+    $items = $context['items'];
+    $element_name = $items->getName();
 
+    // Change the field properties.
     foreach ($fields as $field) {
-
-      foreach ($form as $key => $item) {
-        if ($key == $field['field']) {
-          if (isset($form[$key]['widget']['target_id'])) {
-            $form_field = &$form[$key]['widget']['target_id'];
-          }
-          elseif (isset($form[$key]['widget'])) {
-            $form_field = &$form[$key]['widget'];
-          }
-          else {
-            $form_field = &$form[$key];
-          }
-          break;
-        }
+      if ($field['field'] == $element_name) {
+        $this->changeFieldInfo($element, $field);
       }
-
-      $this->changeFieldInfo($form_field, $field, $form);
     }
 
-    $event->setArgument('form', $form);
+    // Make field dependent.
+    foreach ($fields as $field) {
+      if ($field['action'] == self::MAKE_DEPENDENT && isset($field['info']['parent_field'])) {
+        if ($field['info']['parent_field'] == $element_name) {
+          $parent_field = $field['info']['parent_field'];
+          $views_display = $field['info']['view_display'];
+          $use_parent_as_argument = $field['info']['use_parent_as_argument'];
+          $view_arguments = $field['info']['view_arguments'];
+
+          $element['#ajax'] = [
+            'callback' => '\Drupal\business_rules\Plugin\BusinessRulesAction\ChangeFieldInfo::dependentField',
+            'event'    => 'change',
+            'wrapper'  => 'edit-field-cidade-wrapper',
+            'progress' => [
+              'type' => 'throbber',
+              'message' => t('Updating field Cidade'),
+            ],
+//            'callback' => '\Drupal\business_rules\Plugin\BusinessRulesAction\ChangeFieldInfo::dependentField',
+//            'event'    => 'change',
+//            'wrapper'  => 'edit-' . str_replace('_', '-', $field['field']) . '-wrapper',
+//            'progress' => [
+//              'type' => 'throbber',
+//              'message' => t('Updating field @field', ['@field' => $element['#title']]),
+//            ],
+          ];
+        }
+      }
+    }
+
+    $event->setArgument('element', $element);
+
+//    foreach ($fields as $field) {
+//
+//      foreach ($form as $key => $item) {
+//        if ($key == $field['field']) {
+//          if (isset($form[$key]['widget']['target_id'])) {
+//            $form_field = &$form[$key]['widget']['target_id'];
+//          }
+//          elseif (isset($form[$key]['widget'])) {
+//            $form_field = &$form[$key]['widget'];
+//          }
+//          else {
+//            $form_field = &$form[$key];
+//          }
+//          break;
+//        }
+//      }
+//
+//      $this->changeFieldInfo($form_field, $field, $form);
+//    }
+//
+//    $event->setArgument('form', $form);
   }
 
   /**
    * Change info at the form array.
-   *
-   * @param array $field
-   *   The field to change properties.
-   * @param string $change
-   *   The change to be applied.
-   * @param \Drupal\Core\Entity\Entity $entity
-   *   The entity being edited on the form.
-   * @param $field_name
-   *   The field name.
    */
-  protected function changeFieldInfo(array &$field, $action_field, &$form) {
+  protected function changeFieldInfo(array &$element, $action_field) {
     switch ($action_field['action']) {
       case self::MAKE_REQUIRED:
-        $field['#required'] = TRUE;
-        if (isset($field[0])) {
-          $field[0]['#required'] = TRUE;
+        $element['#required'] = TRUE;
+        if (isset($element[0])) {
+          $element[0]['#required'] = TRUE;
         }
         break;
 
       case self::MAKE_OPTIONAL:
-        $field['#required'] = FALSE;
-        if (isset($field[0])) {
-          $field[0]['#required'] = FALSE;
+        $element['#required'] = FALSE;
+        if (isset($element[0])) {
+          $element[0]['#required'] = FALSE;
         }
         break;
 
       case self::MAKE_READ_ONLY:
-        $field['#disabled'] = TRUE;
+        $element['#disabled'] = TRUE;
         break;
 
       case self::MAKE_HIDDEN:
-        $field = [];
-        break;
-
-      case self::MAKE_DEPENDENT:
-        $parent_field = $action_field['info']['parent_field'];
-        $views_display = $action_field['info']['view_display'];
-        $use_parent_as_argument = $action_field['info']['use_parent_as_argument'];
-        $view_arguments = $action_field['info']['view_arguments'];
-        $form[$parent_field]['widget']['#ajax'] = [
-          'callback' => get_class($this) . '::dependentField',
-          'event'    => 'change',
-          'wrapper'  => 'edit-field-' . $action_field['field'] . '-wrapper',
-          'progress' => [
-            'type' => 'throbber',
-            'message' => t('Updating field @field', ['@field' => $field['#title']]),
-          ],
-        ];
-
+        $element = [];
         break;
 
     }
