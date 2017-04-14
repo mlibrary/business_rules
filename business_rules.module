@@ -318,8 +318,7 @@ function business_rules_user_login($account) {
     ->getDefinition('user_login');
 
   $entity_type_id = $account->getEntityTypeId();
-  $account        = $account->getAccount();
-  $entity         = User::load($account->id());
+  $entity         = $account;
   // @TODO test this event.
   $event = new BusinessRulesEvent($entity, [
     'entity_type_id'   => $entity_type_id,
