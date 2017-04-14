@@ -284,4 +284,3 @@ business_rules.action.type.change_field_info:
           action:
             type: string
             label: 'Action'
-
