@@ -13,6 +13,7 @@ use Drupal\business_rules\Entity\Variable;
 use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\VariableListBuilder;
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\ContentEntityType;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Url;
@@ -1058,6 +1059,23 @@ class BusinessRulesUtil {
     $string = trim(strtolower(htmlentities(strip_tags($string))));
 
     return $string;
+  }
+
+  /**
+   * Performs Xss filter in all settings.
+   *
+   * @param array $array
+   *   The settings array.
+   */
+  public function applyXssInArray(array &$array) {
+    foreach ($array as $key => $value) {
+      if (is_array($value)) {
+        $this->applyXssInArray($value);
+      }
+      elseif (is_string($value)) {
+        $array[$key] = Xss::filterAdmin($value);
+      }
+    }
   }
 
 }

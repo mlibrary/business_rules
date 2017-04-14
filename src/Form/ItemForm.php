@@ -5,6 +5,7 @@ namespace Drupal\business_rules\Form;
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\Condition;
 use Drupal\business_rules\Entity\Variable;
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Entity\EntityForm;
@@ -20,7 +21,7 @@ abstract class ItemForm extends EntityForm {
   /**
    * The Business Rule flowchart.
    *
-   * @var Flowchart
+   * @var \Drupal\business_rules\Util\Flowchart\Flowchart
    */
   private $chart;
 
@@ -281,6 +282,9 @@ abstract class ItemForm extends EntityForm {
       $reflection  = new \ReflectionClass($definition['class']);
       $custom_item = $reflection->newInstance($definition, $definition['id'], $definition);
       $settings    = $custom_item->processSettings($settings, $item);
+
+      // Make the settings safe.
+      $this->util->applyXssInArray($settings);
 
       $item->set('settings', $settings);
       $item->setTags(explode(',', $form_state->getValue('tags')));
