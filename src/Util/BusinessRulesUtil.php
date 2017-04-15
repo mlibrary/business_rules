@@ -517,9 +517,9 @@ class BusinessRulesUtil {
    *   The Url.
    */
   public function getPreviousUri() {
-    $previousUrl  = \Drupal::request()->server->get('HTTP_REFERER');
+    $previousUrl  = $this->request->server->get('HTTP_REFERER');
     $fake_request = Request::create($previousUrl);
-    $url_object   = \Drupal::service('path.validator')
+    $url_object   = $this->container->get('path.validator')
       ->getUrlIfValid($fake_request->getRequestUri());
     if ($url_object) {
       return $url_object;
@@ -535,10 +535,10 @@ class BusinessRulesUtil {
    *   Options array.
    */
   public function getUserRolesOptions() {
-    $roles   = Role::loadMultiple();
+    $roles   = $this->entityTypeManager->getStorage('user_role')->loadMultiple();
     $options = [];
 
-    /**@var  Role $role */
+    /**@var  \Drupal\user\Entity\Role $role */
     foreach ($roles as $key => $role) {
       $options[$role->id()] = $role->label();
     }

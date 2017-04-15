@@ -62,7 +62,7 @@ class DisplayErrorMessageOnForm extends BusinessRulesActionPlugin {
 
       $result = [
         '#type'   => 'markup',
-        '#markup' => t('Error setted on form. Field: %field, message: %message', [
+        '#markup' => t('Error set on form. Field: %field, message: %message', [
           '%field'   => $field,
           '%message' => $message,
         ]),

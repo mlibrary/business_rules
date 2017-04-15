@@ -668,7 +668,6 @@ class BusinessRulesProcessor {
       return NULL;
     }
 
-    /** @var \Drupal\business_rules\Plugin\BusinessRulesVariablePlugin $defined_variable */
     /** @var \Drupal\business_rules\VariablesSet $eventVariables */
     /** @var \Drupal\business_rules\VariableObject $item */
     $eventVariables     = $event->getArgument('variables');
@@ -696,7 +695,7 @@ class BusinessRulesProcessor {
       return $value;
     }
     else {
-      throw new \Exception(get_class($defined_variable) . '::evaluate should return instance of ' . get_class(new VariableObject()) . ' or ' . get_class(new VariablesSet()) . '.');
+      throw new \Exception(get_class($value) . '::evaluate should return instance of ' . get_class(new VariableObject()) . ' or ' . get_class(new VariablesSet()) . '.');
     }
   }
 

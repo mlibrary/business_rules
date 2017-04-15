@@ -153,7 +153,7 @@ interface ItemInterface extends ConfigEntityInterface {
    * @param string $settingId
    *   The setting id.
    * @param mixed $value
-   *   The value to be setted on Item settings.
+   *   The value to be set on Item settings.
    *
    * @throws \Exception
    */

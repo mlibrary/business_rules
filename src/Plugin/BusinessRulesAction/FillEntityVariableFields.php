@@ -113,7 +113,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
           t('Value'),
           t('Operations'),
         ],
-        '#empty'  => t('There are currently no values setted. Add one by selecting an option below.'),
+        '#empty'  => t('There are currently no values. Add one by selecting an option below.'),
       ];
 
       $fields_values = $item->getSettings('fields_values');
