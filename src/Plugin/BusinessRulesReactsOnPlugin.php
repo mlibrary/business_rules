@@ -37,7 +37,7 @@ abstract class BusinessRulesReactsOnPlugin extends PluginBase implements Busines
    * {@inheritdoc}
    */
   public function processForm(array &$form, FormStateInterface $form_state) {
-    return [];
+
   }
 
 }

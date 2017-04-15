@@ -29,8 +29,8 @@ class KernelRequest extends BusinessRulesReactsOnPlugin {
   public function processForm(array &$form, FormStateInterface $form_state) {
     parent::processForm($form, $form_state);
 
-    unset($form['target_entity_type']);
-    unset($form['target_bundle']);
+    unset($form['entity']['context']);
+
   }
 
 }
