@@ -3,6 +3,8 @@
 namespace Drupal\business_rules\EventSubscriber;
 
 use Drupal\business_rules\Events\BusinessRulesEvent;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -15,7 +17,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * @package Drupal\business_rules\EventSubscriber
  */
-class KernelRequestListener implements EventSubscriberInterface {
+class KernelRequestListener implements EventSubscriberInterface, ContainerAwareInterface {
+
+  use ContainerAwareTrait;
 
   /**
    * {@inheritdoc}
@@ -32,7 +36,7 @@ class KernelRequestListener implements EventSubscriberInterface {
    */
   public function onKernelRequest(Event $event) {
 
-    $reacts_on_definition = \Drupal::getContainer()
+    $reacts_on_definition = $this->container
       ->get('plugin.manager.business_rules.reacts_on')
       ->getDefinition('kernel_request');
 
@@ -44,7 +48,7 @@ class KernelRequestListener implements EventSubscriberInterface {
       'reacts_on'        => $reacts_on_definition,
     ]);
     /** @var \Symfony\Component\EventDispatcher\EventDispatcher $event_dispatcher */
-    $event_dispatcher = \Drupal::service('event_dispatcher');
+    $event_dispatcher = $this->container->get('event_dispatcher');
     $event_dispatcher->dispatch($reacts_on_definition['eventName'], $new_event);
   }
 

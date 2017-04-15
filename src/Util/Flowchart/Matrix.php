@@ -146,7 +146,7 @@ class Matrix {
    * @return bool
    *   TRUE|FALSE.
    */
-  private function isCellEmpty($x, $y) {
+  public function isCellEmpty($x, $y) {
     if (is_null($this->matrix[$x][$y]['element'])) {
       return TRUE;
     }
@@ -361,7 +361,7 @@ class Matrix {
    * @param int $distance
    *   The distance to shift.
    */
-  private function shift(Element $element, $direction, $distance = 1) {
+  public function shift(Element $element, $direction, $distance = 1) {
     switch ($direction) {
       case 'bottom':
         $cells = $this->getBottomCells($element);

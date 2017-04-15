@@ -16,6 +16,7 @@ use Drupal\business_rules\VariableListBuilder;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\ContentEntityType;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\user\Entity\Role;
@@ -29,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @package Drupal\business_rules\Util
  */
 class BusinessRulesUtil {
+  use StringTranslationTrait;
 
   const BIGGER            = '>';
   const BIGGER_OR_EQUALS  = '>=';
@@ -244,7 +246,7 @@ class BusinessRulesUtil {
    *   The render array.
    */
   public function getAddItemsForm(ItemInterface $item, array $items, array $selected_items, $label, $label_plural, Url $back_url) {
-    $form['#title'] = t('Add @label_plural on %parent', [
+    $form['#title'] = $this->t('Add @label_plural on %parent', [
       '%parent'       => $item->label(),
       '@label_plural' => $label_plural,
     ]);
@@ -260,22 +262,22 @@ class BusinessRulesUtil {
 
     $form['filters']['text'] = [
       '#type'        => 'search',
-      '#title'       => t('Search'),
+      '#title'       => $this->t('Search'),
       '#size'        => 30,
-      '#placeholder' => t('Search for a @label key', ['@label' => $label]),
+      '#placeholder' => $this->t('Search for a @label key', ['@label' => $label]),
       '#attributes'  => [
         'class'        => ['table-filter-text'],
         'data-table'   => '.searchable-list',
         'autocomplete' => 'off',
-        'title'        => t('Enter a part of the @label key to filter by.', ['@label' => $label]),
+        'title'        => $this->t('Enter a part of the @label key to filter by.', ['@label' => $label]),
       ],
     ];
 
     $header = [
       'label'       => $label,
-      'id'          => t('Machine Name'),
-      'type'        => t('Type'),
-      'description' => t('Description'),
+      'id'          => $this->t('Machine Name'),
+      'type'        => $this->t('Type'),
+      'description' => $this->t('Description'),
       'filter'      => [
         'data'  => ['#markup' => 'filter'],
         'style' => 'display: none',
@@ -319,12 +321,12 @@ class BusinessRulesUtil {
       '#type'  => 'actions',
       'submit' => [
         '#type'        => 'submit',
-        '#value'       => t('Save'),
+        '#value'       => $this->t('Save'),
         '#button_type' => 'primary',
       ],
       'back'   => [
         '#type'        => 'link',
-        '#title'       => t('Back'),
+        '#title'       => $this->t('Back'),
         '#button_type' => 'danger',
         '#attributes'  => ['class' => ['button', 'button--danger']],
         '#url'         => $back_url,
@@ -356,7 +358,7 @@ class BusinessRulesUtil {
     foreach ($fields as $field_name => $field_storage) {
 
       $field_type           = $field_storage->getType();
-      $options[$field_name] = t('@type: @field', [
+      $options[$field_name] = $this->t('@type: @field', [
         '@type'  => $field_types[$field_type]['label'],
         '@field' => $field_storage->getLabel() . " [$field_name]",
       ]);
@@ -396,7 +398,7 @@ class BusinessRulesUtil {
       if (($field_storage instanceof FieldConfig || ($field_storage instanceof BaseFieldDefinition && $field_name == 'title'))
       ) {
         if (count($field_types_ids) == 0 || in_array($field_type, $field_types_ids)) {
-          $options[$field_name] = t('@type: @field', [
+          $options[$field_name] = $this->t('@type: @field', [
             '@type'  => $field_types[$field_type]['label'],
             '@field' => $field_storage->getLabel() . " [$field_name]",
           ]);
@@ -420,7 +422,7 @@ class BusinessRulesUtil {
    */
   public function getBundles($entity_type) {
     $output = [
-      '' => t('- Select -'),
+      '' => $this->t('- Select -'),
     ];
 
     $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type);
@@ -447,10 +449,10 @@ class BusinessRulesUtil {
       self::SMALLER_OR_EQUALS => '<=',
       self::EQUALS            => '=',
       self::DIFFERENT         => '!=',
-      self::IS_EMPTY          => t('Data value is empty'),
-      self::CONTAINS          => t('Contains'),
-      self::STARTS_WITH       => t('Starts with'),
-      self::ENDS_WITH         => t('Ends with'),
+      self::IS_EMPTY          => $this->t('Data value is empty'),
+      self::CONTAINS          => $this->t('Contains'),
+      self::STARTS_WITH       => $this->t('Starts with'),
+      self::ENDS_WITH         => $this->t('Ends with'),
     ];
 
     return $operators;
@@ -589,13 +591,13 @@ class BusinessRulesUtil {
 
       $details = [
         '#type'        => 'details',
-        '#title'       => t('Available Variables for this context'),
+        '#title'       => $this->t('Available Variables for this context'),
         '#collapsed'   => TRUE,
         '#collapsable' => TRUE,
       ];
 
       $header           = $list->buildHeader();
-      $new_header['id'] = t('Variable');
+      $new_header['id'] = $this->t('Variable');
       unset($header['id']);
       foreach ($header as $key => $item) {
         $new_header[$key] = $item;
@@ -685,7 +687,7 @@ class BusinessRulesUtil {
         if (empty($views_display) || $display['display_plugin'] == $views_display) {
           $options[$view->label() . ' : ' .
           substr($view->get('description'), 0, 100) .
-          $big_description][$id . ':' . $display['id']] = t('@view : @display_id : @display_title', [
+          $big_description][$id . ':' . $display['id']] = $this->t('@view : @display_id : @display_title', [
             '@view'          => $view->label(),
             '@display_id'    => $display['id'],
             '@display_title' => $display['display_title'],
@@ -713,9 +715,9 @@ class BusinessRulesUtil {
     $field_types = $this->fieldTypePluginManager->getDefinitions();
 
     $header = [
-      'variable' => t('Variable'),
-      'field'    => t('Field'),
-      'type'     => t('Type'),
+      'variable' => $this->t('Variable'),
+      'field'    => $this->t('Field'),
+      'type'     => $this->t('Type'),
     ];
 
     $rows = [];
@@ -935,7 +937,7 @@ class BusinessRulesUtil {
 
       $details = [
         '#type'        => 'details',
-        '#title'       => t('Business Rules using this item'),
+        '#title'       => $this->t('Business Rules using this item'),
         '#collapsed'   => TRUE,
         '#collapsable' => TRUE,
       ];
@@ -980,7 +982,7 @@ class BusinessRulesUtil {
 
       $details = [
         '#type'        => 'details',
-        '#title'       => t('Conditions using this item'),
+        '#title'       => $this->t('Conditions using this item'),
         '#collapsed'   => TRUE,
         '#collapsable' => TRUE,
       ];
@@ -1024,7 +1026,7 @@ class BusinessRulesUtil {
 
       $details = [
         '#type'        => 'details',
-        '#title'       => t('Actions using this item'),
+        '#title'       => $this->t('Actions using this item'),
         '#collapsed'   => TRUE,
         '#collapsable' => TRUE,
       ];

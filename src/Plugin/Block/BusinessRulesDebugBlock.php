@@ -4,7 +4,9 @@ namespace Drupal\business_rules\Plugin\Block;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class BusinessRulesDebugBlock.
@@ -18,7 +20,44 @@ use Drupal\Core\Session\AccountInterface;
  *
  * )
  */
-class BusinessRulesDebugBlock extends BlockBase {
+class BusinessRulesDebugBlock extends BlockBase implements ContainerFactoryPluginInterface {
+
+  /**
+   * Business Rules configuration.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  private $config;
+
+  /**
+   * The keyvalue expirable.
+   *
+   * @var \Drupal\Core\KeyValueStore\KeyValueStoreExpirableInterface
+   */
+  private $keyvalue;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContainerInterface $container) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->config   = $container->get('config.factory')
+      ->get('business_rules.settings');
+    $this->keyvalue = $container->get('keyvalue.expirable')
+      ->get('business_rules.debug');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -31,13 +70,11 @@ class BusinessRulesDebugBlock extends BlockBase {
    * {@inheritdoc}
    */
   public function build() {
-    $config = \Drupal::configFactory()->get('business_rules.settings');
     $output = [];
-    if ($config->get('debug_screen')) {
-      $keyvalue   = \Drupal::keyValueExpirable('business_rules.debug');
+    if ($this->config->get('debug_screen')) {
       $session_id = session_id();
-      $debug      = $keyvalue->get($session_id);
-      $keyvalue->set($session_id, NULL);
+      $debug      = $this->keyvalue->get($session_id);
+      $this->keyvalue->set($session_id, NULL);
 
       if (count($debug)) {
         $output['#attached']['library'][] = 'business_rules/style';

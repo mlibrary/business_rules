@@ -26,6 +26,8 @@ services:
     arguments: []
     tags:
       - { name: event_subscriber }
+    calls:
+      - [setContainer, ['@service_container']]
 
   plugin.manager.business_rules.action:
     class: Drupal\business_rules\Plugin\BusinessRulesActionManager

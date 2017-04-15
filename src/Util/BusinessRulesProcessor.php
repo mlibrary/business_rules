@@ -11,6 +11,7 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\VariableObject;
 use Drupal\business_rules\VariablesSet;
 use Drupal\Core\Link;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\dbug\Dbug;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\Event;
@@ -23,6 +24,8 @@ use Symfony\Component\EventDispatcher\Event;
  * @package Drupal\business_rules\Util
  */
 class BusinessRulesProcessor {
+  use StringTranslationTrait;
+
   /**
    * The action manager.
    *
@@ -391,7 +394,7 @@ class BusinessRulesProcessor {
       if (isset($evaluates_variables[$rule->id()]) && is_array($evaluates_variables[$rule->id()])) {
         $output['triggered_rules'][$rule->id()]['variables'] = [
           '#type'        => 'details',
-          '#title'       => t('Variables'),
+          '#title'       => $this->t('Variables'),
           '#collapsible' => TRUE,
           '#collapsed'   => TRUE,
         ];
@@ -420,7 +423,7 @@ class BusinessRulesProcessor {
             $output['triggered_rules'][$rule->id()]['variables'][$evaluates_variable->getId()] = [
               '#type'        => 'details',
               '#title'       => $variable->label(),
-              '#description' => $variable_link->toString() . '<br>' . $variable->getDescription() . '<br>' . t('Value:') . '<br>',
+              '#description' => $variable_link->toString() . '<br>' . $variable->getDescription() . '<br>' . $this->t('Value:') . '<br>',
               '#collapsible' => TRUE,
               '#collapsed'   => TRUE,
             ];
@@ -435,7 +438,7 @@ class BusinessRulesProcessor {
 
       $output['triggered_rules'][$rule->id()]['items'] = [
         '#type'        => 'details',
-        '#title'       => t('Items'),
+        '#title'       => $this->t('Items'),
         '#collapsible' => TRUE,
         '#collapsed'   => TRUE,
       ];
@@ -541,7 +544,7 @@ class BusinessRulesProcessor {
             }
           }
 
-          $action_label           = t('Action');
+          $action_label           = $this->t('Action');
           $output[$item->getId()] = [
             '#type'        => 'details',
             '#title'       => $action_label . ': ' . $action->label(),
@@ -574,8 +577,8 @@ class BusinessRulesProcessor {
             }
           }
 
-          $title                  = $condition->isReverse() ? t('(Not)') . ' ' . $condition->label() : $condition->label();
-          $condition_label        = t('Condition');
+          $title                  = $condition->isReverse() ? $this->t('(Not)') . ' ' . $condition->label() : $condition->label();
+          $condition_label        = $this->t('Condition');
           $output[$item->getId()] = [
             '#type'        => 'details',
             '#title'       => $condition_label . ': ' . $title,
@@ -589,7 +592,7 @@ class BusinessRulesProcessor {
           if (is_array($success_items) && count($success_items)) {
             $output[$item->getId()]['success']   = [
               '#type'        => 'details',
-              '#title'       => t('Success items'),
+              '#title'       => $this->t('Success items'),
               '#attributes'  => ['class' => [$style]],
               '#collapsible' => TRUE,
               '#collapsed'   => TRUE,
@@ -601,7 +604,7 @@ class BusinessRulesProcessor {
           if (is_array($fail_items) && count($fail_items)) {
             $output[$item->getId()]['fail']   = [
               '#type'        => 'details',
-              '#title'       => t('Fail items'),
+              '#title'       => $this->t('Fail items'),
               '#attributes'  => ['class' => [$style == 'success' ? 'fail' : 'success']],
               '#collapsible' => TRUE,
               '#collapsed'   => TRUE,

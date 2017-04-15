@@ -8,6 +8,7 @@ use Drupal\business_rules\Entity\BusinessRule;
 use Drupal\business_rules\Entity\Condition;
 use Drupal\business_rules\Entity\Variable;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 
 /**
@@ -18,6 +19,7 @@ use Drupal\Core\Url;
  * @package Drupal\business_rules\Util
  */
 class Flowchart {
+  use StringTranslationTrait;
 
   /**
    * The matrix.
@@ -212,7 +214,7 @@ class Flowchart {
         /** @var \Drupal\business_rules\BusinessRulesItemObject $success_item */
         foreach ($success_items as $success_item) {
           $success_item = $success_item->loadEntity();
-          $yes          = t('Yes');
+          $yes          = $this->t('Yes');
           if (!empty($success_item)) {
             $this->mountMatrix($success_item, $parent_element, 'success', $yes->render());
           }
@@ -220,7 +222,7 @@ class Flowchart {
         $fail_items = $item->getFailItems();
         foreach ($fail_items as $fail_item) {
           $fail_item = $fail_item->loadEntity();
-          $no        = t('No');
+          $no        = $this->t('No');
           if (!empty($fail_item)) {
             $this->mountMatrix($fail_item, $parent_element, 'fail', $no->render());
           }

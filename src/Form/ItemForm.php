@@ -5,7 +5,6 @@ namespace Drupal\business_rules\Form;
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\Condition;
 use Drupal\business_rules\Entity\Variable;
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Entity\EntityForm;
@@ -334,7 +333,7 @@ abstract class ItemForm extends EntityForm {
       $action    = Action::load($id);
       $condition = Condition::load($id);
       if (!empty($action) || !empty($condition)) {
-        $form_state->setErrorByName('id', t('The machine-readable name is already in use. It must be unique.'));
+        $form_state->setErrorByName('id', $this->t('The machine-readable name is already in use. It must be unique.'));
       }
     }
 

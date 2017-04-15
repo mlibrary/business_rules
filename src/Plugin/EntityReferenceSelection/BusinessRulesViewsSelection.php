@@ -439,7 +439,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     $options['_none'] = t('-Select-');
     if ($view->execute()) {
       $view_result = $view->result;
-      foreach ($view_result as $key => $row) {
+      foreach ($view_result as $row) {
         /** @var \Drupal\Core\Entity\Entity $entity */
         $entity                 = $row->_entity;
         $options[$entity->id()] = $entity->label();
