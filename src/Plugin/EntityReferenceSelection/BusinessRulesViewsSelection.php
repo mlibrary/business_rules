@@ -30,6 +30,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class BusinessRulesViewsSelection extends PluginBase implements SelectionInterface, ContainerFactoryPluginInterface {
 
   /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $currentUser;
+
+  /**
    * The entity manager.
    *
    * @var \Drupal\Core\Entity\EntityManagerInterface
@@ -42,13 +49,6 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
   protected $moduleHandler;
-
-  /**
-   * The current user.
-   *
-   * @var \Drupal\Core\Session\AccountInterface
-   */
-  protected $currentUser;
 
   /**
    * The Business Rules Util.

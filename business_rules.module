@@ -14,7 +14,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\user\Entity\User;
 
-// @TODO token integration.
 /**
  * Implements hook_help().
  */

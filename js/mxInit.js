@@ -1,5 +1,6 @@
-var urlParams = (function(url)
-{
+var urlParams = (function(url) {
+  'use strict';
+
   var result = new Object();
   var idx = url.lastIndexOf('?');
 

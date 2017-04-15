@@ -465,9 +465,9 @@ class BusinessRulesUtil {
    *   The Url.
    */
   public function getCurrentUri() {
-    $current      = \Drupal::request()->server->get('REQUEST_URI');
+    $current      = $this->request->server->get('REQUEST_URI');
     $fake_request = Request::create($current);
-    $url_object   = \Drupal::service('path.validator')
+    $url_object   = $this->container->get('path.validator')
       ->getUrlIfValid($fake_request->getRequestUri());
     if ($url_object) {
       return $url_object;

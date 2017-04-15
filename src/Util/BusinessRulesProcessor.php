@@ -322,7 +322,7 @@ class BusinessRulesProcessor {
         }
         else {
           $this->util->logger->error('Action id: %id not found', ['%id' => $item->getId()]);
-          drupal_set_message(t('Business Rules - Action id: %id not found.', ['%id' => $item->getId()]), 'error');
+          drupal_set_message($this->t('Business Rules - Action id: %id not found.', ['%id' => $item->getId()]), 'error');
         }
       }
       elseif ($item->getType() == BusinessRulesItemObject::CONDITION) {
@@ -330,7 +330,7 @@ class BusinessRulesProcessor {
 
         if (empty($condition)) {
           $this->util->logger->error('Condition id: %id not found', ['%id' => $item->getId()]);
-          drupal_set_message(t('Business Rules Condition id: %id not found.', ['%id' => $item->getId()]), 'error');
+          drupal_set_message($this->t('Business Rules Condition id: %id not found.', ['%id' => $item->getId()]), 'error');
         }
         else {
           $success = $this->isConditionValid($condition, $event);

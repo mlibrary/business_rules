@@ -427,8 +427,7 @@ class BusinessRuleForm extends EntityForm {
 
         if (!empty($item)) {
 
-          $key = $item->id();
-
+          $key         = $item->id();
           $listBuilder = $this->entityTypeManager->getListBuilder($item->getEntityTypeId());
           $operations  = $listBuilder->buildOperations($item);
 
