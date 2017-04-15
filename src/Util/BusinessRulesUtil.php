@@ -539,7 +539,7 @@ class BusinessRulesUtil {
     $options = [];
 
     /**@var  \Drupal\user\Entity\Role $role */
-    foreach ($roles as $key => $role) {
+    foreach ($roles as $role) {
       $options[$role->id()] = $role->label();
     }
     asort($options);
