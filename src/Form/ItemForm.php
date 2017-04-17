@@ -226,7 +226,7 @@ abstract class ItemForm extends EntityForm {
         'business_rules.ajax.modal',
         [
           'method'     => 'nojs',
-          'title'      => t('Tokens'),
+          'title'      => $this->t('Tokens'),
           'collection' => 'token_tree',
           'key'        => 'token_tree',
         ],
