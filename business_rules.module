@@ -3,8 +3,6 @@
 /**
  * @file
  * Business Rules module.
- *
- * @TODO implement token integration.
  */
 
 use Drupal\business_rules\Events\BusinessRulesEvent;
