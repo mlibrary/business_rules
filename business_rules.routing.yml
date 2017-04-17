@@ -1,39 +1,3 @@
-business_rules:
-  path: '/admin/config/workflow/business_rules'
-  defaults:
-    _entity_list: 'business_rule'
-    _title: 'Business Rules'
-    view_mode: 'list'
-  requirements:
-      _permission: 'administer site configuration'
-
-business_rules.condition:
-  path: '/admin/config/workflow/business_rules/condition'
-  defaults:
-    _entity_list: 'business_rules_condition'
-    _title: 'Conditions'
-    view_mode: 'list'
-  requirements:
-      _permission: 'administer site configuration'
-
-business_rules.action:
-  path: '/admin/config/workflow/business_rules/action'
-  defaults:
-    _entity_list: 'business_rules_action'
-    _title: 'Actions'
-    view_mode: 'list'
-  requirements:
-      _permission: 'administer site configuration'
-
-business_rules.variable:
-  path: '/admin/config/workflow/business_rules/variable'
-  defaults:
-    _entity_list: 'business_rules_variable'
-    _title: 'Variables'
-    view_mode: 'list'
-  requirements:
-      _permission: 'administer site configuration'
-
 # Settings
 business_rules.settings:
   path: '/admin/config/workflow/business_rules/settings'
