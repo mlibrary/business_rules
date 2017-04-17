@@ -19,7 +19,6 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldConfig;
-use Drupal\user\Entity\Role;
 use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -107,11 +106,32 @@ class BusinessRulesUtil {
   public $logger;
 
   /**
+   * The ModuleHandler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  public $moduleHandler;
+
+  /**
    * The currently active request object.
    *
    * @var \Symfony\Component\HttpFoundation\Request
    */
-  public $request;
+  public    $request;
+
+  /**
+   * The Drupal token service.
+   *
+   * @var \Drupal\Core\Utility\Token
+   */
+  public $token;
+
+  /**
+   * The token tree builder.
+   *
+   * @var \Drupal\token\TreeBuilderInterface
+   */
+  public $tokenTree;
 
   /**
    * The variable manager.
@@ -142,6 +162,15 @@ class BusinessRulesUtil {
       ->get('business_rules');
     $this->keyValueExpirable      = $container->get('keyvalue.expirable');
     $this->flowchart              = $container->get('business_rules.flowchart');
+    $this->moduleHandler          = $container->get('module_handler');
+    $this->token                  = $container->get('token');
+
+    if ($this->moduleHandler->moduleExists('token')) {
+      $this->tokenTree = $container->get('token.tree_builder');
+    }
+    else {
+      $this->tokenTree = NULL;
+    }
   }
 
   /**
@@ -535,7 +564,8 @@ class BusinessRulesUtil {
    *   Options array.
    */
   public function getUserRolesOptions() {
-    $roles   = $this->entityTypeManager->getStorage('user_role')->loadMultiple();
+    $roles   = $this->entityTypeManager->getStorage('user_role')
+      ->loadMultiple();
     $options = [];
 
     /**@var  \Drupal\user\Entity\Role $role */

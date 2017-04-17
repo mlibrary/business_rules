@@ -93,6 +93,7 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
 
     if (is_string($string)) {
       preg_match_all(self::VARIABLE_REGEX, $string, $variables);
+
       return $variables[1];
     }
     else {
@@ -162,6 +163,45 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {}
+  public function processTokens(ItemInterface &$item) {
+    $settings = $item->getSettings();
+    foreach ($settings as $key => $setting) {
+      if (is_string($setting)) {
+        $settings[$key] = $this->util->token->replace($setting);
+      }
+      elseif (is_array($setting)) {
+        $settings[$key] = $this->processTokenArraySetting($setting);
+      }
+    }
+
+    foreach ($settings as $key => $setting) {
+      $item->setSetting($key, $setting);
+    }
+  }
+
+  /**
+   * Helper function to process tokens if the setting is an array.
+   *
+   * @param array $setting
+   *   The setting array.
+   */
+  private function processTokenArraySetting(array &$setting) {
+    if (count($setting)) {
+      foreach ($setting as $key => $value) {
+        if (is_string($value)) {
+          $setting[$key] = $this->util->token->replace($value);
+        }
+        elseif (is_array($value)) {
+          $this->processTokenArraySetting($value);
+        }
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+  }
 
 }

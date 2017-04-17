@@ -128,6 +128,14 @@ interface BusinessRulesItemPluginInterface extends PluginInspectionInterface {
   public function processSettings(array $settings, ItemInterface $item);
 
   /**
+   * Process the tokens on the settings property for the item.
+   *
+   * @param \Drupal\business_rules\ItemInterface $item
+   *   The Business Rules item.
+   */
+  public function processTokens(ItemInterface &$item);
+
+  /**
    * Process the item replacing the variables for it's values.
    *
    * @param mixed $content

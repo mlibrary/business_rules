@@ -9,6 +9,7 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -166,6 +167,12 @@ abstract class ItemForm extends EntityForm {
       $form['additional_fields']            = [];
       $form['additional_fields']['#weight'] = 60;
 
+      // Show available tokens replacements.
+      $form['tokens']['#markup']      = $this->getTokensLink();
+      $form['tokens']['#weight']      = 900;
+      $form['#attached']['library'][] = 'token/token';
+      $form['#attached']['library'][] = 'token/jquery.treeTable';
+
       // Show the available variables.
       $form['variables']            = $this->util->getVariablesDetailsBox($item);
       $form['variables']['#weight'] = 1000;
@@ -199,6 +206,42 @@ abstract class ItemForm extends EntityForm {
     }
 
     return $form;
+  }
+
+  /**
+   * Provide a link a modal window with all available tokens.
+   *
+   * @return \Drupal\Core\GeneratedLink|null
+   *   The modal link or NULL if Token module is not installed.
+   */
+  protected function getTokensLink() {
+
+    if ($this->util->moduleHandler->moduleExists('token')) {
+      // Show a link to a modal window with all available tokens.
+      $keyvalue = $this->util->getKeyValueExpirable('token_tree');
+      $content  = $this->util->tokenTree->buildAllRenderable();
+      $keyvalue->set('token_tree', $content);
+
+      $tokens_link = Link::createFromRoute($this->t('Click here to see all available tokens. Be aware that some tokens will only works on the right context.'),
+        'business_rules.ajax.modal',
+        [
+          'method'     => 'nojs',
+          'title'      => t('Tokens'),
+          'collection' => 'token_tree',
+          'key'        => 'token_tree',
+        ],
+        [
+          'attributes' => [
+            'class' => ['use-ajax'],
+          ],
+        ]
+      )->toString();
+
+      return $tokens_link;
+    }
+    else {
+      return NULL;
+    }
   }
 
   /**
