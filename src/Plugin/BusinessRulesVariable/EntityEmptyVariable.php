@@ -47,8 +47,8 @@ class EntityEmptyVariable extends BusinessRulesVariablePlugin {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContainerInterface $container) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $container);
     $this->entityFieldManager     = $this->util->container->get('entity_field.manager');
     $this->fieldTypePluginManager = $this->util->container->get('plugin.manager.field.field_type');
   }
@@ -59,7 +59,7 @@ class EntityEmptyVariable extends BusinessRulesVariablePlugin {
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $item) {
     $settings['help'] = [
       '#type'   => 'markup',
-      '#markup' => t('After this variable is filled, you may refer to each field of this variable as {{variable_id->field_name}}'),
+      '#markup' => $this->t('After this variable is filled, you may refer to each field of this variable as {{variable_id->field_name}}'),
     ];
 
     return $settings;
@@ -74,11 +74,11 @@ class EntityEmptyVariable extends BusinessRulesVariablePlugin {
     $keyvalue = $this->util->getKeyValueExpirable('entity_empty_variable');
     $keyvalue->set('variableFields.' . $variable->id(), $content);
 
-    $details_link = Link::createFromRoute(t('Click here to see the entity fields'),
+    $details_link = Link::createFromRoute($this->t('Click here to see the entity fields'),
       'business_rules.ajax.modal',
       [
         'method'     => 'nojs',
-        'title'      => t('Entity fields'),
+        'title'      => $this->t('Entity fields'),
         'collection' => 'entity_empty_variable',
         'key'        => 'variableFields.' . $variable->id(),
       ],

@@ -10,6 +10,7 @@ use Drupal\business_rules\VariableObject;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\views\Views;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class ViewResultVariable.
@@ -42,8 +43,8 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration = [], $plugin_id = 'view_result_variable', $plugin_definition = []) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
+  public function __construct(array $configuration = [], $plugin_id = 'view_result_variable', $plugin_definition = [], ContainerInterface $container) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $container);
 
     $this->entityFieldManager = $this->util->container->get('entity_field.manager');
     $this->bundleInfo         = $this->util->container->get('entity_type.bundle.info');
@@ -56,17 +57,17 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
 
     $settings['view'] = [
       '#type'          => 'select',
-      '#title'         => t('View to execute. View name : Display mode id : Display mode title.'),
+      '#title'         => $this->t('View to execute. View name : Display mode id : Display mode title.'),
       '#options'       => $this->util->getViewsOptions(),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('view'),
-      '#description'   => t("Select the view to get the results. When you use the view fields, it will always have the raw value."),
+      '#description'   => $this->t("Select the view to get the results. When you use the view fields, it will always have the raw value."),
     ];
 
     $settings['arguments'] = [
       '#type'          => 'textarea',
-      '#title'         => t('Arguments'),
-      '#description'   => t('Any argument the view may need, one per line. Be aware of including them at same order as the CONTEXTUAL FILTERS configured in the view. You may use variables.'),
+      '#title'         => $this->t('Arguments'),
+      '#description'   => $this->t('Any argument the view may need, one per line. Be aware of including them at same order as the CONTEXTUAL FILTERS configured in the view. You may use variables.'),
       '#default_value' => $item->getSettings('arguments'),
     ];
 
@@ -84,11 +85,11 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
     $keyvalue = $this->util->getKeyValueExpirable('view_result_variable');
     $keyvalue->set('variableFields.' . $variable->id(), $content);
 
-    $details_link = Link::createFromRoute(t('Click here to see the view fields'),
+    $details_link = Link::createFromRoute($this->t('Click here to see the view fields'),
       'business_rules.ajax.modal',
       [
         'method'     => 'nojs',
-        'title'      => t('View fields'),
+        'title'      => $this->t('View fields'),
         'collection' => 'view_result_variable',
         'key'        => 'variableFields.' . $variable->id(),
       ],
@@ -186,9 +187,9 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
     $fields = $view->field;
 
     $header = [
-      'variable' => t('Variable'),
-      'field'    => t('Field'),
-      'type'     => t('Type'),
+      'variable' => $this->t('Variable'),
+      'field'    => $this->t('Field'),
+      'type'     => $this->t('Type'),
     ];
 
     $rows = [];
@@ -222,14 +223,14 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
     }
     else {
       $rows[] = [
-        'data'    => ['#markup' => t('This view has no fields.')],
+        'data'    => ['#markup' => $this->t('This view has no fields.')],
         'colspan' => 3,
       ];
     }
 
     $content['help'] = [
       '#type'   => 'markup',
-      '#markup' => t('Notice that as this items are arrays, you only can use this variable values on items inside an action type: "Loop through a view result variable".'),
+      '#markup' => $this->t('Notice that as this items are arrays, you only can use this variable values on items inside an action type: "Loop through a view result variable".'),
     ];
 
     $content['variable_fields'] = [

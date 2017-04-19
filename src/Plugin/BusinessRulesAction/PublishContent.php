@@ -40,10 +40,10 @@ class PublishContent extends BusinessRulesActionPlugin {
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $item) {
     $settings['value'] = [
       '#type'          => 'textfield',
-      '#title'         => t('Value'),
+      '#title'         => $this->t('Value'),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('value'),
-      '#description'   => t('The value to be compared against the field.
+      '#description'   => $this->t('The value to be compared against the field.
         <br>All entities which the field equals to this value will be published.'),
     ];
 
@@ -89,7 +89,7 @@ class PublishContent extends BusinessRulesActionPlugin {
 
     $result = [
       '#type'   => 'markup',
-      '#markup' => t('Publish entities with ids %ids.', ['%ids' => implode(',', $ids)]),
+      '#markup' => $this->t('Publish entities with ids %ids.', ['%ids' => implode(',', $ids)]),
     ];
 
     return $result;

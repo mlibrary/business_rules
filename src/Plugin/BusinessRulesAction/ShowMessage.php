@@ -33,20 +33,20 @@ class ShowMessage extends BusinessRulesActionPlugin {
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $item) {
     $settings['message_type'] = [
       '#type'          => 'select',
-      '#title'         => t('Message Type'),
+      '#title'         => $this->t('Message Type'),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('message_type'),
       '#options'       => [
-        'status'  => t('Status message'),
-        'warning' => t('Warning message'),
-        'error'   => t('Error message'),
+        'status'  => $this->t('Status message'),
+        'warning' => $this->t('Warning message'),
+        'error'   => $this->t('Error message'),
       ],
     ];
 
     $settings['message'] = [
       '#type'          => 'textarea',
-      '#title'         => t('Message'),
-      '#description'   => t('To use variables on the message, just type the variable machine name as {{variable_id}}.'),
+      '#title'         => $this->t('Message'),
+      '#description'   => $this->t('To use variables on the message, just type the variable machine name as {{variable_id}}.'),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('message'),
     ];
@@ -68,7 +68,7 @@ class ShowMessage extends BusinessRulesActionPlugin {
 
     $result = [
       '#type'   => 'markup',
-      '#markup' => t('Message type: %type, text: %message showed.', [
+      '#markup' => $this->t('Message type: %type, text: %message showed.', [
         '%message' => $message,
         '%type' => $message_type,
       ]),

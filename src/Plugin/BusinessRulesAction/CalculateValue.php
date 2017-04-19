@@ -33,16 +33,16 @@ class CalculateValue extends BusinessRulesActionPlugin {
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $item) {
     $settings['variable'] = [
       '#type'          => 'select',
-      '#title'         => t('Variable to store the result'),
+      '#title'         => $this->t('Variable to store the result'),
       '#options'       => $this->util->getVariablesOptions(['custom_value_variable']),
       '#default_value' => $item->getSettings('variable'),
       '#required'      => TRUE,
-      '#description'   => t('The variable to store the value. Only variables type "Custom value" are allowed.'),
+      '#description'   => $this->t('The variable to store the value. Only variables type "Custom value" are allowed.'),
     ];
 
     $settings['formula'] = [
       '#type'          => 'textarea',
-      '#title'         => t('Formula'),
+      '#title'         => $this->t('Formula'),
       '#default_value' => $item->getSettings('formula'),
       '#description'   => $this->getFormulaDescription(),
     ];
@@ -60,59 +60,59 @@ class CalculateValue extends BusinessRulesActionPlugin {
 
     $rows[] = [
       'example' => '{{variable_a}} + {{variable_b}}',
-      'name'    => t('Addition'),
-      'result'  => t('Sum of {{variable_a}} and {{variable_b}}'),
+      'name'    => $this->t('Addition'),
+      'result'  => $this->t('Sum of {{variable_a}} and {{variable_b}}'),
     ];
 
     $rows[] = [
       'example' => '{{variable_a}} - {{variable_b}}',
-      'name'    => t('Subtraction'),
-      'result'  => t('Difference of {{variable_a}} and {{variable_b}}'),
+      'name'    => $this->t('Subtraction'),
+      'result'  => $this->t('Difference of {{variable_a}} and {{variable_b}}'),
     ];
 
     $rows[] = [
       'example' => '{{variable_a}} * {{variable_b}}',
-      'name'    => t('Multiplication'),
-      'result'  => t('Product of {{variable_a}} and {{variable_b}}'),
+      'name'    => $this->t('Multiplication'),
+      'result'  => $this->t('Product of {{variable_a}} and {{variable_b}}'),
     ];
 
     $rows[] = [
       'example' => '{{variable_a}} / {{variable_b}}',
-      'name'    => t('Division'),
-      'result'  => t('Quotient of {{variable_a}} and {{variable_b}}'),
+      'name'    => $this->t('Division'),
+      'result'  => $this->t('Quotient of {{variable_a}} and {{variable_b}}'),
     ];
 
     $rows[] = [
       'example' => '{{variable_a}} % {{variable_b}}',
-      'name'    => t('Modulo'),
-      'result'  => t('Remainder of {{variable_a}} divided by {{variable_b}}'),
+      'name'    => $this->t('Modulo'),
+      'result'  => $this->t('Remainder of {{variable_a}} divided by {{variable_b}}'),
     ];
 
     $rows[] = [
       'example' => '{{variable_a}} ** {{variable_b}}',
-      'name'    => t('Exponentiation'),
-      'result'  => t('Result of raising {{variable_a}} to the {{variable_b}}. PHP 5.6 and over.'),
+      'name'    => $this->t('Exponentiation'),
+      'result'  => $this->t('Result of raising {{variable_a}} to the {{variable_b}}. PHP 5.6 and over.'),
     ];
 
     $rows[] = [
       'example' => '({{variable_a}} + {{variable_b}}) + {{variable_c}}',
-      'name'    => t('Parenthesis'),
-      'result'  => t('Change the precedence of the mathematical equation.'),
+      'name'    => $this->t('Parenthesis'),
+      'result'  => $this->t('Change the precedence of the mathematical equation.'),
     ];
 
     $table = [
       '#type'   => 'table',
       '#header' => [
-        'example' => t('Example'),
-        'name'    => t('Name'),
-        'result'  => t('Result'),
+        'example' => $this->t('Example'),
+        'name'    => $this->t('Name'),
+        'result'  => $this->t('Result'),
       ],
       '#rows'   => $rows,
     ];
 
     $output['help'] = [
       '#type'      => 'details',
-      '#title'     => t('Formula helper'),
+      '#title'     => $this->t('Formula helper'),
       '#collapsed' => TRUE,
     ];
 
@@ -167,7 +167,7 @@ class CalculateValue extends BusinessRulesActionPlugin {
     if ($success) {
       $result = [
         '#type'   => 'markup',
-        '#markup' => t('Formula "%raw_formula" transformed into "%formula" with the result: "%result" assigned to variable "%variable".', [
+        '#markup' => $this->t('Formula "%raw_formula" transformed into "%formula" with the result: "%result" assigned to variable "%variable".', [
           '%raw_formula' => $raw_formula,
           '%formula'     => $formula,
           '%variable'    => $variable,
@@ -177,10 +177,10 @@ class CalculateValue extends BusinessRulesActionPlugin {
     else {
       $result = [
         '#type'   => 'markup',
-        '#markup' => t('The expression: "%raw_formula" processed as "%formula" could not be evaluated. Please, make sure it is a valid numeric expression.', [
+        '#markup' => $this->t('The expression: "%raw_formula" processed as "%formula" could not be evaluated. Please, make sure it is a valid numeric expression.', [
           '%raw_formula' => $raw_formula,
           '%formula'     => $formula,
-          '%result'      => $result,
+          '%result'      => $formula_result,
         ]),
       ];
     }

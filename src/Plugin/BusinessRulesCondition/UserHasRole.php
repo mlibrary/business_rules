@@ -34,7 +34,7 @@ class UserHasRole extends BusinessRulesConditionPlugin {
 
     $settings['roles'] = [
       '#type'          => 'checkboxes',
-      '#title'         => t('Roles'),
+      '#title'         => $this->t('Roles'),
       '#required'      => TRUE,
       '#options'       => $this->util->getUserRolesOptions(),
       '#default_value' => is_array($item->getSettings('roles')) ? $item->getSettings('roles') : [],
@@ -42,13 +42,13 @@ class UserHasRole extends BusinessRulesConditionPlugin {
 
     $settings['criteria'] = [
       '#type'          => 'select',
-      '#title'         => t('Match criteria'),
-      '#description'   => t('The condition will check if current user has all selected roles or at least one role?'),
+      '#title'         => $this->t('Match criteria'),
+      '#description'   => $this->t('The condition will check if current user has all selected roles or at least one role?'),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('criteria'),
       '#options'       => [
-        'all' => t('All roles'),
-        'one' => t('At least one role'),
+        'all' => $this->t('All roles'),
+        'one' => $this->t('At least one role'),
       ],
     ];
 
@@ -79,11 +79,13 @@ class UserHasRole extends BusinessRulesConditionPlugin {
     $user_roles   = array_values($current_user->getRoles());
     $result       = FALSE;
 
-    if ($criteria == 'all') {
-      $result = (count(array_intersect($roles, $user_roles)) == count($roles));
-    }
-    elseif ($criteria == 'one') {
-      $result = !empty(array_intersect($user_roles, $roles));
+    if (is_array($roles) && is_array($user_roles)) {
+      if ($criteria == 'all') {
+        $result = (count(array_intersect($roles, $user_roles)) == count($roles));
+      }
+      elseif ($criteria == 'one') {
+        $result = !empty(array_intersect($user_roles, $roles));
+      }
     }
 
     return $result;

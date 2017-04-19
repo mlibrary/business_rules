@@ -20,7 +20,7 @@ type of rules every time entity is being viewed, you need to disable caches for
 entities.
 
 #####Project homepage: https://www.drupal.org/business_rules
-#####Documentation page: https://www.drupal.org/business_rules
+#####Documentation page: https://www.drupal.org/docs/8/modules/business-rules
 
 #Author
 * Yuri Seki

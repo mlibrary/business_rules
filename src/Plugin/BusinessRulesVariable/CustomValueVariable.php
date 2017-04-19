@@ -37,8 +37,8 @@ class CustomValueVariable extends BusinessRulesVariablePlugin {
 
     $settings['value'] = [
       '#type'          => 'textarea',
-      '#title'         => t('Custom value'),
-      '#description'   => t("The initial value for this variable. You can change this value through actions."),
+      '#title'         => $this->t('Custom value'),
+      '#description'   => $this->t("The initial value for this variable. You can change this value through actions."),
       '#required'      => FALSE,
       '#default_value' => $item->getSettings('value'),
     ];

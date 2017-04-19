@@ -283,7 +283,7 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
   public function getVariables() {
     $item_type    = $this->itemManager->getDefinition($this->getType());
     $reflection   = new \ReflectionClass($item_type['class']);
-    $defined_item = $reflection->newInstance($item_type, $item_type['id'], $item_type);
+    $defined_item = $reflection->newInstance($item_type, $item_type['id'], $item_type, $this->util->container);
     $variables    = $defined_item->getVariables($this);
 
     return $variables;

@@ -14,6 +14,7 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
@@ -37,8 +38,8 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration = [], $plugin_id = 'fill_entity_variable_fields', $plugin_definition = []) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
+  public function __construct(array $configuration = [], $plugin_id = 'fill_entity_variable_fields', $plugin_definition = [], ContainerInterface $container) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $container);
   }
 
   /**
@@ -76,10 +77,10 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
    */
   public static function formValidate(array $form, FormStateInterface $form_state) {
     if (!$form_state->getValue('entity_field')) {
-      $form_state->setErrorByName('field', t('Select an field to add.'));
+      $form_state->setErrorByName('field', self::t('Select an field to add.'));
     }
     if (!$form_state->getValue('field_value')) {
-      $form_state->setErrorByName('field_value', t('Fill a field value to add.'));
+      $form_state->setErrorByName('field_value', self::t('Fill a field value to add.'));
     }
   }
 
@@ -93,27 +94,27 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
     if (!$item->isNew()) {
       $settings['variable'] = [
         '#type'          => 'select',
-        '#title'         => t('Entity variable'),
+        '#title'         => $this->t('Entity variable'),
         '#required'      => TRUE,
-        '#description'   => t('Entity variable to be saved. Remember to create actions to fill the entity variable fields and execute them before save the entity.'),
+        '#description'   => $this->t('Entity variable to be saved. Remember to create actions to fill the entity variable fields and execute them before save the entity.'),
         '#options'       => $this->getAvailableEmptyVariables($item),
         '#default_value' => empty($item->getSettings('variable')) ? '' : $item->getSettings('variable'),
       ];
 
       $settings['field_value_title'] = [
         '#type'  => 'item',
-        '#title' => t('Fields and values for the variable'),
+        '#title' => $this->t('Fields and values for the variable'),
       ];
 
       $settings['field_value'] = [
         '#type'   => 'table',
         '#sticky' => TRUE,
         '#header' => [
-          t('Field'),
-          t('Value'),
-          t('Operations'),
+          $this->t('Field'),
+          $this->t('Value'),
+          $this->t('Operations'),
         ],
-        '#empty'  => t('There are currently no values. Add one by selecting an option below.'),
+        '#empty'  => $this->t('There are currently no values. Add one by selecting an option below.'),
       ];
 
       $fields_values = $item->getSettings('fields_values');
@@ -148,7 +149,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
           $links = [];
 
           $links['delete']                             = [
-            'title' => t('Remove'),
+            'title' => $this->t('Remove'),
             'url'   => Url::fromRoute('business_rules.plugins.action.fill_entity_variable_fields.remove_field', [
               'action' => $item->id(),
               'field'  => $key,
@@ -175,10 +176,10 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
         'data'    => [
           'entity_field' => [
             '#type'          => 'select',
-            '#title'         => t('Field'),
+            '#title'         => $this->t('Field'),
             '#title_display' => 'invisible',
             '#options'       => $fields,
-            '#empty_option'  => t('Select the field'),
+            '#empty_option'  => $this->t('Select the field'),
           ],
         ],
         '#prefix' => '<div class="field-value-new">',
@@ -188,7 +189,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
       $settings['field_value']['new']['field_value'] = [
         '#type'        => 'textarea',
         '#rows'        => 1,
-        '#description' => t('The value to be set on the field. For a multi-valor field (cardinality > 1) type one value per line starting by pipeline (|) as the example:
+        '#description' => $this->t('The value to be set on the field. For a multi-valor field (cardinality > 1) type one value per line starting by pipeline (|) as the example:
           <br>|Value 1
           <br>|Value 2
           <br>|Value 3'),
@@ -196,7 +197,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
 
       $settings['field_value']['new']['add'] = [
         '#type'     => 'submit',
-        '#value'    => t('Add'),
+        '#value'    => $this->t('Add'),
         '#validate' => [get_class($this) . '::formValidate'],
         '#submit'   => [get_class($this) . '::fieldValueSave'],
       ];
@@ -275,7 +276,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
 
         $result[$field_value['entity_field']] = [
           '#type'   => 'markup',
-          '#markup' => t('Entity variable: %variable field: %field filled with value: %value.', [
+          '#markup' => $this->t('Entity variable: %variable field: %field filled with value: %value.', [
             '%variable' => $entity_variable_id,
             '%field'    => $field_value['entity_field'],
             '%value'    => is_array($value) ? implode(',', $value) : $value,

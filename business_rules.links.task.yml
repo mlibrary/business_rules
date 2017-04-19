@@ -11,13 +11,13 @@ entity.business_rules_condition.collection:
   title: 'Conditions'
   route_name: entity.business_rules_condition.collection
   base_route: entity.business_rule.collection
-  weight: 10
+  weight: 20
 
 entity.business_rules_action.collection:
   title: 'Actions'
   route_name: entity.business_rules_action.collection
   base_route: entity.business_rule.collection
-  weight: 20
+  weight: 10
 
 entity.business_rules_variable.collection:
   title: 'Variables'

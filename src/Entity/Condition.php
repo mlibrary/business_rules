@@ -218,7 +218,7 @@ class Condition extends BusinessRulesItemBase implements ConditionInterface {
     $condition_type = $this->itemManager->getDefinition($this->getType());
     $reflection     = new \ReflectionClass($condition_type['class']);
     /** @var \Drupal\business_rules\Plugin\BusinessRulesConditionPlugin $defined_condition */
-    $defined_condition = $reflection->newInstance($condition_type, $condition_type['id'], $condition_type);
+    $defined_condition = $reflection->newInstance($condition_type, $condition_type['id'], $condition_type, $this->util->container);
     $defined_condition->processTokens($this);
 
     return $defined_condition->process($this, $event);

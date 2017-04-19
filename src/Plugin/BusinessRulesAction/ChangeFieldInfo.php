@@ -11,6 +11,7 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
@@ -34,6 +35,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  * )
  */
 class ChangeFieldInfo extends BusinessRulesActionPlugin {
+
   const MAKE_REQUIRED  = 'make_required';
   const MAKE_OPTIONAL  = 'make_optional';
   const MAKE_READ_ONLY = 'make_read_only';
@@ -49,15 +51,15 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration = [], $plugin_id = 'change_field_info', $plugin_definition = []) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
+  public function __construct(array $configuration = [], $plugin_id = 'change_field_info', $plugin_definition = [], ContainerInterface $container) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $container);
 
     $this->actionOptions = [
-      ''                         => t('-Select-'),
-      self::MAKE_REQUIRED        => t('Make field required'),
-      self::MAKE_OPTIONAL        => t('Make field optional'),
-      self::MAKE_READ_ONLY       => t('Make field read only'),
-      self::MAKE_HIDDEN          => t('Make field hidden'),
+      ''                         => $this->t('-Select-'),
+      self::MAKE_REQUIRED        => $this->t('Make field required'),
+      self::MAKE_OPTIONAL        => $this->t('Make field optional'),
+      self::MAKE_READ_ONLY       => $this->t('Make field read only'),
+      self::MAKE_HIDDEN          => $this->t('Make field hidden'),
     ];
 
   }
@@ -76,16 +78,16 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
     $settings['fields'] = [
       '#type'       => 'table',
       '#header'     => [
-        'field'      => t('Filed'),
-        'action'     => t('Action'),
-        'operations' => t('Operations'),
+        'field'      => $this->t('Filed'),
+        'action'     => $this->t('Action'),
+        'operations' => $this->t('Operations'),
       ],
       '#attributes' => ['id' => 'array_variable_fields_table'],
     ];
 
     $settings['info'] = [
       '#type'   => 'markup',
-      '#markup' => t('Multiple value fields cannot be changed to be Required or Optional by this module. Create a new rule as "Entity form validation" to achieve this purpose see this issue on https://www.drupal.org/node/1592814. 
+      '#markup' => $this->t('Multiple value fields cannot be changed to be Required or Optional by this module. Create a new rule as "Entity form validation" to achieve this purpose see this issue on https://www.drupal.org/node/1592814. 
       <br>Hidden fields are removed from the form array, and not rendered. So be careful if you hide a required field because some field widgets can validate it anyway.'),
     ];
 
@@ -111,7 +113,7 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
       foreach ($fields as $key => $field) {
 
         $links['remove'] = [
-          'title'  => t('Remove'),
+          'title'  => $this->t('Remove'),
           'url'    => Url::fromRoute('business_rules.plugins.action.change_field_info.remove_field', [
             'action' => $item->id(),
             'field'  => $field['id'],
@@ -148,7 +150,7 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
       'field'      => [
         '#type'     => 'select',
         '#required' => FALSE,
-        '#options'  => array_merge(['' => t('-Select-')], $availableFields),
+        '#options'  => array_merge(['' => $this->t('-Select-')], $availableFields),
       ],
       'action'     => [
         '#type'     => 'select',
@@ -157,7 +159,7 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
       ],
       'operations' => [
         '#type'     => 'submit',
-        '#value'    => t('Add'),
+        '#value'    => $this->t('Add'),
         '#validate' => [get_class($this) . '::validateAddFieldForm'],
         '#submit'   => [get_class($this) . '::addFieldSubmit'],
       ],
@@ -254,12 +256,12 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
     $field_action = $field['new.field']['action'];
 
     if ((empty($field_action) && !empty($field_field)) || (!empty($field_action) && empty($field_field))) {
-      $form_state->setErrorByName('fields', t("Please, fill all field data or none of them."));
+      $form_state->setErrorByName('fields', self::t("Please, fill all field data or none of them."));
     }
 
     // The title field can't be optional.
     if ($field['new.field']['field'] == 'title' && $field['new.field']['action'] == self::MAKE_OPTIONAL) {
-      $form_state->setErrorByName('fields', t('The title field cannot be optional.'));
+      $form_state->setErrorByName('fields', self::t('The title field cannot be optional.'));
     }
   }
 
@@ -309,7 +311,7 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
       // Nothing to do.
       $result = [
         '#type' => 'markup',
-        '#markup' => t('Nothing to do.'),
+        '#markup' => $this->t('Nothing to do.'),
       ];
 
       return $result;
@@ -331,7 +333,7 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
     $event->setArgument('element', $element);
 
     foreach ($fields as $field) {
-      $debug_message = t('<br>%method: %field', [
+      $debug_message = $this->t('<br>%method: %field', [
         '%field' => $field['field'],
         '%method' => $this->actionOptions[$field['action']],
       ]);

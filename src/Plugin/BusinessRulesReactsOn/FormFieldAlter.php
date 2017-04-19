@@ -10,16 +10,16 @@ use Drupal\business_rules\Plugin\BusinessRulesReactsOnPlugin;
  * @package Drupal\business_rules\Plugin\BusinessRulesReactsOn
  *
  * @BusinessRulesReactsOn(
- *   id = "form_alter",
- *   label = @Translation("Entity form is being prepared"),
- *   description = @Translation("Reacts when entity form is being prepared."),
+ *   id = "form_field_alter",
+ *   label = @Translation("Entity field form alter"),
+ *   description = @Translation("Reacts when entity form field is being prepared."),
  *   group = @Translation("Entity"),
- *   eventName = "business_rules.form_alter",
+ *   eventName = "business_rules.form_field_alter",
  *   hasTargetEntity = TRUE,
  *   hasTargetBundle = TRUE,
  *   priority = 1000,
  * )
  */
-class FormAlter extends BusinessRulesReactsOnPlugin {
+class FormFieldAlter extends BusinessRulesReactsOnPlugin {
 
 }

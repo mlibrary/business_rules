@@ -101,7 +101,7 @@ abstract class ItemForm extends EntityForm {
       $type        = $item->getType() ? $item->getType() : $form_state->getValue('type');
       $definition  = $itemManager->getDefinition($type);
       $reflection  = new \ReflectionClass($definition['class']);
-      $custom_item = $reflection->newInstance($definition, $definition['id'], $definition);
+      $custom_item = $reflection->newInstance($definition, $definition['id'], $definition, $this->util->container);
 
       $form['label_type'] = [
         '#type'        => 'item',
@@ -282,7 +282,7 @@ abstract class ItemForm extends EntityForm {
       $definition = $itemManager->getDefinition($type);
       $reflection = new \ReflectionClass($definition['class']);
 
-      $custom_item = $reflection->newInstance($definition, $definition['id'], $definition);
+      $custom_item = $reflection->newInstance($definition, $definition['id'], $definition, $this->util->container);
       $custom_item->buildForm($form, $form_state);
     }
 
@@ -322,7 +322,7 @@ abstract class ItemForm extends EntityForm {
       $type        = $item->getType() ? $item->getType() : $form_state->getValue('type');
       $definition  = $itemManager->getDefinition($type);
       $reflection  = new \ReflectionClass($definition['class']);
-      $custom_item = $reflection->newInstance($definition, $definition['id'], $definition);
+      $custom_item = $reflection->newInstance($definition, $definition['id'], $definition, $this->util->container);
       $settings    = $custom_item->processSettings($settings, $item);
 
       // Make the settings safe.
@@ -384,7 +384,7 @@ abstract class ItemForm extends EntityForm {
     $type        = $form_state->getValue('type');
     $definition  = $this->getItemManager()->getDefinition($type);
     $reflection  = new \ReflectionClass($definition['class']);
-    $custom_item = $reflection->newInstance($definition, $definition['id'], $definition);
+    $custom_item = $reflection->newInstance($definition, $definition['id'], $definition, $this->util->container);
     $custom_item->validateForm($form, $form_state);
   }
 

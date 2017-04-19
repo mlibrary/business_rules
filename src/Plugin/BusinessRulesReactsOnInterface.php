@@ -4,11 +4,12 @@ namespace Drupal\business_rules\Plugin;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 
 /**
  * Defines an interface for Business rules reacts on plugins.
  */
-interface BusinessRulesReactsOnInterface extends PluginInspectionInterface {
+interface BusinessRulesReactsOnInterface extends PluginInspectionInterface, ContainerFactoryPluginInterface {
 
   /**
    * Process the BusinessRule form for reactsOn plugins.

@@ -11,6 +11,7 @@ use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class ActionSet.
@@ -45,8 +46,8 @@ class ActionSet extends BusinessRulesActionPlugin {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration = [], $plugin_id = 'action_set', $plugin_definition = []) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
+  public function __construct(array $configuration = [], $plugin_id = 'action_set', $plugin_definition = [], ContainerInterface $container) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $container);
 
     $this->entityTypeManager = $this->util->container->get('entity_type.manager');
   }
@@ -124,7 +125,7 @@ class ActionSet extends BusinessRulesActionPlugin {
     // The actions to be executed.
     $settings['items'] = [
       '#type'  => 'details',
-      '#title' => t('Actions to execute'),
+      '#title' => $this->t('Actions to execute'),
       '#open'  => TRUE,
     ];
 
@@ -139,7 +140,7 @@ class ActionSet extends BusinessRulesActionPlugin {
   public function buildForm(array &$form, FormStateInterface $form_state) {
     $action = $form_state->get('business_rule_action');
     if (!empty($action) && $action->isNew()) {
-      $form['actions']['submit']['#value'] = t('Continue');
+      $form['actions']['submit']['#value'] = $this->t('Continue');
     }
     // We don't need variables for this action.
     unset($form['variables']);
@@ -188,7 +189,7 @@ class ActionSet extends BusinessRulesActionPlugin {
   public function formItems(array $form, FormStateInterface $form_state, ItemInterface $action) {
     $user_input = $form_state->getUserInput();
 
-    $label     = t('Item');
+    $label     = $this->t('Item');
     $raw_items = $action->getSettings('items');
 
     $items = [];
@@ -204,13 +205,13 @@ class ActionSet extends BusinessRulesActionPlugin {
     }
 
     $header = [
-      'item_type'   => t('Type'),
+      'item_type'   => $this->t('Type'),
       'label'       => $label,
-      'weight'      => t('Weight'),
-      'id'          => t('Machine name'),
-      'subtype'     => t('Subtype'),
-      'description' => t('Description'),
-      'operations'  => t('Operations'),
+      'weight'      => $this->t('Weight'),
+      'id'          => $this->t('Machine name'),
+      'subtype'     => $this->t('Subtype'),
+      'description' => $this->t('Description'),
+      'operations'  => $this->t('Operations'),
       'type'        => [
         'data'  => '',
         'width' => '0px',
@@ -221,7 +222,7 @@ class ActionSet extends BusinessRulesActionPlugin {
       '#type'       => 'table',
       '#header'     => $header,
       '#attributes' => ['id' => 'business_rules-items'],
-      '#empty'      => t('There are currently no actions in this action set. Add one by selecting an option below.'),
+      '#empty'      => $this->t('There are currently no actions in this action set. Add one by selecting an option below.'),
       '#tabledrag'  => [
         [
           'action'       => 'order',
@@ -247,7 +248,7 @@ class ActionSet extends BusinessRulesActionPlugin {
           $operations  = $listBuilder->buildOperations($item);
 
           $operations['#links']['remove'] = [
-            'title'  => t('Remove'),
+            'title'  => $this->t('Remove'),
             'url'    => Url::fromRoute($route_remove_item, [
               'action_id' => $action->id(),
               'item_id'   => $item->id(),
@@ -273,7 +274,7 @@ class ActionSet extends BusinessRulesActionPlugin {
 
           $weight = [
             '#type'          => 'weight',
-            '#title'         => t('Weight for item'),
+            '#title'         => $this->t('Weight for item'),
             '#title_display' => 'invisible',
             '#delta'         => 100,
             '#default_value' => $item_weight,
@@ -308,7 +309,7 @@ class ActionSet extends BusinessRulesActionPlugin {
       }
     }
 
-    $add_action = Link::createFromRoute(t('Add Action'), 'business_rules.action_set.items.table', [
+    $add_action = Link::createFromRoute($this->t('Add Action'), 'business_rules.action_set.items.table', [
       'action_id' => $action->id(),
       'method'    => 'nojs',
     ], ['attributes' => ['class' => ['use-ajax']]]);

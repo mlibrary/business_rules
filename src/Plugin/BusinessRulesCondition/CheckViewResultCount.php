@@ -35,24 +35,24 @@ class CheckViewResultCount extends BusinessRulesConditionPlugin {
 
     $settings['view'] = [
       '#type'          => 'select',
-      '#title'         => t('View to execute. View name : Display mode id : Display mode title.'),
+      '#title'         => $this->t('View to execute. View name : Display mode id : Display mode title.'),
       '#options'       => $this->util->getViewsOptions(),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('view'),
-      '#description'   => t('Select the view to compare the number of results.'),
+      '#description'   => $this->t('Select the view to compare the number of results.'),
     ];
 
     $settings['arguments'] = [
       '#type'          => 'textarea',
-      '#title'         => t('Arguments'),
-      '#description'   => t('Any argument the view may need, one per line. Be aware of including them at same order as the CONTEXTUAL FILTERS configured in the view. You may use variables.'),
+      '#title'         => $this->t('Arguments'),
+      '#description'   => $this->t('Any argument the view may need, one per line. Be aware of including them at same order as the CONTEXTUAL FILTERS configured in the view. You may use variables.'),
       '#default_value' => $item->getSettings('arguments'),
     ];
 
     $settings['comparison'] = [
       '#type'          => 'number',
-      '#title'         => t('Minimum number of results'),
-      '#description'   => t('The condition will return true if the view has at least the given number of results.'),
+      '#title'         => $this->t('Minimum number of results'),
+      '#description'   => $this->t('The condition will return true if the view has at least the given number of results.'),
       '#min'           => 0,
       '#default_value' => $item->getSettings('comparison'),
     ];

@@ -96,7 +96,7 @@ class Action extends BusinessRulesItemBase implements ActionInterface {
     $reflection  = new \ReflectionClass($action_type['class']);
 
     /** @var \Drupal\business_rules\Plugin\BusinessRulesActionPlugin $defined_action */
-    $defined_action = $reflection->newInstance($action_type, $action_type['id'], $action_type);
+    $defined_action = $reflection->newInstance($action_type, $action_type['id'], $action_type, $this->util->container);
     $defined_action->processTokens($this);
 
     return $defined_action->execute($this, $event);

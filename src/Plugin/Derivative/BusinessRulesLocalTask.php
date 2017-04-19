@@ -4,12 +4,14 @@ namespace Drupal\business_rules\Plugin\Derivative;
 
 use Drupal\Component\Plugin\Derivative\DeriverBase;
 use Drupal\Core\Plugin\Discovery\ContainerDeriverInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides local tasks to Business Rules entities.
  */
 class BusinessRulesLocalTask extends DeriverBase implements ContainerDeriverInterface {
+  use StringTranslationTrait;
 
   /**
    * {@inheritdoc}
@@ -40,7 +42,7 @@ class BusinessRulesLocalTask extends DeriverBase implements ContainerDeriverInte
 
     foreach ($entity_types as $entity_type) {
       $this->derivatives["entity.$entity_type.collection.list"] = [
-        'title'            => t('List'),
+        'title'            => $this->t('List'),
         'route_name'       => "entity.$entity_type.collection",
         'parent_id'        => "entity.$entity_type.collection",
         'route_parameters' => ['view_mode' => 'list'],
@@ -48,7 +50,7 @@ class BusinessRulesLocalTask extends DeriverBase implements ContainerDeriverInte
       ];
 
       $this->derivatives["entity.$entity_type.collection.tags"] = [
-        'title'            => t('Tags list'),
+        'title'            => $this->t('Tags list'),
         'route_name'       => "entity.$entity_type.collection",
         'parent_id'        => "entity.$entity_type.collection",
         'route_parameters' => ['view_mode' => 'tags'],

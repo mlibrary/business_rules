@@ -648,7 +648,7 @@ class BusinessRulesUtil {
         $type             = $variable->getType();
         $variable_type    = $this->variableManager->getDefinition($type);
         $reflection       = new \ReflectionClass($variable_type['class']);
-        $defined_variable = $reflection->newInstance($variable_type, $variable_type['id'], $variable_type);
+        $defined_variable = $reflection->newInstance($variable_type, $variable_type['id'], $variable_type, $this->container);
         $defined_variable->changeDetails($variable, $new_row);
 
         $rows[] = $new_row;

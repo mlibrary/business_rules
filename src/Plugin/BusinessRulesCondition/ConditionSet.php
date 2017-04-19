@@ -109,8 +109,8 @@ abstract class ConditionSet extends BusinessRulesConditionPlugin {
     // The conditions to process.
     $settings['items'] = [
       '#type'        => 'details',
-      '#description' => t('Only conditions with no actions can be added to a condition set.'),
-      '#title'       => t('Conditions'),
+      '#description' => $this->t('Only conditions with no actions can be added to a condition set.'),
+      '#title'       => $this->t('Conditions'),
       '#open'        => TRUE,
     ];
 
@@ -126,7 +126,7 @@ abstract class ConditionSet extends BusinessRulesConditionPlugin {
     $condition = $form_state->get('business_rule_condition');
     unset($form['variables']);
     if (!empty($condition) && $condition->isNew()) {
-      $form['actions']['submit']['#value'] = t('Continue');
+      $form['actions']['submit']['#value'] = $this->t('Continue');
     }
   }
 
@@ -163,7 +163,7 @@ abstract class ConditionSet extends BusinessRulesConditionPlugin {
   public function formItems(array $form, FormStateInterface $form_state, ItemInterface $condition) {
     $user_input = $form_state->getUserInput();
 
-    $label     = t('Item');
+    $label     = $this->t('Item');
     $raw_items = $condition->getSettings('items');
 
     $items = [];
@@ -179,13 +179,13 @@ abstract class ConditionSet extends BusinessRulesConditionPlugin {
     }
 
     $header = [
-      'item_type'   => t('Type'),
+      'item_type'   => $this->t('Type'),
       'label'       => $label,
-      'weight'      => t('Weight'),
-      'id'          => t('Machine name'),
-      'subtype'     => t('Subtype'),
-      'description' => t('Description'),
-      'operations'  => t('Operations'),
+      'weight'      => $this->t('Weight'),
+      'id'          => $this->t('Machine name'),
+      'subtype'     => $this->t('Subtype'),
+      'description' => $this->t('Description'),
+      'operations'  => $this->t('Operations'),
       'type'        => [
         'data'  => '',
         'width' => '0px',
@@ -196,7 +196,7 @@ abstract class ConditionSet extends BusinessRulesConditionPlugin {
       '#type'       => 'table',
       '#header'     => $header,
       '#attributes' => ['id' => 'business_rules-items'],
-      '#empty'      => t('There are currently no conditions in this condition set. Add one by selecting an option below.'),
+      '#empty'      => $this->t('There are currently no conditions in this condition set. Add one by selecting an option below.'),
       '#tabledrag'  => [
         [
           'action'       => 'order',
@@ -222,7 +222,7 @@ abstract class ConditionSet extends BusinessRulesConditionPlugin {
           $operations  = $listBuilder->buildOperations($item);
 
           $operations['#links']['remove'] = [
-            'title'  => t('Remove'),
+            'title'  => $this->t('Remove'),
             'url'    => Url::fromRoute($route_remove_item, [
               'condition_id' => $condition->id(),
               'item_id'      => $item->id(),
@@ -248,7 +248,7 @@ abstract class ConditionSet extends BusinessRulesConditionPlugin {
 
           $weight = [
             '#type'          => 'weight',
-            '#title'         => t('Weight for item'),
+            '#title'         => $this->t('Weight for item'),
             '#title_display' => 'invisible',
             '#delta'         => 100,
             '#default_value' => $item_weight,
@@ -283,7 +283,7 @@ abstract class ConditionSet extends BusinessRulesConditionPlugin {
       }
     }
 
-    $add_condition = Link::createFromRoute(t('Add Condition'), 'business_rules.condition_set.items.table', [
+    $add_condition = Link::createFromRoute($this->t('Add Condition'), 'business_rules.condition_set.items.table', [
       'condition_id' => $condition->id(),
       'method'       => 'nojs',
     ], ['attributes' => ['class' => ['use-ajax']]]);

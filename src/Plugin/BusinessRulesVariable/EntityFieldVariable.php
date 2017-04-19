@@ -38,15 +38,15 @@ class EntityFieldVariable extends BusinessRulesVariablePlugin {
 
     $settings['data'] = [
       '#type'          => 'select',
-      '#title'         => t('Data'),
+      '#title'         => $this->t('Data'),
       '#required'      => TRUE,
       '#options'       => [
-        ''                  => t('- Select -'),
-        self::CURRENT_DATA  => t('Current value'),
-        self::ORIGINAL_DATA => t('Original value'),
+        ''                  => $this->t('- Select -'),
+        self::CURRENT_DATA  => $this->t('Current value'),
+        self::ORIGINAL_DATA => $this->t('Original value'),
       ],
-      '#description'   => t('Current value is the value that is being saved.') .
-      '<br>' . t('Original value is the previous saved value.'),
+      '#description'   => $this->t('Current value is the value that is being saved.') .
+      '<br>' . $this->t('Original value is the previous saved value.'),
       '#default_value' => empty($item->getSettings('data')) ? '' : $item->getSettings('data'),
     ];
 
