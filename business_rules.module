@@ -7,7 +7,6 @@
 
 use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Core\Entity\ContentEntityType;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityInterface;
@@ -169,62 +168,6 @@ function business_rules_form_alter(&$form, FormStateInterface $form_state, $form
       // before the form validation. In this case, the FormValidator will take
       // care of the event process and we are just adding this validation.
       $form['#validate'][] = 'Drupal\business_rules\Plugin\BusinessRulesReactsOn\FormValidation::validateForm';
-
-      // Prepare the event to FormAlter.
-      $form_alter_reacts_on_definition = \Drupal::getContainer()
-        ->get('plugin.manager.business_rules.reacts_on')
-        ->getDefinition('form_alter');
-
-      $form_alter_event = new BusinessRulesEvent($entity, [
-        'form_id'          => $form_id,
-        'form_state'       => $form_state,
-        'form'             => $form,
-        'entity_type_id'   => $entity->getEntityTypeId(),
-        'bundle'           => $entity->bundle(),
-        'entity'           => $entity,
-        'entity_unchanged' => $entity->original,
-        'reacts_on'        => $form_alter_reacts_on_definition,
-        'loop_control'     => $entity,
-      ]);
-
-      /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
-      $event_dispatcher = \Drupal::service('event_dispatcher');
-      $event_dispatcher->dispatch($form_alter_reacts_on_definition['eventName'], $form_alter_event);
-
-      // Now we need to replace the current form by the changed one.
-      $form = $form_alter_event->getArgument('form');
-    }
-  }
-
-}
-
-/**
- * Implements hook_entity_type_build().
- */
-function business_rules_entity_type_build(array &$entity_types) {
-
-  // Implementation for ChangeFormDisplay action.
-  // Search for all configured form mode and set a form class for them.
-  // The following line is the right way, but we can't do it on this hook.
-  // $form_modes = \Drupal::entityTypeManager()->getStorage('entity_form_mode')
-  // ->loadMultiple();
-  // We can't get the the form modes using the standard method, otherwise we
-  // will enter in a infinite loop because the
-  // Drupal/Core/Entity/EntityTypeManager->findDefinitions() function will call
-  // this hook over and over again. In this case, we are going to do it in this
-  // ugly way. Please don't blame me. I'm not querying the database :-).
-  $key_value  = \Drupal::keyValue('business_rules');
-  $form_modes = $key_value->get('form_modes');
-
-  foreach ($form_modes as $form_mode_key => $form_mode) {
-    foreach ($entity_types as $key => $entity_type) {
-      if ($entity_type instanceof ContentEntityType && $form_mode_key == $entity_type->id()) {
-        foreach ($form_mode as $form_mode_value) {
-          $form_mode_id = explode('.', $form_mode_value['id'])[1];
-          $form_class   = $entity_type->getFormClass('edit');
-          $entity_types[$key]->setFormClass($form_mode_id, $form_class);
-        }
-      }
     }
   }
 
@@ -276,6 +219,9 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
             'message' => t('Updating field @field', ['@field' => $child_title]),
           ],
         ];
+
+        // Add method to change the child field to _none when parent is changed.
+        $element['#attributes']['onChange'] = ["$child_field.value='_none'"];
       }
 
     }
