@@ -72,6 +72,8 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
    *   The module handler service.
    * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The current user.
+   * @param \Drupal\business_rules\Util\BusinessRulesUtil $util
+   *   The BusinessRulesUtil.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityManagerInterface $entity_manager, ModuleHandlerInterface $module_handler, AccountInterface $current_user, BusinessRulesUtil $util) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
