@@ -74,7 +74,7 @@ class ShowMessage extends BusinessRulesActionPlugin {
       ]),
     ];
 
-    return $result;;
+    return $result;
   }
 
 }

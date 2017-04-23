@@ -494,9 +494,10 @@ class BusinessRulesUtil {
    *   The Url.
    */
   public function getCurrentUri() {
-    $current      = $this->request->server->get('REQUEST_URI');
+//    $current = $this->request->server->get('REQUEST_URI');
+    $current = $_SERVER['REQUEST_URI'];
     $fake_request = Request::create($current);
-    $url_object   = $this->container->get('path.validator')
+    $url_object = $this->container->get('path.validator')
       ->getUrlIfValid($fake_request->getRequestUri());
     if ($url_object) {
       return $url_object;
@@ -546,7 +547,8 @@ class BusinessRulesUtil {
    *   The Url.
    */
   public function getPreviousUri() {
-    $previousUrl  = $this->request->server->get('HTTP_REFERER');
+    // $previousUrl  = $this->request->server->get('HTTP_REFERER');
+    $previousUrl = $_SERVER['HTTP_REFERER'];
     $fake_request = Request::create($previousUrl);
     $url_object   = $this->container->get('path.validator')
       ->getUrlIfValid($fake_request->getRequestUri());

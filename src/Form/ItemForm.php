@@ -168,10 +168,12 @@ abstract class ItemForm extends EntityForm {
       $form['additional_fields']['#weight'] = 60;
 
       // Show available tokens replacements.
-      $form['tokens']['#markup']      = $this->getTokensLink();
-      $form['tokens']['#weight']      = 900;
-      $form['#attached']['library'][] = 'token/token';
-      $form['#attached']['library'][] = 'token/jquery.treeTable';
+      $form['tokens']['#markup'] = $this->getTokensLink();
+      $form['tokens']['#weight'] = 900;
+      if ($this->util->moduleHandler->moduleExists('token')) {
+        $form['#attached']['library'][] = 'token/token';
+        $form['#attached']['library'][] = 'token/jquery.treeTable';
+      }
 
       // Show the available variables.
       $form['variables']            = $this->util->getVariablesDetailsBox($item);
