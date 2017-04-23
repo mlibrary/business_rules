@@ -6,7 +6,6 @@
  */
 
 use Drupal\business_rules\Events\BusinessRulesEvent;
-use Drupal\business_rules\Util\BusinessRulesUtil;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\Entity;
