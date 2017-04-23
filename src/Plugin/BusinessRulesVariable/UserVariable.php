@@ -36,20 +36,20 @@ class UserVariable extends BusinessRulesVariablePlugin {
 
     $settings['current_or_defined'] = [
       '#type'          => 'select',
-      '#title'         => $this->t('Current user or defined user?'),
-      '#description'   => $this->t('Current user or load user by user id.'),
+      '#title'         => t('Current user or defined user?'),
+      '#description'   => t('Current user or load user by user id.'),
       '#required'      => TRUE,
       '#options'       => [
-        'current' => $this->t('Current'),
-        'defined' => $this->t('Defined'),
+        'current' => t('Current'),
+        'defined' => t('Defined'),
       ],
       '#default_value' => $item->getSettings('current_or_defined'),
     ];
 
     $settings['user_id'] = [
       '#type'          => 'textfield',
-      '#title'         => $this->t('User id. You may use a variable to set this value.'),
-      '#description'   => $this->t('The numeric value for the user id.'),
+      '#title'         => t('User id. You may use a variable to set this value.'),
+      '#description'   => t('The numeric value for the user id.'),
       '#default_value' => $item->getSettings('user_id'),
       '#states'        => [
         'visible' => [
@@ -71,7 +71,7 @@ class UserVariable extends BusinessRulesVariablePlugin {
     ];
     $form['settings']['context']['target_entity_type']['#disabled'] = TRUE;
 
-    $form['settings']['context']['target_bundle']['#options']  = ['user' => $this->t('User')];
+    $form['settings']['context']['target_bundle']['#options']  = ['user' => t('User')];
     $form['settings']['context']['target_bundle']['#value']    = 'user';
     $form['settings']['context']['target_bundle']['#disabled'] = TRUE;
   }
@@ -81,15 +81,15 @@ class UserVariable extends BusinessRulesVariablePlugin {
    */
   public function changeDetails(Variable $variable, array &$row) {
     // Show a link to a modal window which all fields from the Entity Variable.
-    $content  = $this->util->getVariableFieldsModalInfo($variable);
+    $content = $this->util->getVariableFieldsModalInfo($variable);
     $keyvalue = $this->util->getKeyValueExpirable('user_variable');
     $keyvalue->set('variableFields.' . $variable->id(), $content);
 
-    $details_link = Link::createFromRoute($this->t('Click here to see the entity fields'),
+    $details_link = Link::createFromRoute(t('Click here to see the entity fields'),
       'business_rules.ajax.modal',
       [
         'method'     => 'nojs',
-        'title'      => $this->t('Entity fields'),
+        'title'      => t('Entity fields'),
         'collection' => 'user_variable',
         'key'        => 'variableFields.' . $variable->id(),
       ],

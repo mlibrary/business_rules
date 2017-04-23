@@ -39,24 +39,24 @@ class CompareNumberOfResultsBetweenTwoViews extends BusinessRulesConditionPlugin
 
     $settings['view_1'] = [
       '#type'          => 'select',
-      '#title'         => $this->t('First view. View name : Display mode id : Display mode title.'),
+      '#title'         => t('First view. View name : Display mode id : Display mode title.'),
       '#options'       => $this->util->getViewsOptions(),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('view_1'),
-      '#description'   => $this->t('Select the view to compare the number of results.'),
+      '#description'   => t('Select the view to compare the number of results.'),
     ];
 
     $settings['arguments_1'] = [
       '#type'          => 'textarea',
-      '#title'         => $this->t('Arguments for view 1'),
-      '#description'   => $this->t('Any argument the first view may need, one per line. Be aware of including them at same order as the CONTEXTUAL FILTERS configured in the view. You may use variables.'),
+      '#title'         => t('Arguments for view 1'),
+      '#description'   => t('Any argument the first view may need, one per line. Be aware of including them at same order as the CONTEXTUAL FILTERS configured in the view. You may use variables.'),
       '#default_value' => $item->getSettings('arguments_1'),
     ];
 
     $settings['operator'] = [
       '#type'          => 'select',
-      '#title'         => $this->t('Comparator'),
-      '#description'   => $this->t('The operator to compare the result between the views.'),
+      '#title'         => t('Comparator'),
+      '#description'   => t('The operator to compare the result between the views.'),
       '#required'      => TRUE,
       '#options'       => [
         '==' => '=',
@@ -71,17 +71,17 @@ class CompareNumberOfResultsBetweenTwoViews extends BusinessRulesConditionPlugin
 
     $settings['view_2'] = [
       '#type'          => 'select',
-      '#title'         => $this->t('Second view. View name : Display mode id : Display mode title.'),
+      '#title'         => t('Second view. View name : Display mode id : Display mode title.'),
       '#options'       => $this->util->getViewsOptions(),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('view_2'),
-      '#description'   => $this->t('Select the view to compare the number of results.'),
+      '#description'   => t('Select the view to compare the number of results.'),
     ];
 
     $settings['arguments_2'] = [
       '#type'          => 'textarea',
-      '#title'         => $this->t('Arguments for view 2'),
-      '#description'   => $this->t('Any argument the second view may need, one per line. Be aware of including them at same order as the CONTEXTUAL FILTERS configured in the view. You may use variables.'),
+      '#title'         => t('Arguments for view 2'),
+      '#description'   => t('Any argument the second view may need, one per line. Be aware of including them at same order as the CONTEXTUAL FILTERS configured in the view. You may use variables.'),
       '#default_value' => $item->getSettings('arguments_2'),
     ];
 

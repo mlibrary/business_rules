@@ -34,8 +34,8 @@ class DisplayErrorMessageOnForm extends BusinessRulesActionPlugin {
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $item) {
     $settings['message'] = [
       '#type'          => 'textarea',
-      '#title'         => $this->t('Message'),
-      '#description'   => $this->t('To use variables on the message, just type the variable machine name as {{variable_id}}.'),
+      '#title'         => t('Message'),
+      '#description'   => t('To use variables on the message, just type the variable machine name as {{variable_id}}.'),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('message'),
     ];
@@ -62,7 +62,7 @@ class DisplayErrorMessageOnForm extends BusinessRulesActionPlugin {
 
       $result = [
         '#type'   => 'markup',
-        '#markup' => $this->t('Error set on form. Field: %field, message: %message', [
+        '#markup' => t('Error set on form. Field: %field, message: %message', [
           '%field'   => $field,
           '%message' => $message,
         ]),

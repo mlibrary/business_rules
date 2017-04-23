@@ -11,7 +11,9 @@ use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
 use Drupal\user\Entity\User;
 
 /**
@@ -23,7 +25,8 @@ function business_rules_help($route_name, RouteMatchInterface $route_match) {
     case 'help.page.business_rules':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('Business rules') . '</p>';
+      $output .= '<p>' . t('Business Rules') . '</p>';
+      $output .= '<p>' . Link::fromTextAndUrl(t('Click here to access the online Business Rules documentation.'), Url::fromUri('https://www.drupal.org/docs/8/modules/business-rules'))->toString() . '</p>';
 
       return $output;
 
@@ -42,7 +45,7 @@ function business_rules_entity_presave(EntityInterface $entity) {
       ->getDefinition('entity_presave');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event          = new BusinessRulesEvent($entity, [
+    $event = new BusinessRulesEvent($entity, [
       'entity_type_id'   => $entity_type_id,
       'bundle'           => $entity->bundle(),
       'entity'           => $entity,
@@ -68,7 +71,7 @@ function business_rules_entity_update(EntityInterface $entity) {
       ->getDefinition('entity_update');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event          = new BusinessRulesEvent($entity, [
+    $event = new BusinessRulesEvent($entity, [
       'entity_type_id'   => $entity_type_id,
       'bundle'           => $entity->bundle(),
       'entity'           => $entity,
@@ -93,7 +96,7 @@ function business_rules_entity_insert(EntityInterface $entity) {
       ->getDefinition('entity_insert');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event          = new BusinessRulesEvent($entity, [
+    $event = new BusinessRulesEvent($entity, [
       'entity_type_id'   => $entity_type_id,
       'bundle'           => $entity->bundle(),
       'entity'           => $entity,
@@ -118,7 +121,7 @@ function business_rules_entity_delete(EntityInterface $entity) {
       ->getDefinition('entity_delete');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event          = new BusinessRulesEvent($entity, [
+    $event = new BusinessRulesEvent($entity, [
       'entity_type_id'   => $entity_type_id,
       'bundle'           => $entity->bundle(),
       'entity'           => $entity,
@@ -168,6 +171,7 @@ function business_rules_form_alter(&$form, FormStateInterface $form_state, $form
       // before the form validation. In this case, the FormValidator will take
       // care of the event process and we are just adding this validation.
       $form['#validate'][] = 'Drupal\business_rules\Plugin\BusinessRulesReactsOn\FormValidation::validateForm';
+
     }
   }
 
@@ -185,7 +189,7 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
   if ($entity instanceof Entity) {
     // Check if the field is a dependent field.
     /** @var \Drupal\Core\Field\FieldItemList $items */
-    $items   = $context['items'];
+    $items = $context['items'];
     $handler = $items->getSetting('handler');
     if ($handler == 'business_rules_views') {
       // Add prefix and suffix to the dependent field.
@@ -196,14 +200,14 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
     // Check if field is configured as parent of one dependent field.
     if (method_exists($entity, 'getFieldDefinitions')) {
       $fields_definitions = $entity->getFieldDefinitions();
-      $parent_field       = NULL;
+      $parent_field = NULL;
       foreach ($fields_definitions as $field_name => $field_definition) {
         $handler = $field_definition->getSetting('handler');
         if ($handler == 'business_rules_views') {
           $handle_settings = $field_definition->getSetting('handler_settings');
-          $parent_field    = $handle_settings['business_rules_view']['parent_field'];
-          $child_field     = $field_name;
-          $child_title     = $field_definition->label();
+          $parent_field = $handle_settings['business_rules_view']['parent_field'];
+          $child_field = $field_name;
+          $child_title = $field_definition->label();
           break;
         }
       }
@@ -269,7 +273,7 @@ function business_rules_entity_view(array &$build, EntityInterface $entity, Enti
       ->getDefinition('entity_is_viewed');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event          = new BusinessRulesEvent($entity, [
+    $event = new BusinessRulesEvent($entity, [
       'entity_type_id'   => $entity_type_id,
       'bundle'           => $entity->bundle(),
       'entity'           => $entity,
@@ -294,7 +298,7 @@ function business_rules_entity_load(array $entities, $entity_type_id) {
         ->getDefinition('entity_is_loaded');
 
       $entity_type_id = $entity->getEntityTypeId();
-      $event          = new BusinessRulesEvent($entity, [
+      $event = new BusinessRulesEvent($entity, [
         'entity_type_id'   => $entity_type_id,
         'bundle'           => $entity->bundle(),
         'entity'           => $entity,
@@ -318,7 +322,7 @@ function business_rules_user_login($account) {
     ->getDefinition('user_login');
 
   $entity_type_id = $account->getEntityTypeId();
-  $entity         = $account;
+  $entity = $account;
 
   $event = new BusinessRulesEvent($entity, [
     'entity_type_id'   => $entity_type_id,
@@ -342,10 +346,10 @@ function business_rules_user_logout($account) {
     ->getDefinition('user_logout');
 
   $account = $account->getAccount();
-  $entity  = User::load($account->id());
+  $entity = User::load($account->id());
 
   $entity_type_id = $entity->getEntityTypeId();
-  $event          = new BusinessRulesEvent($entity, [
+  $event = new BusinessRulesEvent($entity, [
     'entity_type_id'   => $entity_type_id,
     'bundle'           => $entity->bundle(),
     'entity'           => $entity,
@@ -362,20 +366,8 @@ function business_rules_user_logout($account) {
  * Implements hook_cache_flush().
  */
 function business_rules_cache_flush() {
-  $key_value_ex = \Drupal::keyValueExpirable('business_rules.debug');
-  $key_value_ex->deleteAll();
-
-  // Add all form modes to a key value store.
-  // We need to do it here in order to get all form modes on
-  // hook_entity_type_alter().
-  // We can't load the form modes from there because it causes a infinite loop.
-  // As a downside, every time the user register a new form display, he will
-  // need to flush all caches to this new form mode be available to Business
-  // Rules.
-  $key_value  = \Drupal::keyValue('business_rules');
-  $form_modes = \Drupal::service('entity_display.repository')
-    ->getAllFormModes();
-  $key_value->set('form_modes', $form_modes);
+  $key_value = \Drupal::keyValueExpirable('business_rules.debug');
+  $key_value->deleteAll();
 }
 
 /**
@@ -383,8 +375,8 @@ function business_rules_cache_flush() {
  */
 function business_rules_mail($key, &$message, $params) {
   if ($key == 'business_rules_mail') {
-    $message['from']    = \Drupal::config('system.site')->get('mail');
+    $message['from'] = \Drupal::config('system.site')->get('mail');
     $message['subject'] = $params['subject'];
-    $message['body'][]  = $params['message'];
+    $message['body'][] = $params['message'];
   }
 }

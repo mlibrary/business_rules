@@ -11,7 +11,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -114,7 +113,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     $displays                   = Views::getApplicableViews('entity_reference_display');
     // Filter views that list the entity type we want, and group the separate
     // displays by view.
-    $entity_type  = $this->entityManager->getDefinition($this->configuration['target_type']);
+    $entity_type = $this->entityManager->getDefinition($this->configuration['target_type']);
     $view_storage = $this->entityManager->getStorage('view');
 
     $options = [];

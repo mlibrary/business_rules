@@ -28,7 +28,7 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
  */
 class EntityFieldVariable extends BusinessRulesVariablePlugin {
 
-  const CURRENT_DATA  = 'current_data';
+  const CURRENT_DATA = 'current_data';
   const ORIGINAL_DATA = 'original_data';
 
   /**
@@ -38,15 +38,15 @@ class EntityFieldVariable extends BusinessRulesVariablePlugin {
 
     $settings['data'] = [
       '#type'          => 'select',
-      '#title'         => $this->t('Data'),
+      '#title'         => t('Data'),
       '#required'      => TRUE,
       '#options'       => [
-        ''                  => $this->t('- Select -'),
-        self::CURRENT_DATA  => $this->t('Current value'),
-        self::ORIGINAL_DATA => $this->t('Original value'),
+        ''                  => t('- Select -'),
+        self::CURRENT_DATA  => t('Current value'),
+        self::ORIGINAL_DATA => t('Original value'),
       ],
-      '#description'   => $this->t('Current value is the value that is being saved.') .
-      '<br>' . $this->t('Original value is the previous saved value.'),
+      '#description'   => t('Current value is the value that is being saved.') .
+      '<br>' . t('Original value is the previous saved value.'),
       '#default_value' => empty($item->getSettings('data')) ? '' : $item->getSettings('data'),
     ];
 

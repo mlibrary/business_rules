@@ -82,7 +82,7 @@ class Variable extends BusinessRulesItemBase implements VariableInterface {
     $variable_type = $this->itemManager->getDefinition($this->getType());
     $reflection    = new \ReflectionClass($variable_type['class']);
     /** @var \Drupal\business_rules\Plugin\BusinessRulesVariablePluginInterface $defined_variable */
-    $defined_variable = $reflection->newInstance($variable_type, $variable_type['id'], $variable_type, $this->util->container);
+    $defined_variable = $reflection->newInstance($variable_type, $variable_type['id'], $variable_type);
     $defined_variable->processTokens($this);
 
     return $defined_variable->evaluate($this, $event);

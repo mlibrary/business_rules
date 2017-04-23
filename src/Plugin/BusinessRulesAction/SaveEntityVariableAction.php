@@ -47,9 +47,9 @@ class SaveEntityVariableAction extends BusinessRulesActionPlugin {
     if (!$item->isNew()) {
       $settings['variable'] = [
         '#type'          => 'select',
-        '#title'         => $this->t('Entity variable'),
+        '#title'         => t('Entity variable'),
         '#required'      => TRUE,
-        '#description'   => $this->t('Entity variable to be saved. Remember to create actions to fill the entity variable fields and execute them before save the entity.'),
+        '#description'   => t('Entity variable to be saved. Remember to create actions to fill the entity variable fields and execute them before save the entity.'),
         '#options'       => $this->getAvailableEmptyVariables($item),
         '#default_value' => empty($item->getSettings('variable')) ? '' : $item->getSettings('variable'),
       ];
@@ -88,7 +88,7 @@ class SaveEntityVariableAction extends BusinessRulesActionPlugin {
 
         $result = [
           '#type'   => 'markup',
-          '#markup' => $this->t('Entity: %entity on variable: %variable saved.', [
+          '#markup' => t('Entity: %entity on variable: %variable saved.', [
             '%entity' => $entity->getEntityTypeId(),
             '%variable' => $action->getSettings('variable'),
           ]),

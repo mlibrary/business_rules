@@ -81,7 +81,7 @@ abstract class ItemForm extends EntityForm {
     $form_state->set('business_rules_step', $this->step);
 
     /** @var \Drupal\business_rules\ItemInterface $item */
-    $item  = $this->entity;
+    $item = $this->entity;
     $class = get_class($item);
 
     if ($this->step === 1 && $item->isNew()) {
@@ -101,7 +101,7 @@ abstract class ItemForm extends EntityForm {
       $type        = $item->getType() ? $item->getType() : $form_state->getValue('type');
       $definition  = $itemManager->getDefinition($type);
       $reflection  = new \ReflectionClass($definition['class']);
-      $custom_item = $reflection->newInstance($definition, $definition['id'], $definition, $this->util->container);
+      $custom_item = $reflection->newInstance($definition, $definition['id'], $definition);
 
       $form['label_type'] = [
         '#type'        => 'item',
@@ -219,7 +219,7 @@ abstract class ItemForm extends EntityForm {
     if ($this->util->moduleHandler->moduleExists('token')) {
       // Show a link to a modal window with all available tokens.
       $keyvalue = $this->util->getKeyValueExpirable('token_tree');
-      $content  = $this->util->tokenTree->buildAllRenderable();
+      $content = $this->util->tokenTree->buildAllRenderable();
       $keyvalue->set('token_tree', $content);
 
       $tokens_link = Link::createFromRoute($this->t('Click here to see all available tokens. Be aware that some tokens will only works on the right context.'),
@@ -282,7 +282,7 @@ abstract class ItemForm extends EntityForm {
       $definition = $itemManager->getDefinition($type);
       $reflection = new \ReflectionClass($definition['class']);
 
-      $custom_item = $reflection->newInstance($definition, $definition['id'], $definition, $this->util->container);
+      $custom_item = $reflection->newInstance($definition, $definition['id'], $definition);
       $custom_item->buildForm($form, $form_state);
     }
 
@@ -322,11 +322,8 @@ abstract class ItemForm extends EntityForm {
       $type        = $item->getType() ? $item->getType() : $form_state->getValue('type');
       $definition  = $itemManager->getDefinition($type);
       $reflection  = new \ReflectionClass($definition['class']);
-      $custom_item = $reflection->newInstance($definition, $definition['id'], $definition, $this->util->container);
+      $custom_item = $reflection->newInstance($definition, $definition['id'], $definition);
       $settings    = $custom_item->processSettings($settings, $item);
-
-      // Make the settings safe.
-      $this->util->applyXssInArray($settings);
 
       $item->set('settings', $settings);
       $item->setTags(explode(',', $form_state->getValue('tags')));
@@ -384,7 +381,7 @@ abstract class ItemForm extends EntityForm {
     $type        = $form_state->getValue('type');
     $definition  = $this->getItemManager()->getDefinition($type);
     $reflection  = new \ReflectionClass($definition['class']);
-    $custom_item = $reflection->newInstance($definition, $definition['id'], $definition, $this->util->container);
+    $custom_item = $reflection->newInstance($definition, $definition['id'], $definition);
     $custom_item->validateForm($form, $form_state);
   }
 
@@ -420,7 +417,7 @@ abstract class ItemForm extends EntityForm {
     if ($item_definition['hasTargetField']) {
       $show_entity = TRUE;
       $show_bundle = TRUE;
-      $show_field  = TRUE;
+      $show_field = TRUE;
     }
     elseif ($item_definition['hasTargetBundle']) {
       $show_entity = TRUE;

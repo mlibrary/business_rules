@@ -4,14 +4,11 @@ namespace Drupal\business_rules\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Base class for Business rules reacts on plugins.
  */
 abstract class BusinessRulesReactsOnPlugin extends PluginBase implements BusinessRulesReactsOnInterface {
-  use StringTranslationTrait;
 
   /**
    * The business rules processor.
@@ -30,22 +27,10 @@ abstract class BusinessRulesReactsOnPlugin extends PluginBase implements Busines
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContainerInterface $container) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->processor = $container->get('business_rules.processor');
-    $this->util      = $container->get('business_rules.util');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container
-    );
+    $this->processor = \Drupal::service('business_rules.processor');
+    $this->util      = \Drupal::service('business_rules.util');
   }
 
   /**

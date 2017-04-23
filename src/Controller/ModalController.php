@@ -55,7 +55,7 @@ class ModalController extends ControllerBase {
   public function modal($collection, $key, $title, $method) {
 
     $keyvalue = $this->util->getKeyValueExpirable($collection);
-    $content  = $keyvalue->get($key);
+    $content = $keyvalue->get($key);
 
     if ($method == 'ajax') {
       $content['#attached']['library'][] = 'core/drupal.dialog.ajax';

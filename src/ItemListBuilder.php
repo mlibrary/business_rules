@@ -82,7 +82,7 @@ abstract class ItemListBuilder extends ConfigEntityListBuilder {
 
     $class = $this->entityType->getClass();
     if ($view_mode == 'tags') {
-      $tags  = $class::loadAllTags();
+      $tags = $class::loadAllTags();
       $table = parent::render();
 
       foreach ($tags as $tag) {

@@ -29,7 +29,7 @@ class AutocompleteTags extends ControllerBase {
    */
   public function handleAutocomplete(Request $request) {
     $matches = [];
-    $string  = $request->query->get('q');
+    $string = $request->query->get('q');
     // Get the current saved tags.
     $br_tags = BusinessRule::loadAllTags();
     $ac_tags = Action::loadAllTags();

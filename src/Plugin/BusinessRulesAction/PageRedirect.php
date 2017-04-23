@@ -33,10 +33,10 @@ class PageRedirect extends BusinessRulesActionPlugin {
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $item) {
     $settings['url'] = [
       '#type'          => 'textfield',
-      '#title'         => $this->t('Url'),
+      '#title'         => t('Url'),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('url'),
-      '#description'   => $this->t('The full url to redirect as "http://www.example.com/page" if it is external or the relative path if it is internal as "/node/1". You can use variables to compose the url.'),
+      '#description'   => t('The full url to redirect as "http://www.example.com/page" if it is external or the relative path if it is internal as "/node/1". You can use variables to compose the url.'),
     ];
 
     return $settings;
@@ -54,7 +54,7 @@ class PageRedirect extends BusinessRulesActionPlugin {
 
     $result = [
       '#type'   => 'markup',
-      '#markup' => $this->t('Page redirect to: %url.', ['%url' => $url]),
+      '#markup' => t('Page redirect to: %url.', ['%url' => $url]),
     ];
 
     return $result;

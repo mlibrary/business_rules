@@ -265,7 +265,7 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
    * {@inheritdoc}
    */
   public static function loadMultipleByType($type, array $ids = NULL) {
-    $items  = self::loadMultiple($ids);
+    $items = self::loadMultiple($ids);
     $result = [];
     /** @var \Drupal\business_rules\ItemInterface $item */
     foreach ($items as $item) {
@@ -283,7 +283,7 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
   public function getVariables() {
     $item_type    = $this->itemManager->getDefinition($this->getType());
     $reflection   = new \ReflectionClass($item_type['class']);
-    $defined_item = $reflection->newInstance($item_type, $item_type['id'], $item_type, $this->util->container);
+    $defined_item = $reflection->newInstance($item_type, $item_type['id'], $item_type);
     $variables    = $defined_item->getVariables($this);
 
     return $variables;

@@ -212,7 +212,7 @@ class LoopThroughViewResultController extends ControllerBase {
       if (!in_array($item->id(), array_keys($this->savedItems)) && $item->id() != $action->id()) {
 
         $listBuilder = $this->entityTypeManager->getListBuilder($item->getEntityTypeId());
-        $operations  = $listBuilder->buildOperations($item);
+        $operations = $listBuilder->buildOperations($item);
 
         $search_string = $item->label() . ' ' .
           $item->id() . ' ' .
@@ -312,7 +312,7 @@ class LoopThroughViewResultController extends ControllerBase {
    */
   public function removeItem($action_id, $item_type, $item_id, $method) {
     $action = Action::load($action_id);
-    $items  = $action->getSettings('items');
+    $items = $action->getSettings('items');
     unset($items[$item_id]);
     $items = is_null($items) ? [] : $items;
 

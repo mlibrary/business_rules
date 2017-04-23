@@ -7,7 +7,6 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class SendEmail.
@@ -37,8 +36,8 @@ class SendEmail extends BusinessRulesActionPlugin {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id = 'send_email', $plugin_definition = [], ContainerInterface $container) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $container);
+  public function __construct(array $configuration, $plugin_id = 'send_email', $plugin_definition = []) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->mailManager = $this->util->container->get('plugin.manager.mail');
   }
 
@@ -56,31 +55,31 @@ class SendEmail extends BusinessRulesActionPlugin {
 
     $settings['subject'] = [
       '#type'          => 'textfield',
-      '#title'         => $this->t('Subject'),
+      '#title'         => t('Subject'),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('subject'),
-      '#desctiption'   => $this->t('Mail subject'),
+      '#desctiption'   => t('Mail subject'),
     ];
 
     $site_mail = \Drupal::config('system.site')->get('mail');
 
     $settings['use_site_mail_as_sender'] = [
       '#type'          => 'select',
-      '#title'         => $this->t('Use site mail as sender'),
+      '#title'         => t('Use site mail as sender'),
       '#options'       => [
-        TRUE  => $this->t('Yes'),
-        FALSE => $this->t('No'),
+        TRUE  => t('Yes'),
+        FALSE => t('No'),
       ],
       '#required'      => TRUE,
       '#default_value' => ($item->getSettings('use_site_mail_as_sender') === FALSE) ? FALSE : TRUE,
-      '#description'   => $this->t('Use %mail as sender', ['%mail' => $site_mail]),
+      '#description'   => t('Use %mail as sender', ['%mail' => $site_mail]),
     ];
 
     $settings['from'] = [
       '#type'          => 'textfield',
-      '#title'         => $this->t('From'),
+      '#title'         => t('From'),
       '#default_value' => $item->getSettings('from'),
-      '#description'   => $this->t('You can use variables on this field.'),
+      '#description'   => t('You can use variables on this field.'),
       '#states'        => [
         'visible' => [
           'select[name="use_site_mail_as_sender"]' => ['value' => '0'],
@@ -90,26 +89,26 @@ class SendEmail extends BusinessRulesActionPlugin {
 
     $settings['to'] = [
       '#type'          => 'textfield',
-      '#title'         => $this->t('To'),
+      '#title'         => t('To'),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('to'),
-      '#description'   => $this->t('For multiple recipients, use semicolon(;). You can use variables on this field. The variable can contain one email or an array of emails'),
+      '#description'   => t('For multiple recipients, use semicolon(;). You can use variables on this field. The variable can contain one email or an array of emails'),
     ];
 
     $settings['subject'] = [
       '#type'          => 'textfield',
-      '#title'         => $this->t('Subject'),
+      '#title'         => t('Subject'),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('subject'),
-      '#description'   => $this->t('You can use variables on this field.'),
+      '#description'   => t('You can use variables on this field.'),
     ];
 
     $settings['body'] = [
       '#type'          => 'textarea',
-      '#title'         => $this->t('Message'),
+      '#title'         => t('Message'),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('body'),
-      '#description'   => $this->t('You can use variables on this field.'),
+      '#description'   => t('You can use variables on this field.'),
     ];
 
     return $settings;
@@ -144,7 +143,7 @@ class SendEmail extends BusinessRulesActionPlugin {
           // Check if it's not a variable.
           count($this->pregMatch($form_state->getValue('from'))) < 1
         ) {
-          $form_state->setErrorByName('from', $this->t('Please, use valid email address or variables on email address.'));
+          $form_state->setErrorByName('from', t('Please, use valid email address or variables on email address.'));
         }
       }
 
@@ -158,7 +157,7 @@ class SendEmail extends BusinessRulesActionPlugin {
             // Check if it's a variable.
             count($this->pregMatch($to_value)) < 1
           ) {
-            $form_state->setErrorByName('to', $this->t('Please, use valid email address or variables on email address.'));
+            $form_state->setErrorByName('to', t('Please, use valid email address or variables on email address.'));
           }
         }
       }
@@ -227,8 +226,8 @@ class SendEmail extends BusinessRulesActionPlugin {
 
       $result = [
         '#type'   => 'markup',
-        '#markup' => $this->t('Send mail result: %result. Subject: %subject, from: %from, to: %to, message: %message.', [
-          '%result' => $send_result['result'] ? $this->t('success') : $this->t('fail'),
+        '#markup' => t('Send mail result: %result. Subject: %subject, from: %from, to: %to, message: %message.', [
+          '%result' => $send_result['result'] ? t('success') : t('fail'),
           '%subject' => $subject,
           '%from' => $from,
           '%to' => $to,

@@ -284,11 +284,3 @@ business_rules.action.type.change_field_info:
           action:
             type: string
             label: 'Action'
-
-business_rules.action.type.change_form_display:
-  type: mapping
-  label: 'Change entity form field'
-  mapping:
-    form_display:
-      type: string
-      label: 'Form display'

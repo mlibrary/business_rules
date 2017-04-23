@@ -215,7 +215,7 @@ class ConditionsItemsController extends ControllerBase {
       if (!in_array($item->Id(), array_keys($this->savedItems)) && $item->id() != $condition->id()) {
 
         $listBuilder = $this->entityTypeManager->getListBuilder($item->getEntityTypeId());
-        $operations  = $listBuilder->buildOperations($item);
+        $operations = $listBuilder->buildOperations($item);
 
         $search_string = $item->label() . ' ' .
           $item->id() . ' ' .

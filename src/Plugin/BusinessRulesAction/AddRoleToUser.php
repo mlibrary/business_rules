@@ -30,20 +30,20 @@ class AddRoleToUser extends BusinessRulesActionPlugin {
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $item) {
     $settings['user_container'] = [
       '#type'          => 'select',
-      '#title'         => $this->t('User container'),
+      '#title'         => t('User container'),
       '#default_value' => $item->getSettings('user_container'),
       '#options'       => [
-        'current'  => $this->t('Current user'),
-        'by_id'    => $this->t('By user id'),
-        'variable' => $this->t('User variable'),
+        'current'  => t('Current user'),
+        'by_id'    => t('By user id'),
+        'variable' => t('User variable'),
       ],
     ];
 
     $settings['uid'] = [
       '#type'          => 'textfield',
-      '#title'         => $this->t('User id'),
+      '#title'         => t('User id'),
       '#default_value' => $item->getSettings('uid'),
-      '#description'   => $this->t('You can use variables here.'),
+      '#description'   => t('You can use variables here.'),
       '#states'        => [
         'visible' => [
           'select[name="user_container"]' => ['value' => 'by_id'],
@@ -53,9 +53,9 @@ class AddRoleToUser extends BusinessRulesActionPlugin {
 
     $settings['variable'] = [
       '#type'           => 'select',
-      '#title'          => $this->t('User variable'),
+      '#title'          => t('User variable'),
       '#default_option' => $item->getSettings('variable'),
-      '#description'    => $this->t('The variable containing the user. Only variables type: "User variable".'),
+      '#description'    => t('The variable containing the user. Only variables type: "User variable".'),
       '#options'        => $this->util->getVariablesOptions(['user_variable']),
       '#states'         => [
         'visible' => [
@@ -66,11 +66,11 @@ class AddRoleToUser extends BusinessRulesActionPlugin {
 
     $settings['roles'] = [
       '#type'          => 'checkboxes',
-      '#title'         => $this->t('Roles'),
+      '#title'         => t('Roles'),
       '#required'      => TRUE,
       '#options'       => $this->util->getUserRolesOptions(),
       '#default_value' => is_array($item->getSettings('roles')) ? $item->getSettings('roles') : [],
-      '#description'   => $this->t('Roles to add.'),
+      '#description'   => t('Roles to add.'),
     ];
 
     return $settings;
@@ -157,7 +157,7 @@ class AddRoleToUser extends BusinessRulesActionPlugin {
 
     $result = [
       '#type'   => 'markup',
-      '#markup' => $this->t('User: %user<br>Roles added: %roles', [
+      '#markup' => t('User: %user<br>Roles added: %roles', [
         '%user'  => $user->getAccountName(),
         '%roles' => implode(', ', $roles),
       ]),

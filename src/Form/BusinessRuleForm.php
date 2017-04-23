@@ -101,7 +101,7 @@ class BusinessRuleForm extends EntityForm {
       $reactsOn    = $business_rule->getReactsOn() ? $business_rule->getReactsOn() : $form_state->getValue('reacts_on');
       $definition  = $this->reactsOnManager->getDefinition($reactsOn);
       $reflection  = new \ReflectionClass($definition['class']);
-      $custom_rule = $reflection->newInstance($definition, $definition['id'], $definition, $this->util->container);
+      $custom_rule = $reflection->newInstance($definition, $definition['id'], $definition);
 
       $form['label_reacts_on'] = [
         '#type'        => 'item',

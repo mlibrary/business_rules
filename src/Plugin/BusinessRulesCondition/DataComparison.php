@@ -2,8 +2,8 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesCondition;
 
-use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ConditionInterface;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesConditionPlugin;
 use Drupal\business_rules\VariablesSet;
@@ -30,7 +30,7 @@ use Drupal\Core\Form\FormStateInterface;
  */
 class DataComparison extends BusinessRulesConditionPlugin {
 
-  const CURRENT_DATA  = 'current_data';
+  const CURRENT_DATA = 'current_data';
   const ORIGINAL_DATA = 'original_data';
 
   /**
@@ -75,22 +75,22 @@ class DataComparison extends BusinessRulesConditionPlugin {
 
     $settings['data_to_compare'] = [
       '#type'          => 'select',
-      '#title'         => $this->t('Data to compare'),
+      '#title'         => t('Data to compare'),
       '#required'      => TRUE,
       '#options'       => [
-        ''                  => $this->t('- Select -'),
-        self::CURRENT_DATA  => $this->t('Current value'),
-        self::ORIGINAL_DATA => $this->t('Original value'),
+        ''                  => t('- Select -'),
+        self::CURRENT_DATA  => t('Current value'),
+        self::ORIGINAL_DATA => t('Original value'),
       ],
-      '#description'   => $this->t('Current value is the value that is being saved.') . '<br>' . $this->t('Original value is the previous saved value.'),
+      '#description'   => t('Current value is the value that is being saved.') . '<br>' . t('Original value is the previous saved value.'),
       '#default_value' => empty($condition->getSettings('data_to_compare')) ? '' : $condition->getSettings('data_to_compare'),
     ];
 
     $settings['operator'] = [
       '#type'          => 'select',
       '#required'      => TRUE,
-      '#title'         => $this->t('Operator'),
-      '#description'   => $this->t('The operation to be performed on this data comparison.'),
+      '#title'         => t('Operator'),
+      '#description'   => t('The operation to be performed on this data comparison.'),
       '#default_value' => $condition->getSettings('operator'),
       '#options'       => $this->util->getCriteriaMetOperatorsOptions(),
       '#ajax'          => [
@@ -100,11 +100,11 @@ class DataComparison extends BusinessRulesConditionPlugin {
     ];
 
     $settings['value_to_compare'] = [
-      '#title'         => $this->t('Value to compare'),
+      '#title'         => t('Value to compare'),
       '#default_value' => $condition->getSettings('value_to_compare'),
       '#required'      => TRUE,
       '#type'          => 'textarea',
-      '#description'   => $this->t('The value to compare the field value.
+      '#description'   => t('The value to compare the field value.
         <br>To use variables, just type the variable machine name as {{variable_id}}. If the variable is an Entity Variable, you can access the fields values using {{variable_id->field}}'),
       '#prefix'        => '<div id="value_to_compare-wrapper">',
       '#suffix'        => '</div>',
@@ -138,7 +138,7 @@ class DataComparison extends BusinessRulesConditionPlugin {
       $value_to_compare = $form_state->getValue('value_to_compare');
       $operator         = $form_state->getValue('operator');
       if (!in_array($operator, $textarea_fields) && stristr($value_to_compare, chr(10))) {
-        $form_state->setErrorByName('value_to_compare', $this->t('This operator only allows one value in one line. Please remove the additional lines.'));
+        $form_state->setErrorByName('value_to_compare', t('This operator only allows one value in one line. Please remove the additional lines.'));
       }
     }
   }
@@ -166,7 +166,7 @@ class DataComparison extends BusinessRulesConditionPlugin {
     foreach ($values as $value) {
       foreach ($values_to_compare as $compare) {
         if (isset($value['value'])) {
-          $entity_value  = strip_tags(strtolower(trim($value['value'])));
+          $entity_value = strip_tags(strtolower(trim($value['value'])));
           $compare_value = strtolower(trim($compare));
 
           return $this->util->criteriaMet($entity_value, $operator, $compare_value);
@@ -232,7 +232,7 @@ class DataComparison extends BusinessRulesConditionPlugin {
     $textarea_fields = ['contains', '==', 'starts_with', 'ends_with', '!='];
     if (in_array($operator, $textarea_fields)) {
       $type        = 'textarea';
-      $description = self::t('For multiple values comparison, include one per line. 
+      $description = t('For multiple values comparison, include one per line. 
         It will return TRUE if at least one element was found.
         <br>If the comparison field is a list of values, enter the element(s) id(s)
         <br>Enter the element(s) id(s), one per line.
@@ -244,7 +244,7 @@ class DataComparison extends BusinessRulesConditionPlugin {
     }
     else {
       $type        = 'textfield';
-      $description = self::t('The value to compare the field value.
+      $description = t('The value to compare the field value.
         <br>To use variables, just type the variable machine name as {{variable_id}}. If the variable is an Entity Variable, you can access the fields values using {{variable_id->field}}');
     }
 

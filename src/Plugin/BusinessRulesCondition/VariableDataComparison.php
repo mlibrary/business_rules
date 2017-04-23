@@ -34,9 +34,9 @@ class VariableDataComparison extends BusinessRulesConditionPlugin {
 
     $settings['value_1'] = [
       '#type'          => 'textfield',
-      '#title'         => $this->t('Value 1'),
+      '#title'         => t('Value 1'),
       '#required'      => TRUE,
-      '#description'   => $this->t('The value 1 to compare the value.
+      '#description'   => t('The value 1 to compare the value.
       <br>To use variables, just type the variable machine name as {{variable_id}}. If the variable is an Entity Variable, you can access the fields values using {{variable_id->field}}'),
       '#default_value' => $condition->getSettings('value_1'),
     ];
@@ -44,18 +44,18 @@ class VariableDataComparison extends BusinessRulesConditionPlugin {
     $settings['operator'] = [
       '#type'          => 'select',
       '#required'      => TRUE,
-      '#title'         => $this->t('Operator'),
-      '#description'   => $this->t('The operation to be performed on this data comparison.'),
+      '#title'         => t('Operator'),
+      '#description'   => t('The operation to be performed on this data comparison.'),
       '#default_value' => $condition->getSettings('operator'),
       '#options'       => $this->util->getCriteriaMetOperatorsOptions(),
     ];
 
     $settings['value_2'] = [
-      '#title'         => $this->t('Value 2'),
+      '#title'         => t('Value 2'),
       '#default_value' => $condition->getSettings('value_2'),
       '#required'      => TRUE,
       '#type'          => 'textarea',
-      '#description'   => $this->t('For multiple values comparison, include one per line. 
+      '#description'   => t('For multiple values comparison, include one per line. 
         It will return TRUE if at least one element was found.
         <br>If the first value in this comparison is a list of values, enter the element(s) id(s)
         <br>Enter the element(s) id(s), one per line.
@@ -83,7 +83,7 @@ class VariableDataComparison extends BusinessRulesConditionPlugin {
       $value_to_compare = $form_state->getValue('value_to_compare');
       $operator         = $form_state->getValue('operator');
       if (!in_array($operator, $textarea_fields) && stristr($value_to_compare, chr(10))) {
-        $form_state->setErrorByName('value_to_compare', $this->t('This operator only allows one value in one line. Please remove the additional lines.'));
+        $form_state->setErrorByName('value_to_compare', t('This operator only allows one value in one line. Please remove the additional lines.'));
       }
     }
   }

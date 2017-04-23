@@ -411,17 +411,17 @@ class Flowchart {
     $meta_data = [];
     if ($item instanceof BusinessRule) {
       $meta_data['style'] = 'shape=ellipse;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=2;shadow=0;gradientColor=none;fontColor=#000000;';
-      $meta_data['link']  = Url::fromRoute('entity.business_rule.edit_form', ['business_rule' => $item->id()])
+      $meta_data['link'] = Url::fromRoute('entity.business_rule.edit_form', ['business_rule' => $item->id()])
         ->toString();
     }
     elseif ($item instanceof Condition) {
       $meta_data['style'] = 'shape=rhombus;html=1;whiteSpace=wrap;aspect=fixed;strokeWidth=2;fillColor=#3399FF;strokeColor=#000000;fontColor=#000000;';
-      $meta_data['link']  = Url::fromRoute('entity.business_rules_condition.edit_form', ['business_rules_condition' => $item->id()])
+      $meta_data['link'] = Url::fromRoute('entity.business_rules_condition.edit_form', ['business_rules_condition' => $item->id()])
         ->toString();
     }
     elseif ($item instanceof Action) {
       $meta_data['style'] = 'rounded=1;whiteSpace=wrap;html=1;fillColor=#66CC00;gradientColor=none;strokeWidth=2;strokeColor=#000000;fontColor=#000000;';
-      $meta_data['link']  = Url::fromRoute('entity.business_rules_action.edit_form', ['business_rules_action' => $item->id()])
+      $meta_data['link'] = Url::fromRoute('entity.business_rules_action.edit_form', ['business_rules_action' => $item->id()])
         ->toString();
     }
 

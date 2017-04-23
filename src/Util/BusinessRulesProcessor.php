@@ -403,7 +403,7 @@ class BusinessRulesProcessor {
         foreach ($evaluates_variables[$rule->id()] as $evaluates_variable) {
           $variable = Variable::load($evaluates_variable->getId());
           if ($variable instanceof Variable) {
-            $variable_link  = Link::createFromRoute($variable->id(), 'entity.business_rules_variable.edit_form', ['business_rules_variable' => $variable->id()]);
+            $variable_link = Link::createFromRoute($variable->id(), 'entity.business_rules_variable.edit_form', ['business_rules_variable' => $variable->id()]);
             $variable_value = empty($evaluates_variable->getValue()) ? 'NULL' : $evaluates_variable->getValue();
 
             if (!is_string($variable_value)) {

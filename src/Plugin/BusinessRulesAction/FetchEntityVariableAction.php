@@ -72,7 +72,7 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
           return $new_entity;
         }
         else {
-          drupal_set_message($this->t("Action: %action fail. It's not possible to fetch entity %entity, bundle %bundle, with id=%id", [
+          drupal_set_message(t("Action: %action fail. It's not possible to fetch entity %entity, bundle %bundle, with id=%id", [
             '%action' => $action->label() . ' [' . $action->id() . ']',
             '%entity' => $entity_type,
             '%bundle' => $bundle,
@@ -83,7 +83,7 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
         }
       }
       else {
-        drupal_set_message($this->t("Action: %action fail. Variable: %variable could not be loaded.", [
+        drupal_set_message(t("Action: %action fail. Variable: %variable could not be loaded.", [
           '%action'   => $action->label() . ' [' . $action->id() . ']',
           '%variable' => $variable->getId(),
         ]), 'error');
@@ -109,18 +109,18 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
 
       $settings['empty_variable'] = [
         '#type'          => 'select',
-        '#title'         => $this->t('Empty variable'),
+        '#title'         => t('Empty variable'),
         '#required'      => TRUE,
-        '#description'   => $this->t('Empty variable to be filled in.'),
+        '#description'   => t('Empty variable to be filled in.'),
         '#options'       => $this->getAvailableEmptyVariables($item),
         '#default_value' => empty($item->getSettings('empty_variable')) ? '' : $item->getSettings('empty_variable'),
       ];
 
       $settings['value'] = [
         '#type'          => 'textfield',
-        '#title'         => $this->t('Value'),
+        '#title'         => t('Value'),
         '#default_value' => $item->getSettings('value'),
-        '#description'   => $this->t('The entity ID value to fill the variable.'),
+        '#description'   => t('The entity ID value to fill the variable.'),
       ];
 
     }
@@ -132,8 +132,8 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
    * {@inheritdoc}
    */
   public function buildForm(array &$form, FormStateInterface $form_state) {
-    $form['settings']['field']['#description'] = $this->t('Select the entity id field.');
-    $form['settings']['field']['#title']       = $this->t('Entity id field.');
+    $form['settings']['field']['#description'] = t('Select the entity id field.');
+    $form['settings']['field']['#title']       = t('Entity id field.');
   }
 
   /**
@@ -149,7 +149,7 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
 
     $result = [
       '#type'   => 'markup',
-      '#markup' => $this->t('Entity variable %variable fetched.', ['%variable' => $id_variable]),
+      '#markup' => t('Entity variable %variable fetched.', ['%variable' => $id_variable]),
     ];
 
     return $result;

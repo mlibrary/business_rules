@@ -6,7 +6,6 @@ use Drupal\business_rules\BusinessRulesItemObject;
 use Drupal\business_rules\ConditionInterface;
 use Drupal\business_rules\Entity\Condition;
 use Drupal\business_rules\Events\BusinessRulesEvent;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class LogicalOr.
@@ -27,8 +26,8 @@ class LogicalAnd extends ConditionSet {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration = [], $plugin_id = 'logical_and', $plugin_definition = [], ContainerInterface $container) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $container);
+  public function __construct(array $configuration = [], $plugin_id = 'logical_and', $plugin_definition = []) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
     // This variable lives at ConditionSet class.
     $this->entityTypeManager = $this->util->container->get('entity_type.manager');
   }

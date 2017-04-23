@@ -15,7 +15,6 @@ use Drupal\business_rules\VariablesSet;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class LoopThroughViewResult.
@@ -52,8 +51,8 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration = [], $plugin_id = 'loop_through_view_result', $plugin_definition = [], ContainerInterface $container) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $container);
+  public function __construct(array $configuration = [], $plugin_id = 'loop_through_view_result', $plugin_definition = []) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->entityTypeManager = $this->util->container->get('entity_type.manager');
   }
@@ -73,7 +72,7 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
 
     $settings['variable'] = [
       '#type'          => 'select',
-      '#title'         => $this->t('Select the view result variable'),
+      '#title'         => t('Select the view result variable'),
       '#options'       => $options,
       '#default_value' => $item->getSettings('variable'),
       '#required'      => TRUE,
@@ -83,7 +82,7 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
       // The items to be executed.
       $settings['items'] = [
         '#type'  => 'details',
-        '#title' => $this->t('Items to execute during the loop'),
+        '#title' => t('Items to execute during the loop'),
         '#open'  => TRUE,
       ];
 
@@ -170,8 +169,8 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
   public function formItems(array $form, FormStateInterface $form_state, ItemInterface $action) {
     $user_input = $form_state->getUserInput();
 
-    $label        = $this->t('Item');
-    $label_plural = $this->t('Items');
+    $label        = t('Item');
+    $label_plural = t('Items');
     $raw_items    = $action->getSettings('items');
 
     $items = [];
@@ -187,13 +186,13 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
     }
 
     $header = [
-      'item_type'   => $this->t('Type'),
+      'item_type'   => t('Type'),
       'label'       => $label,
-      'weight'      => $this->t('Weight'),
-      'id'          => $this->t('Machine name'),
-      'subtype'     => $this->t('Subtype'),
-      'description' => $this->t('Description'),
-      'operations'  => $this->t('Operations'),
+      'weight'      => t('Weight'),
+      'id'          => t('Machine name'),
+      'subtype'     => t('Subtype'),
+      'description' => t('Description'),
+      'operations'  => t('Operations'),
       'type'        => [
         'data'  => '',
         'width' => '0px',
@@ -204,7 +203,7 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
       '#type'       => 'table',
       '#header'     => $header,
       '#attributes' => ['id' => 'business_rules-items'],
-      '#empty'      => $this->t('There are currently no @label in this item. Add one by selecting an option below.', ['@label' => $label_plural]),
+      '#empty'      => t('There are currently no @label in this item. Add one by selecting an option below.', ['@label' => $label_plural]),
       '#tabledrag'  => [
         [
           'action'       => 'order',
@@ -234,7 +233,7 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
           $operations  = $listBuilder->buildOperations($item);
 
           $operations['#links']['remove'] = [
-            'title'  => $this->t('Remove'),
+            'title'  => t('Remove'),
             'url'    => Url::fromRoute($route_remove_item, [
               'action_id' => $action->id(),
               'item_type' => $value->getType(),
@@ -261,7 +260,7 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
 
           $weight = [
             '#type'          => 'weight',
-            '#title'         => $this->t('Weight for item'),
+            '#title'         => t('Weight for item'),
             '#title_display' => 'invisible',
             '#delta'         => 100,
             '#default_value' => $item_weight,
@@ -296,12 +295,12 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
       }
     }
 
-    $add_condition = Link::createFromRoute($this->t('Add Condition'), 'business_rules.loop_through_view_result.items.table', [
+    $add_condition = Link::createFromRoute(t('Add Condition'), 'business_rules.loop_through_view_result.items.table', [
       'action_id' => $action->id(),
       'item_type' => 'condition',
       'method'    => 'nojs',
     ], ['attributes' => ['class' => ['use-ajax']]]);
-    $add_action    = Link::createFromRoute($this->t('Add Action'), 'business_rules.loop_through_view_result.items.table', [
+    $add_action    = Link::createFromRoute(t('Add Action'), 'business_rules.loop_through_view_result.items.table', [
       'action_id' => $action->id(),
       'item_type' => 'action',
       'method'    => 'nojs',

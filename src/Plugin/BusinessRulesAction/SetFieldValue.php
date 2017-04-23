@@ -34,10 +34,10 @@ class SetFieldValue extends BusinessRulesActionPlugin {
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $item) {
     $settings['value'] = [
       '#type'          => 'textarea',
-      '#title'         => $this->t('Value'),
+      '#title'         => t('Value'),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('value'),
-      '#description'   => $this->t('The value to be set on the field.
+      '#description'   => t('The value to be set on the field.
         <br>For a multi-valor field (cardinality > 1) type one value per line starting by pipeline (|) as the example:
         <br>|Value 1
         <br>|Value 2
@@ -93,7 +93,7 @@ class SetFieldValue extends BusinessRulesActionPlugin {
 
     $result = [
       '#type'   => 'markup',
-      '#markup' => $this->t('Entity %entity updated. Field: %field, value: %value', [
+      '#markup' => t('Entity %entity updated. Field: %field, value: %value', [
         '%entity' => $entity->getEntityTypeId(),
         '%field' => $field,
         '%value' => is_array($value) ? implode(',', $value) : $value,

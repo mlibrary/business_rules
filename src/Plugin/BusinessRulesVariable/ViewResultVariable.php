@@ -10,7 +10,6 @@ use Drupal\business_rules\VariableObject;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\views\Views;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class ViewResultVariable.
@@ -43,8 +42,8 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration = [], $plugin_id = 'view_result_variable', $plugin_definition = [], ContainerInterface $container) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $container);
+  public function __construct(array $configuration = [], $plugin_id = 'view_result_variable', $plugin_definition = []) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->entityFieldManager = $this->util->container->get('entity_field.manager');
     $this->bundleInfo         = $this->util->container->get('entity_type.bundle.info');
@@ -57,17 +56,17 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
 
     $settings['view'] = [
       '#type'          => 'select',
-      '#title'         => $this->t('View to execute. View name : Display mode id : Display mode title.'),
+      '#title'         => t('View to execute. View name : Display mode id : Display mode title.'),
       '#options'       => $this->util->getViewsOptions(),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('view'),
-      '#description'   => $this->t("Select the view to get the results. When you use the view fields, it will always have the raw value."),
+      '#description'   => t("Select the view to get the results. When you use the view fields, it will always have the raw value."),
     ];
 
     $settings['arguments'] = [
       '#type'          => 'textarea',
-      '#title'         => $this->t('Arguments'),
-      '#description'   => $this->t('Any argument the view may need, one per line. Be aware of including them at same order as the CONTEXTUAL FILTERS configured in the view. You may use variables.'),
+      '#title'         => t('Arguments'),
+      '#description'   => t('Any argument the view may need, one per line. Be aware of including them at same order as the CONTEXTUAL FILTERS configured in the view. You may use variables.'),
       '#default_value' => $item->getSettings('arguments'),
     ];
 
@@ -81,15 +80,15 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
    */
   public function changeDetails(Variable $variable, array &$row) {
     // Show a link to a modal window which all fields from the view.
-    $content  = $this->variableFields($variable);
+    $content = $this->variableFields($variable);
     $keyvalue = $this->util->getKeyValueExpirable('view_result_variable');
     $keyvalue->set('variableFields.' . $variable->id(), $content);
 
-    $details_link = Link::createFromRoute($this->t('Click here to see the view fields'),
+    $details_link = Link::createFromRoute(t('Click here to see the view fields'),
       'business_rules.ajax.modal',
       [
         'method'     => 'nojs',
-        'title'      => $this->t('View fields'),
+        'title'      => t('View fields'),
         'collection' => 'view_result_variable',
         'key'        => 'variableFields.' . $variable->id(),
       ],
@@ -187,9 +186,9 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
     $fields = $view->field;
 
     $header = [
-      'variable' => $this->t('Variable'),
-      'field'    => $this->t('Field'),
-      'type'     => $this->t('Type'),
+      'variable' => t('Variable'),
+      'field'    => t('Field'),
+      'type'     => t('Type'),
     ];
 
     $rows = [];
@@ -206,7 +205,7 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
           // table.
           $bundles = $this->bundleInfo->getBundleInfo($entity_type);
           $bundles = array_keys($bundles);
-          $bundle  = $bundles[0];
+          $bundle = $bundles[0];
 
           // Now, with the bundle info, we can load the fields definitions.
           $fields_definitions = $this->entityFieldManager->getFieldDefinitions($entity_type, $bundle);
@@ -223,14 +222,14 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
     }
     else {
       $rows[] = [
-        'data'    => ['#markup' => $this->t('This view has no fields.')],
+        'data'    => ['#markup' => t('This view has no fields.')],
         'colspan' => 3,
       ];
     }
 
     $content['help'] = [
       '#type'   => 'markup',
-      '#markup' => $this->t('Notice that as this items are arrays, you only can use this variable values on items inside an action type: "Loop through a view result variable".'),
+      '#markup' => t('Notice that as this items are arrays, you only can use this variable values on items inside an action type: "Loop through a view result variable".'),
     ];
 
     $content['variable_fields'] = [

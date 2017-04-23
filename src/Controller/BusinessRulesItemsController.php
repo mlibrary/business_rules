@@ -223,7 +223,7 @@ class BusinessRulesItemsController extends ControllerBase {
       if (!in_array($item->id(), array_keys($this->savedItems))) {
 
         $listBuilder = $this->entityTypeManager->getListBuilder($item->getEntityTypeId());
-        $operations  = $listBuilder->buildOperations($item);
+        $operations = $listBuilder->buildOperations($item);
         foreach ($operations['#links'] as $i => $link) {
           $operations['#links'][$i]['url']->setRouteParameter('destination', $this->util->getPreviousUri()
             ->toString());

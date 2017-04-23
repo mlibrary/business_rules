@@ -6,14 +6,13 @@ use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\VariablesSet;
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 
 /**
  * Interface BusinessRulesItemInterface.
  *
  * @package Drupal\business_rules\Plugin
  */
-interface BusinessRulesItemPluginInterface extends PluginInspectionInterface, ContainerFactoryPluginInterface {
+interface BusinessRulesItemPluginInterface extends PluginInspectionInterface {
 
   const VARIABLE_REGEX = '{{((\w+)|(\w+\-\>+\w+)+?)}}';
 

@@ -32,10 +32,10 @@ class DeleteEntity extends BusinessRulesActionPlugin {
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $item) {
     $settings['value'] = [
       '#type'          => 'textfield',
-      '#title'         => $this->t('Value'),
+      '#title'         => t('Value'),
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('value'),
-      '#description'   => $this->t('The value to be compared against the field.
+      '#description'   => t('The value to be compared against the field.
         <br>All entities which the field equals to this value will be deleted.'),
     ];
 
@@ -70,7 +70,7 @@ class DeleteEntity extends BusinessRulesActionPlugin {
 
     $result = [
       '#type' => 'markup',
-      '#markup' => $this->t('Entity: %entity, Bundle: %bundle, Id(s): (%id) has been deleted.', [
+      '#markup' => t('Entity: %entity, Bundle: %bundle, Id(s): (%id) has been deleted.', [
         '%entity' => $entity_type,
         '%bundle' => $bundle,
         '%id' => implode(',', $ids),
