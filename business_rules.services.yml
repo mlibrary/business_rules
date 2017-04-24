@@ -44,3 +44,9 @@ services:
   plugin.manager.business_rules.variable:
     class: Drupal\business_rules\Plugin\BusinessRulesVariableManager
     parent: default_plugin_manager
+
+  business_rules.breadcrumb:
+    class: Drupal\business_rules\BusinessRulesBreadcrumb
+    arguments: ['@router.request_context', '@access_manager', '@router', '@path_processor_manager', '@config.factory',  '@title_resolver', '@current_user', '@path.current']
+    tags:
+      - { name: breadcrumb_builder, priority: 0 }
