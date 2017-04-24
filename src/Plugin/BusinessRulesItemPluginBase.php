@@ -124,8 +124,10 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
             else {
               $variable = Variable::load($variable_id);
             }
-            $varObject = new VariableObject($variable_id, NULL, $variable->getType());
-            $variableSet->append($varObject);
+            if (!empty($variable)) {
+              $varObject = new VariableObject($variable_id, NULL, $variable->getType());
+              $variableSet->append($varObject);
+            }
           }
         }
       }

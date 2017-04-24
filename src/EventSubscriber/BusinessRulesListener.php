@@ -5,7 +5,12 @@ namespace Drupal\business_rules\EventSubscriber;
 use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\Util\BusinessRulesProcessor;
 use Drupal\business_rules\Util\BusinessRulesUtil;
+use Drupal\Core\Database\Database;
+use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Class BusinessRulesListener.
@@ -13,6 +18,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @package Drupal\business_rules\EventSubscriber
  */
 class BusinessRulesListener implements EventSubscriberInterface {
+
+  /**
+   * The container.
+   *
+   * @var \Symfony\Component\DependencyInjection\ContainerInterface
+   */
+  private static $container;
 
   /**
    * The business rule processor.
@@ -42,24 +54,70 @@ class BusinessRulesListener implements EventSubscriberInterface {
   }
 
   /**
+   * Sets the container.
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface|null $container
+   *   A ContainerInterface instance or null.
+   */
+  public static function setContainer(ContainerInterface $container = NULL) {
+    self::$container = $container;
+    \Drupal::setContainer($container);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
 
     $return['business_rules.item_pos_delete'] = 'itemPosDelete';
+    $return[KernelEvents::TERMINATE][]        = ['onTerminate', 100];
 
     // If there is no container service there is not possible to load any event.
-    // As this method sometimes is called before the container is ready, the
-    // Container might not be available.
-    // In this case, it's necessary to manually rebuild the cache in order to
-    // get all subscribed events.
+    // As this method can be called before the container is ready, it might not
+    // be available.
+    // To avoid the necessity to manually clear all caches via user interface,
+    // we are getting the plugin definition using this ugly way.
     if (!\Drupal::hasContainer() || !\Drupal::hasService('plugin.manager.business_rules.reacts_on')) {
-      return $return;
-    }
+      $query = Database::getConnection()
+        ->query('SELECT value FROM {key_value} WHERE collection = :collection AND name = :name', [
+          ':collection' => 'state',
+          ':name'       => 'system.module.files',
+        ])
+        ->fetchCol();
 
-    $container         = \Drupal::getContainer();
-    $reactionEvents    = $container->get('plugin.manager.business_rules.reacts_on');
-    $eventsDefinitions = $reactionEvents->getDefinitions();
+      $modules = [];
+      if (isset($query[0])) {
+        $modules = unserialize($query[0]);
+      }
+
+      foreach ($modules as $name => $module) {
+        $arr = explode('/', $module);
+        unset($arr[count($arr) - 1]);
+        $path = implode('/', $arr);
+
+        // Skip core modules.
+        if ($arr[0] != 'core') {
+          $storage["Drupal\\$name"] = "$path/src";
+        }
+      }
+
+      $storage = new \ArrayIterator($storage);
+
+      $root_namespaces = new \ArrayIterator([
+        '_serviceId' => 'container.namespaces',
+        'storage'    => $storage,
+      ]);
+
+      $annotation        = new AnnotatedClassDiscovery('/Plugin/BusinessRulesReactsOn', $root_namespaces, 'Drupal\business_rules\Annotation\BusinessRulesReactsOn');
+      $eventsDefinitions = $annotation->getDefinitions();
+    }
+    else {
+      // If we have the container, we can get the definitions using the correct
+      // process.
+      $container         = \Drupal::getContainer();
+      $reactionEvents    = $container->get('plugin.manager.business_rules.reacts_on');
+      $eventsDefinitions = $reactionEvents->getDefinitions();
+    }
 
     foreach ($eventsDefinitions as $event) {
       $return[$event['eventName']] = [
@@ -90,6 +148,17 @@ class BusinessRulesListener implements EventSubscriberInterface {
    */
   public function itemPosDelete(BusinessRulesEvent $event) {
     $this->util->removeItemReferences($event);
+  }
+
+  /**
+   * Run the necessary commands on terminate event.
+   *
+   * @param \Symfony\Component\EventDispatcher\Event $event
+   *   The terminate event.
+   */
+  public function onTerminate(Event $event) {
+    $key_value = \Drupal::keyValueExpirable('business_rules.debug');
+    $key_value->deleteAll();
   }
 
 }
