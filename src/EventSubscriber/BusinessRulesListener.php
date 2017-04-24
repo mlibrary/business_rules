@@ -105,7 +105,7 @@ class BusinessRulesListener implements EventSubscriberInterface {
 
       $root_namespaces = new \ArrayIterator([
         '_serviceId' => 'container.namespaces',
-        'storage'    => $storage,
+        'Drupal\business_rules'    => $storage,
       ]);
 
       $annotation        = new AnnotatedClassDiscovery('/Plugin/BusinessRulesReactsOn', $root_namespaces, 'Drupal\business_rules\Annotation\BusinessRulesReactsOn');
