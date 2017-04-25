@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  *   label = @Translation("Change entity form field"),
  *   group = @Translation("Entity"),
  *   description = @Translation("Change a form field: Make required/optional/ready only/hidden/dependent/change field options values."),
+ *   reactsOnIds = {"form_field_alter"},
  *   isContextDependent = TRUE,
  *   hasTargetEntity = TRUE,
  *   hasTargetBundle = TRUE,
@@ -34,6 +35,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  * )
  */
 class ChangeFieldInfo extends BusinessRulesActionPlugin {
+
   const MAKE_REQUIRED  = 'make_required';
   const MAKE_OPTIONAL  = 'make_optional';
   const MAKE_READ_ONLY = 'make_read_only';
@@ -53,11 +55,11 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->actionOptions = [
-      ''                         => t('-Select-'),
-      self::MAKE_REQUIRED        => t('Make field required'),
-      self::MAKE_OPTIONAL        => t('Make field optional'),
-      self::MAKE_READ_ONLY       => t('Make field read only'),
-      self::MAKE_HIDDEN          => t('Make field hidden'),
+      ''                   => t('-Select-'),
+      self::MAKE_REQUIRED  => t('Make field required'),
+      self::MAKE_OPTIONAL  => t('Make field optional'),
+      self::MAKE_READ_ONLY => t('Make field read only'),
+      self::MAKE_HIDDEN    => t('Make field hidden'),
     ];
 
   }
@@ -308,7 +310,7 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
     if (!count($fields)) {
       // Nothing to do.
       $result = [
-        '#type' => 'markup',
+        '#type'   => 'markup',
         '#markup' => t('Nothing to do.'),
       ];
 
@@ -318,7 +320,7 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
     $element = $event->getArgument('element');
     $context = $event->getArgument('context');
     /** @var \Drupal\Core\Field\FieldItemList $items */
-    $items = $context['items'];
+    $items        = $context['items'];
     $element_name = $items->getName();
 
     // Change the field properties.
@@ -332,7 +334,7 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
 
     foreach ($fields as $field) {
       $debug_message = t('<br>%method: %field', [
-        '%field' => $field['field'],
+        '%field'  => $field['field'],
         '%method' => $this->actionOptions[$field['action']],
       ]);
 
@@ -355,12 +357,18 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
         if (isset($element[0])) {
           $element[0]['#required'] = TRUE;
         }
+        if (isset($element['target_id'])) {
+          $element['target_id']['#required'] = TRUE;
+        }
         break;
 
       case self::MAKE_OPTIONAL:
         $element['#required'] = FALSE;
         if (isset($element[0])) {
           $element[0]['#required'] = FALSE;
+        }
+        if (isset($element['target_id'])) {
+          $element['target_id']['#required'] = FALSE;
         }
         break;
 

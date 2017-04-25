@@ -8,6 +8,7 @@ use Drupal\business_rules\Entity\BusinessRule;
 use Drupal\business_rules\Entity\Condition;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
@@ -244,6 +245,9 @@ class BusinessRuleForm extends EntityForm {
 
       $business_rule->setTags(explode(',', $form_state->getValue('tags')));
       $status = $business_rule->save();
+      // As the rule may need to be executed under a cached hook, we need to
+      // invalidate all rendered caches.
+      Cache::invalidateTags(['rendered']);
 
       switch ($status) {
         case SAVED_NEW:

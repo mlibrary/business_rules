@@ -284,3 +284,23 @@ business_rules.action.type.change_field_info:
           action:
             type: string
             label: 'Action'
+
+business_rules.action.type.change_field_access:
+  type: mapping
+  label: 'Change entity form field'
+  mapping:
+    fields:
+      type: sequence
+      label: 'Fields'
+      sequence:
+        type: mapping
+        mapping:
+          id:
+            type: string
+            label: 'Id'
+          field:
+            type: string
+            label: 'Field'
+          action:
+            type: string
+            label: 'Action'

@@ -278,6 +278,7 @@ function business_rules_entity_view(array &$build, EntityInterface $entity, Enti
       'bundle'           => $entity->bundle(),
       'entity'           => $entity,
       'entity_unchanged' => $entity->original,
+      'build'            => &$build,
       'reacts_on'        => $reacts_on_definition,
       'loop_control'     => $entity,
     ]);

@@ -327,7 +327,7 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
    * {@inheritdoc}
    */
   public static function getEventTypes() {
-    $types = [];
+    $types  = [];
     $events = self::$reactsOnManager->getDefinitions();
 
     uasort($events, function ($a, $b) {

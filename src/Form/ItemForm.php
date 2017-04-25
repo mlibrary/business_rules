@@ -7,6 +7,7 @@ use Drupal\business_rules\Entity\Condition;
 use Drupal\business_rules\Entity\Variable;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
@@ -331,6 +332,9 @@ abstract class ItemForm extends EntityForm {
       $item->setTags(explode(',', $form_state->getValue('tags')));
 
       $status = $item->save();
+      // As the item may need to be executed under a cached hook, we need to
+      // invalidate all rendered caches.
+      Cache::invalidateTags(['rendered']);
 
       switch ($status) {
         case SAVED_NEW:

@@ -220,8 +220,9 @@ class Condition extends BusinessRulesItemBase implements ConditionInterface {
     /** @var \Drupal\business_rules\Plugin\BusinessRulesConditionPlugin $defined_condition */
     $defined_condition = $reflection->newInstance($condition_type, $condition_type['id'], $condition_type);
     $defined_condition->processTokens($this);
+    $condition = Condition::load($this->id());
 
-    return $defined_condition->process($this, $event);
+    return $defined_condition->process($condition, $event);
   }
 
 }
