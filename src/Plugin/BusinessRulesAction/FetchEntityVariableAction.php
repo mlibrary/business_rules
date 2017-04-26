@@ -10,6 +10,7 @@ use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\business_rules\VariableObject;
 use Drupal\business_rules\VariablesSet;
+use Drupal\Core\Entity\Entity;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -194,30 +195,37 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
             if (!$this->entityIsFetched) {
               $entity = $this->fetchEntity($id, $variable, $id_field, $action, $bundle, $original_variable_value);
             }
-            $field       = explode('->', $variable->getId())[1];
-            $definition  = $entity->$field->getFieldDefinition();
-            $field_type  = $definition->getType();
-            $cardinality = $definition->getFieldStorageDefinition()
-              ->getCardinality();
 
-            if ($field_type == 'entity_reference') {
-              $property_name = 'target_id';
-            }
-            else {
-              $property_name = 'value';
-            }
+            if ($entity instanceof Entity) {
 
-            if ($cardinality === 1) {
-              $value = $entity->get($field)->$property_name;
-            }
-            else {
-              $arr = $entity->$field->getValue();
-              foreach ($arr as $key => $item) {
-                $arr[$key] = $item['value'];
+              $field       = explode('->', $variable->getId())[1];
+              $definition  = $entity->$field->getFieldDefinition();
+              $field_type  = $definition->getType();
+              $cardinality = $definition->getFieldStorageDefinition()
+                ->getCardinality();
+
+              if ($field_type == 'entity_reference') {
+                $property_name = 'target_id';
               }
-              $value = $arr;
+              else {
+                $property_name = 'value';
+              }
+
+              if ($cardinality === 1) {
+                $value = $entity->get($field)->$property_name;
+              }
+              else {
+                $arr = $entity->$field->getValue();
+                foreach ($arr as $key => $item) {
+                  $arr[$key] = $item['value'];
+                  $multi_val = new VariableObject($variable->getId() . "[$key]", $item['value'], $variable->getType());
+                  $event_variables->append($multi_val);
+                }
+                $value = $arr;
+              }
+              $event_variables->replaceValue($variable->getId(), $value);
             }
-            $event_variables->replaceValue($variable->getId(), $value);
+
           }
 
         }

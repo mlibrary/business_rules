@@ -7,6 +7,7 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -59,9 +60,11 @@ class ShowMessage extends BusinessRulesActionPlugin {
    */
   public function execute(ActionInterface $action, BusinessRulesEvent $event) {
     $variables    = $event->getArgument('variables');
-    $message      = nl2br($action->getSettings('message'));
+    $message      = $action->getSettings('message');
     $message_type = $action->getSettings('message_type');
     $message      = $this->processVariables($message, $variables);
+    $message      = nl2br($message);
+    $message      = Xss::filterAdmin($message);
     $message      = new FormattableMarkup($message, []);
 
     drupal_set_message($message, $message_type);

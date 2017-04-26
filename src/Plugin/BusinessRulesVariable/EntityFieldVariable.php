@@ -3,11 +3,12 @@
 namespace Drupal\business_rules\Plugin\BusinessRulesVariable;
 
 use Drupal\business_rules\Entity\Variable;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesVariablePlugin;
 use Drupal\business_rules\VariableObject;
+use Drupal\business_rules\VariablesSet;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\business_rules\Events\BusinessRulesEvent;
 
 /**
  * Class EntityValue.
@@ -28,7 +29,7 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
  */
 class EntityFieldVariable extends BusinessRulesVariablePlugin {
 
-  const CURRENT_DATA = 'current_data';
+  const CURRENT_DATA  = 'current_data';
   const ORIGINAL_DATA = 'original_data';
 
   /**
@@ -45,8 +46,7 @@ class EntityFieldVariable extends BusinessRulesVariablePlugin {
         self::CURRENT_DATA  => t('Current value'),
         self::ORIGINAL_DATA => t('Original value'),
       ],
-      '#description'   => t('Current value is the value that is being saved.') .
-      '<br>' . t('Original value is the previous saved value.'),
+      '#description'   => t('Current value is the value that is being saved.') . '<br>' . t('Original value is the previous saved value.'),
       '#default_value' => empty($item->getSettings('data')) ? '' : $item->getSettings('data'),
     ];
 
@@ -56,10 +56,20 @@ class EntityFieldVariable extends BusinessRulesVariablePlugin {
   /**
    * {@inheritdoc}
    */
+  public function changeDetails(Variable $variable, array &$row) {
+    $row['description']['data']['#markup'] .= '<br>' . t('To access a particular multi-value field you can use {{@variable_id[n]}} where "n" is the delta value.', [
+      '@variable_id' => $variable->id(),
+    ]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function evaluate(Variable $variable, BusinessRulesEvent $event) {
 
-    $field_name = $variable->getSettings('field');
-    $data       = $variable->getSettings('data');
+    $field_name  = $variable->getSettings('field');
+    $data        = $variable->getSettings('data');
+    $variableSet = new VariablesSet();
 
     switch ($data) {
       case self::CURRENT_DATA:
@@ -83,15 +93,18 @@ class EntityFieldVariable extends BusinessRulesVariablePlugin {
     }
     else {
       $arr_value = [];
-      foreach ($value as $item) {
+      foreach ($value as $key => $item) {
         $arr_value[] = $item['value'];
+        $multi_val   = new VariableObject($variable->id() . "[$key]", $item['value'], $variable->getType());
+        $variableSet->append($multi_val);
       }
       $value = $arr_value;
     }
 
     $variableObject = new VariableObject($variable->id(), $value, $variable->getType());
+    $variableSet->append($variableObject);
 
-    return $variableObject;
+    return $variableSet;
   }
 
   /**

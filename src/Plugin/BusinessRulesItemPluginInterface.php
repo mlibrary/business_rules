@@ -14,7 +14,7 @@ use Drupal\Core\Form\FormStateInterface;
  */
 interface BusinessRulesItemPluginInterface extends PluginInspectionInterface {
 
-  const VARIABLE_REGEX = '{{((\w+)|(\w+\-\>+\w+)+?)}}';
+  const VARIABLE_REGEX = '{{((\w+|\w+\[\d+\])|(\w+\-\>+\w+|\w\[\d+\])+?)}}';
 
   /**
    * Form constructor.
@@ -89,7 +89,8 @@ interface BusinessRulesItemPluginInterface extends PluginInspectionInterface {
    * If you are using variables in a textfield, you can use the regex as the
    * following:
    *
-   *  preg_match_all('{{((\w+)|(\w+\-\>+\w+)+?)}}', $text, $variables);
+   *  preg_match_all(BusinessRulesItemPluginInterface::VARIABLE_REGEX, $text,
+   * $variables);
    *
    * The $variables array will be filled with all used variables at index [1]
    *

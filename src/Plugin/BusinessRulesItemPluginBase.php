@@ -121,6 +121,12 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
               $variable    = Variable::load($variable_id);
               unset($arr_temp[0]);
             }
+            elseif (stristr($variable_id, '[')) {
+              $arr_temp    = explode('[', $variable_id);
+              $variable_id = $arr_temp[0];
+              $variable    = Variable::load($variable_id);
+              unset($arr_temp[0]);
+            }
             else {
               $variable = Variable::load($variable_id);
             }
@@ -150,6 +156,10 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
           if (preg_match_all(self::VARIABLE_REGEX, $content)) {
             if ($content == '{{' . $variable->getId() . '}}') {
               $content = $variable->getValue();
+            }
+            elseif (stristr($content, '{{' . $variable->getId() . '}}')) {
+              $value = implode(chr(10), $variable->getValue());
+              $content = str_replace('{{' . $variable->getId() . '}}', $value, $content);
             }
           }
         }

@@ -29,6 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @package Drupal\business_rules\Util
  */
 class BusinessRulesUtil {
+
   use StringTranslationTrait;
 
   const BIGGER            = '>';
@@ -117,7 +118,7 @@ class BusinessRulesUtil {
    *
    * @var \Symfony\Component\HttpFoundation\Request
    */
-  public    $request;
+  public $request;
 
   /**
    * The Drupal token service.
@@ -495,9 +496,9 @@ class BusinessRulesUtil {
    */
   public function getCurrentUri() {
     // $current = $this->request->server->get('REQUEST_URI');.
-    $current = $_SERVER['REQUEST_URI'];
+    $current      = $_SERVER['REQUEST_URI'];
     $fake_request = Request::create($current);
-    $url_object = $this->container->get('path.validator')
+    $url_object   = $this->container->get('path.validator')
       ->getUrlIfValid($fake_request->getRequestUri());
     if ($url_object) {
       return $url_object;
@@ -761,6 +762,13 @@ class BusinessRulesUtil {
         'type'     => ['data' => ['#markup' => $field_types[$field_type]['label']]],
       ];
     }
+
+    $content['help'] = [
+      '#type'   => 'markup',
+      '#markup' => $this->t('To access a particular multi-value field you can use {{@variable_id->field_name[n]}} where "n" is the delta value.', [
+        '@variable_id' => $variable->id(),
+      ]),
+    ];
 
     $content['variable_fields'] = [
       '#type'   => 'table',

@@ -10,6 +10,7 @@ use Drupal\business_rules\Entity\Variable;
 use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\VariableObject;
 use Drupal\business_rules\VariablesSet;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Link;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\dbug\Dbug;
@@ -206,6 +207,10 @@ class BusinessRulesProcessor {
   public function __destruct() {
     $keyvalue = $this->util->getKeyValueExpirable('process');
     $keyvalue->deleteAll();
+
+    if ($this->config->get('clear_render_cache')) {
+      Cache::invalidateTags(['rendered']);
+    }
   }
 
   /**
