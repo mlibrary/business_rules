@@ -14,7 +14,7 @@ use Drupal\Core\Form\FormStateInterface;
  */
 interface BusinessRulesItemPluginInterface extends PluginInspectionInterface {
 
-  const VARIABLE_REGEX = '{{((\w+|\w+\[\d+\])|(\w+\-\>+\w+|\w\[\d+\])+?)}}';
+  const VARIABLE_REGEX = '{{((\w+|\w+\[\d+\]|\w+\[\d+\]\-\>+\w+)|(\w+\-\>+\w+|\w\[\d+\]|\w\[\d+\]\-\>+\w+)+?)}}';
 
   /**
    * Form constructor.

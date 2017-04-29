@@ -285,7 +285,7 @@ business_rules.action.type.change_field_info:
             type: string
             label: 'Action'
 
-business_rules.action.type.change_field_access:
+business_rules.action.type.change_entity_view:
   type: mapping
   label: 'Change entity form field'
   mapping:
@@ -298,9 +298,12 @@ business_rules.action.type.change_field_access:
           id:
             type: string
             label: 'Id'
-          field:
+          display:
             type: string
-            label: 'Field'
-          action:
+            label: 'Display settings'
+          label:
             type: string
-            label: 'Action'
+            label: 'Label settings'
+          weight:
+            type: integer
+            label: 'Weight'

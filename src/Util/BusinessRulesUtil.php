@@ -32,16 +32,25 @@ class BusinessRulesUtil {
 
   use StringTranslationTrait;
 
-  const BIGGER            = '>';
-  const BIGGER_OR_EQUALS  = '>=';
-  const SMALLER           = '<';
+  const BIGGER = '>';
+
+  const BIGGER_OR_EQUALS = '>=';
+
+  const SMALLER = '<';
+
   const SMALLER_OR_EQUALS = '<=';
-  const EQUALS            = '==';
-  const DIFFERENT         = '!=';
-  const IS_EMPTY          = 'empty';
-  const CONTAINS          = 'contains';
-  const STARTS_WITH       = 'starts_with';
-  const ENDS_WITH         = 'ends_with';
+
+  const EQUALS = '==';
+
+  const DIFFERENT = '!=';
+
+  const IS_EMPTY = 'empty';
+
+  const CONTAINS = 'contains';
+
+  const STARTS_WITH = 'starts_with';
+
+  const ENDS_WITH = 'ends_with';
 
   /**
    * The config factory.
@@ -765,9 +774,10 @@ class BusinessRulesUtil {
 
     $content['help'] = [
       '#type'   => 'markup',
-      '#markup' => $this->t('To access a particular multi-value field you can use {{@variable_id->field_name[n]}} where "n" is the delta value.', [
-        '@variable_id' => $variable->id(),
-      ]),
+      '#markup' => $this->t('To access a particular multi-value field such as target id, you can use <code>{{@variable_id[delta]}}</code> where "delta" is the delta value to get a one value or <code>{{@variable_id}}</code> to get an array of values.
+        <br>To access a particular multi-value field label you can use <code>{{@variable_id[delta]->label}}</code> where "delta" is the delta value to get one label or <code>{{@variable_id->label}}</code> to get an array of labels', [
+          '@variable_id' => $variable->id(),
+        ]),
     ];
 
     $content['variable_fields'] = [

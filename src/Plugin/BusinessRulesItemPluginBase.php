@@ -115,7 +115,7 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
 
         if (count($variables)) {
           foreach ($variables as $variable_id) {
-            if (stristr($variable_id, '->')) {
+            if (stristr($variable_id, '->') && !stristr($variable_id, '[')) {
               $arr_temp    = explode('->', $variable_id);
               $variable_id = $arr_temp[0];
               $variable    = Variable::load($variable_id);

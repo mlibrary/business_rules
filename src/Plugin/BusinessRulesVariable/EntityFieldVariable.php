@@ -19,17 +19,15 @@ use Drupal\Core\Form\FormStateInterface;
  *   id = "entity_filed_variable",
  *   label = @Translation("Value from Entity field"),
  *   group = @Translation("Entity"),
- *   description = @Translation("Set an variable value with a value from entity field."),
- *   reactsOnIds = {},
- *   isContextDependent = TRUE,
- *   hasTargetEntity = TRUE,
- *   hasTargetBundle = TRUE,
- *   hasTargetField = TRUE,
+ *   description = @Translation("Set an variable value with a value from entity
+ *   field."), reactsOnIds = {}, isContextDependent = TRUE, hasTargetEntity =
+ *   TRUE, hasTargetBundle = TRUE, hasTargetField = TRUE,
  * )
  */
 class EntityFieldVariable extends BusinessRulesVariablePlugin {
 
-  const CURRENT_DATA  = 'current_data';
+  const CURRENT_DATA = 'current_data';
+
   const ORIGINAL_DATA = 'original_data';
 
   /**
@@ -57,9 +55,11 @@ class EntityFieldVariable extends BusinessRulesVariablePlugin {
    * {@inheritdoc}
    */
   public function changeDetails(Variable $variable, array &$row) {
-    $row['description']['data']['#markup'] .= '<br>' . t('To access a particular multi-value field you can use {{@variable_id[n]}} where "n" is the delta value.', [
-      '@variable_id' => $variable->id(),
-    ]);
+    $row['description']['data']['#markup'] .= '<br>' . t('To access a particular multi-value field such as target id, you can use <code>{{@variable_id[delta]}}</code> where "delta" is the delta value to get a one value or <code>{{@variable_id}}</code> to get an array of values.
+      <br>To access a particular multi-value field label you can use <code>{{@variable_id[delta]->label}}</code> where "delta" is the delta value to get one label or <code>{{@variable_id->label}}</code> to get an array of labels', [
+        '@variable_id' => $variable->id(),
+      ]);
+
   }
 
   /**
@@ -83,19 +83,52 @@ class EntityFieldVariable extends BusinessRulesVariablePlugin {
 
     try {
       $value = $entity->get($field_name)->getValue();
+      // Check if value is a entity reference.
+      /** @var \Drupal\field\Entity\FieldConfig $field_definition */
+      $field_definition = $entity->getFieldDefinition($field_name);
+      if ($field_definition->getType() == 'entity_reference') {
+        $entity_references = $entity->get($field_name)->referencedEntities();
+        foreach ($entity_references as $key => $item) {
+          $value[$key]['entity_reference_label'] = $item->label();
+        }
+      }
     }
     catch (\Exception $e) {
       throw $e;
     }
 
+    $arr_label = [];
     if (count($value) === 1) {
-      $value = $value[0]['value'];
+      if (isset($value[0]['value'])) {
+        $value = $value[0]['value'];
+      }
+      elseif (isset($value[0]['target_id'])) {
+        $value = $value[0]['target_id'];
+      }
+      else {
+        $value = NULL;
+      }
     }
     else {
       $arr_value = [];
       foreach ($value as $key => $item) {
-        $arr_value[] = $item['value'];
-        $multi_val   = new VariableObject($variable->id() . "[$key]", $item['value'], $variable->getType());
+        if (isset($item['value'])) {
+          $arr_value[] = $item['value'];
+          $multi_val   = new VariableObject($variable->id() . "[$key]", $item['value'], $variable->getType());
+        }
+        elseif (isset($item['target_id'])) {
+          $arr_value[] = $item['target_id'];
+          $multi_val   = new VariableObject($variable->id() . "[$key]", $item['target_id'], $variable->getType());
+          $title       = new VariableObject($variable->id() . "[$key]->label", $item['entity_reference_label'], $variable->getType());
+          $variableSet->append($title);
+
+          $arr_label[] = $item['entity_reference_label'];
+        }
+        else {
+          $arr_value[] = NULL;
+          $multi_val   = new VariableObject($variable->id() . "[$key]", NULL, $variable->getType());
+        }
+
         $variableSet->append($multi_val);
       }
       $value = $arr_value;
@@ -103,6 +136,11 @@ class EntityFieldVariable extends BusinessRulesVariablePlugin {
 
     $variableObject = new VariableObject($variable->id(), $value, $variable->getType());
     $variableSet->append($variableObject);
+
+    if (count($arr_label)) {
+      $variableObject = new VariableObject($variable->id() . '->label', $arr_label, $variable->getType());
+      $variableSet->append($variableObject);
+    }
 
     return $variableSet;
   }

@@ -22,11 +22,9 @@ use Drupal\Core\Form\FormStateInterface;
  *   id = "fetch_entity_variable",
  *   label = @Translation("Fetch entity variable by id"),
  *   group = @Translation("Variable"),
- *   description = @Translation("Fetch an entity variable by id provided by another variable or a constant value."),
- *   isContextDependent = FALSE,
- *   hasTargetEntity = TRUE,
- *   hasTargetBundle = TRUE,
- *   hasTargetField = TRUE,
+ *   description = @Translation("Fetch an entity variable by id provided by
+ *   another variable or a constant value."), isContextDependent = FALSE,
+ *   hasTargetEntity = TRUE, hasTargetBundle = TRUE, hasTargetField = TRUE,
  * )
  */
 class FetchEntityVariableAction extends BusinessRulesActionPlugin {
@@ -215,11 +213,41 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
                 $value = $entity->get($field)->$property_name;
               }
               else {
-                $arr = $entity->$field->getValue();
-                foreach ($arr as $key => $item) {
-                  $arr[$key] = $item['value'];
-                  $multi_val = new VariableObject($variable->getId() . "[$key]", $item['value'], $variable->getType());
-                  $event_variables->append($multi_val);
+                $arr              = $entity->$field->getValue();
+                $field_definition = $entity->getFieldDefinition($field);
+
+                // Check if value is entity reference.
+                if ($field_definition->getType() == 'entity_reference') {
+                  $entity_references = $entity->get($field)
+                    ->referencedEntities();
+                  foreach ($arr as $key => $item) {
+                    $arr[$key] = $item['target_id'];
+                    $multi_val = new VariableObject($variable->getId() . "[$key]", $item['target_id'], $variable->getType());
+                    $event_variables->append($multi_val);
+
+                    // Prepare the variable field with the entity reference
+                    // title / name / other property name.
+                    /** @var \Drupal\Core\Entity\Entity $entity_reference */
+                    $entity_reference       = $entity_references[$key];
+                    $entity_reference_value = $entity_reference->label();
+                    $entity_reference_label = new VariableObject($variable->getId() . "[$key]->label", $entity_reference_value, $variable->getType());
+                    $event_variables->append($entity_reference_label);
+
+                    // Fetch array labels variable.
+                    $arr_labels = [];
+                    foreach ($entity_references as $reference) {
+                      $arr_labels[] = $reference->label();
+                    }
+                    $entity_reference_labels = new VariableObject($variable->getId() . "->label", $arr_labels, $variable->getType());
+                    $event_variables->append($entity_reference_labels);
+                  }
+                }
+                else {
+                  foreach ($arr as $key => $item) {
+                    $arr[$key] = $item['value'];
+                    $multi_val = new VariableObject($variable->getId() . "[$key]", $item['value'], $variable->getType());
+                    $event_variables->append($multi_val);
+                  }
                 }
                 $value = $arr;
               }
