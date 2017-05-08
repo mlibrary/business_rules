@@ -2,8 +2,8 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesVariable;
 
-use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\Entity\Variable;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesVariablePlugin;
 use Drupal\business_rules\VariableObject;
@@ -20,7 +20,8 @@ use Drupal\views\Views;
  *   id = "view_result_variable",
  *   label = @Translation("View result variable"),
  *   group = @Translation("Views"),
- *   description = @Translation("Populate this variable with a view result. This variable can only be on Actions type: "),
+ *   description = @Translation("Populate this variable with a view result.
+ *   This variable can only be on Actions type: "),
  * )
  */
 class ViewResultVariable extends BusinessRulesVariablePlugin {
@@ -80,7 +81,7 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
    */
   public function changeDetails(Variable $variable, array &$row) {
     // Show a link to a modal window which all fields from the view.
-    $content = $this->variableFields($variable);
+    $content  = $this->variableFields($variable);
     $keyvalue = $this->util->getKeyValueExpirable('view_result_variable');
     $keyvalue->set('variableFields.' . $variable->id(), $content);
 
@@ -200,17 +201,26 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
 
         if ($field->getBaseId() == 'field') {
 
-          // Need to get any bundle to get the fields that are instance of
-          // BaseFieldDefinition. i.e. All fields living in the main entity
-          // table.
-          $bundles = $this->bundleInfo->getBundleInfo($entity_type);
-          $bundles = array_keys($bundles);
-          $bundle = $bundles[0];
+          // Need to check in all bundles if the field is available.
+          $bundles    = $this->bundleInfo->getBundleInfo($entity_type);
+          $bundles    = array_keys($bundles);
+          $found      = FALSE;
+          $idx_bundle = 0;
+          while (!$found && $idx_bundle < count($bundles)) {
+            $bundle = $bundles[$idx_bundle];
 
-          // Now, with the bundle info, we can load the fields definitions.
-          $fields_definitions = $this->entityFieldManager->getFieldDefinitions($entity_type, $bundle);
-          $field_definition   = $fields_definitions[$field_name];
-          $field_type         = $field_definition->getType();
+            // Now, with the bundle info, we can load the fields definitions.
+            $fields_definitions = $this->entityFieldManager->getFieldDefinitions($entity_type, $bundle);
+            $field_definition   = $fields_definitions[$field_name];
+            // If we are not in the correct bundle, lets try again.
+            if (empty($field_definition)) {
+              $idx_bundle++;
+            }
+            else {
+              $field_type = $field_definition->getType();
+              $found      = TRUE;
+            }
+          }
 
           $rows[] = [
             'variable' => ['data' => ['#markup' => '{{' . $variable->id() . '->' . $field_id . '}}']],
