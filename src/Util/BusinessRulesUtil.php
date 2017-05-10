@@ -775,7 +775,7 @@ class BusinessRulesUtil {
     $content['help'] = [
       '#type'   => 'markup',
       '#markup' => $this->t('To access a particular multi-value field such as target id, you can use <code>{{@variable_id[delta]}}</code> where "delta" is the delta value to get a one value or <code>{{@variable_id}}</code> to get an array of values.
-        <br>To access a particular multi-value field label you can use <code>{{@variable_id[delta]->label}}</code> where "delta" is the delta value to get one label or <code>{{@variable_id->label}}</code> to get an array of labels', [
+        <br>To access a particular multi-value field label you can use <code>{{@variable_id[delta]->label}}</code> where "delta" is the delta value to get one label or <code>{{@variable_id->label}}</code> to get an array of labels.', [
           '@variable_id' => $variable->id(),
         ]),
     ];

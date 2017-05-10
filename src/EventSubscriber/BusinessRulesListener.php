@@ -153,8 +153,8 @@ class BusinessRulesListener implements EventSubscriberInterface {
    *   The terminate event.
    */
   public function onTerminate(Event $event) {
-    $key_value = \Drupal::keyValueExpirable('business_rules.debug');
-    $key_value->deleteAll();
+    //$key_value = \Drupal::keyValueExpirable('business_rules.debug');
+    //$key_value->deleteAll();
   }
 
 }

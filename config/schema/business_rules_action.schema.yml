@@ -213,6 +213,20 @@ business_rules.action.type.loop_through_view_result:
       sequence:
         type: business_rules.item
 
+# Loop through a multi-value field variable.
+business_rules.action.type.loop_through_field_variable:
+  type: mapping
+  label: 'Loop through a multi-value field variable'
+  mapping:
+    variable:
+      type: string
+      label: 'Views variable'
+    items:
+      type: sequence
+      label: 'Items'
+      sequence:
+        type: business_rules.item
+
 # Calculate a value
 business_rules.action.type.calculate_value:
   type: mapping

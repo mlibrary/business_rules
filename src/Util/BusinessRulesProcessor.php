@@ -411,7 +411,7 @@ class BusinessRulesProcessor {
             $variable_link = Link::createFromRoute($variable->id(), 'entity.business_rules_variable.edit_form', ['business_rules_variable' => $variable->id()]);
             $variable_value = empty($evaluates_variable->getValue()) ? 'NULL' : $evaluates_variable->getValue();
 
-            if (!is_string($variable_value)) {
+            if (!is_string($variable_value) && !is_numeric($variable_value)) {
               $serialized = serialize($variable_value);
               if (is_object($variable_value)) {
                 // Transform the serialized object into serialized array.

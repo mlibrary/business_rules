@@ -143,7 +143,7 @@ class CalculateValue extends BusinessRulesActionPlugin {
     $variable        = $action->getSettings('variable');
 
     // Check if formula is safe.
-    $allowed_values = str_split('()+-*/% ');
+    $allowed_values   = str_split('()+-*/% ');
     $allowed_values[] = chr(10);
     $allowed_values[] = '\r';
     $allowed_values[] = '\n';
@@ -170,7 +170,7 @@ class CalculateValue extends BusinessRulesActionPlugin {
         '#markup' => t('Formula "%raw_formula" transformed into "%formula" with the result: "%result" assigned to variable "%variable".', [
           '%raw_formula' => $raw_formula,
           '%formula'     => $formula,
-          '%variable'    => $variable,
+          '%result'      => $formula_result,
         ]),
       ];
     }
@@ -180,7 +180,6 @@ class CalculateValue extends BusinessRulesActionPlugin {
         '#markup' => t('The expression: "%raw_formula" processed as "%formula" could not be evaluated. Please, make sure it is a valid numeric expression.', [
           '%raw_formula' => $raw_formula,
           '%formula'     => $formula,
-          '%result'      => $result,
         ]),
       ];
     }
