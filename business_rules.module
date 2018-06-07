@@ -51,7 +51,7 @@ function business_rules_entity_presave(EntityInterface $entity) {
       'entity'           => $entity,
       'entity_unchanged' => $entity->original,
       'reacts_on'        => $reacts_on_definition,
-      'loop_control'     => $entity,
+      'loop_control'     => $entity->getEntityTypeId() . $entity->id(),
     ]);
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
@@ -77,7 +77,7 @@ function business_rules_entity_update(EntityInterface $entity) {
       'entity'           => $entity,
       'entity_unchanged' => $entity->original,
       'reacts_on'        => $reacts_on_definition,
-      'loop_control'     => $entity,
+      'loop_control'     => $entity->getEntityTypeId() . $entity->id(),
     ]);
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
@@ -102,7 +102,7 @@ function business_rules_entity_insert(EntityInterface $entity) {
       'entity'           => $entity,
       'entity_unchanged' => $entity->original,
       'reacts_on'        => $reacts_on_definition,
-      'loop_control'     => $entity,
+      'loop_control'     => $entity->getEntityTypeId() . $entity->id(),
     ]);
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
@@ -127,7 +127,7 @@ function business_rules_entity_delete(EntityInterface $entity) {
       'entity'           => $entity,
       'entity_unchanged' => $entity->original,
       'reacts_on'        => $reacts_on_definition,
-      'loop_control'     => $entity,
+      'loop_control'     => $entity->getEntityTypeId() . $entity->id(),
     ]);
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
@@ -162,7 +162,7 @@ function business_rules_form_alter(&$form, FormStateInterface $form_state, $form
         'entity'           => $entity,
         'entity_unchanged' => $entity->original,
         'reacts_on'        => $form_validation_reacts_on_definition,
-        'loop_control'     => $entity,
+        'loop_control'     => $entity->getEntityTypeId() . $entity->id(),
       ]);
 
       $form_state->set('business_rules_event', $form_validation_event);
@@ -280,7 +280,7 @@ function business_rules_entity_view(array &$build, EntityInterface $entity, Enti
       'entity_unchanged' => $entity->original,
       'build'            => &$build,
       'reacts_on'        => $reacts_on_definition,
-      'loop_control'     => $entity,
+      'loop_control'     => $entity->getEntityTypeId() . $entity->id(),
     ]);
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
@@ -305,7 +305,7 @@ function business_rules_entity_load(array $entities, $entity_type_id) {
         'entity'           => $entity,
         'entity_unchanged' => $entity->original,
         'reacts_on'        => $reacts_on_definition,
-        'loop_control'     => $entity,
+        'loop_control'     => $entity->getEntityTypeId() . $entity->id(),
       ]);
       /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
       $event_dispatcher = \Drupal::service('event_dispatcher');
@@ -331,7 +331,7 @@ function business_rules_user_login($account) {
     'entity'           => $entity,
     'entity_unchanged' => NULL,
     'reacts_on'        => $reacts_on_definition,
-    'loop_control'     => $entity,
+    'loop_control'     => $entity->getEntityTypeId() . $entity->id(),
   ]);
   /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
   $event_dispatcher = \Drupal::service('event_dispatcher');
@@ -356,7 +356,7 @@ function business_rules_user_logout($account) {
     'entity'           => $entity,
     'entity_unchanged' => NULL,
     'reacts_on'        => $reacts_on_definition,
-    'loop_control'     => $entity,
+    'loop_control'     => $entity->getEntityTypeId() . $entity->id(),
   ]);
   /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
   $event_dispatcher = \Drupal::service('event_dispatcher');

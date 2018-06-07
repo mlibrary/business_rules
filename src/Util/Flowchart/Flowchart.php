@@ -289,13 +289,13 @@ class Flowchart {
   private function itemHasChildren(EntityInterface $item) {
     if ($item instanceof BusinessRule) {
       $children = $item->getItems();
-      if (count($children)) {
+      if (!is_null($children) && count($children)) {
         return TRUE;
       }
     }
     elseif ($item instanceof Action) {
       $children = $item->getSettings('items');
-      if (count($children)) {
+      if (!is_null($children) && count($children)) {
         return TRUE;
       }
     }
