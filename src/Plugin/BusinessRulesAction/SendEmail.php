@@ -7,6 +7,7 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\language\ConfigurableLanguageManagerInterface;
 
 /**
  * Class SendEmail.
@@ -37,6 +38,7 @@ class SendEmail extends BusinessRulesActionPlugin {
    * {@inheritdoc}
    */
   public function __construct(array $configuration, $plugin_id = 'send_email', $plugin_definition = []) {
+
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->mailManager = $this->util->container->get('plugin.manager.mail');
   }
@@ -118,6 +120,7 @@ class SendEmail extends BusinessRulesActionPlugin {
    * {@inheritdoc}
    */
   public function processSettings(array $settings, ItemInterface $item) {
+
     if (isset($settings['use_site_mail_as_sender']) && $settings['use_site_mail_as_sender'] === 1) {
       $settings['from'] = NULL;
     }
@@ -139,7 +142,7 @@ class SendEmail extends BusinessRulesActionPlugin {
       if ($form_state->getValue('use_site_mail_as_sender') === '0') {
         // Check if it's a valid email.
         if (!\Drupal::service('email.validator')
-          ->isValid($form_state->getValue('from')) ||
+            ->isValid($form_state->getValue('from')) ||
           // Check if it's not a variable.
           count($this->pregMatch($form_state->getValue('from'))) < 1
         ) {
@@ -207,12 +210,14 @@ class SendEmail extends BusinessRulesActionPlugin {
       }
 
       // Send the email.
-      $action_translated   = \Drupal::languageManager()
-        ->getLanguageConfigOverride($langcode, 'business_rules.action.' . $action->id());
-      $settings_translated = $action_translated->get('settings');
+      $languageManager = \Drupal::languageManager();
+      if ($languageManager instanceof ConfigurableLanguageManagerInterface) {
+        $action_translated   = $languageManager->getLanguageConfigOverride($langcode, 'business_rules.action.' . $action->id());
+        $settings_translated = $action_translated->get('settings');
+      }
 
-      $subject = $settings_translated['subject'];
-      $message = $settings_translated['body'];
+      $subject = isset($settings_translated['subject']) ? $settings_translated['subject'] : $action->getSettings('subject');
+      $message = isset($settings_translated['body']) ? $settings_translated['body'] : $action->getSettings('body');
       $subject = $this->processVariables($subject, $event_variables);
       $message = $this->processVariables($message, $event_variables);
 
@@ -227,10 +232,10 @@ class SendEmail extends BusinessRulesActionPlugin {
       $result = [
         '#type'   => 'markup',
         '#markup' => t('Send mail result: %result. Subject: %subject, from: %from, to: %to, message: %message.', [
-          '%result' => $send_result['result'] ? t('success') : t('fail'),
+          '%result'  => $send_result['result'] ? t('success') : t('fail'),
           '%subject' => $subject,
-          '%from' => $from,
-          '%to' => $to,
+          '%from'    => $from,
+          '%to'      => $to,
           '%message' => $message,
         ]),
       ];
