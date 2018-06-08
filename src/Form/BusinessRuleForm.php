@@ -13,6 +13,7 @@ use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use PHPUnit\Framework\Constraint\IsFalse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -186,6 +187,7 @@ class BusinessRuleForm extends EntityForm {
 
     }
 
+    $form['#validate'][] = '::validateForm';
     return $form;
   }
 
@@ -202,6 +204,7 @@ class BusinessRuleForm extends EntityForm {
         '#submit' => ['::submitForm', '::save'],
         '#op'     => 'done',
         '#weight' => 7,
+        '#validate' => ['::validateForm'],
       ];
     }
     elseif ($this->step === 1) {
@@ -276,23 +279,6 @@ class BusinessRuleForm extends EntityForm {
 
     return $status;
 
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function processForm($element, FormStateInterface $form_state, $form) {
-
-    // Prevent validation when ajax is populating fields.
-    $values = $form_state->getValues();
-    if (!count($values)) {
-      $form_state->setValidationComplete();
-    }
-    else {
-      $form_state->setValidationComplete(FALSE);
-    }
-
-    return parent::processForm($element, $form_state, $form);
   }
 
   /**
@@ -575,6 +561,22 @@ class BusinessRuleForm extends EntityForm {
     $response->addCommand(new ReplaceCommand('#target_bundle-wrapper', $form['entity']['context']['target_bundle']));
 
     return $response;
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+
+    // Validate de Business Rule Machine Name
+    $id = $form_state->getValue('id');
+    if ($id && $this->entity->isNew()) {
+      $br = BusinessRule::load($id);
+      if (!empty($br)) {
+        $form_state->setErrorByName('id', $this->t('The machine-readable name is already in use. It must be unique.'));
+      }
+    }
   }
 
 }
