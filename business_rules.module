@@ -182,6 +182,7 @@ function business_rules_form_alter(&$form, FormStateInterface $form_state, $form
  */
 function business_rules_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
 
+  // TODO check patch inline_entity_form_2973571_1.patch
   if (!$entity = $form_state->getFormObject()->getEntity()) {
     $entity = new stdClass();
   }

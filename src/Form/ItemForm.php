@@ -189,7 +189,7 @@ abstract class ItemForm extends EntityForm {
       $form['actions_box']            = $this->util->getUsedByActionsDetailsBox($item);
       $form['actions_box']['#weight'] = 1120;
 
-      if (!$item->isNew() && !$item instanceof Variable && ($item instanceof Action && count($item->getSettings('items')) || $item instanceof Condition)) {
+      if (!$item->isNew() && !$item instanceof Variable && ($item instanceof Action && is_array($item->getSettings('items')) && count($item->getSettings('items')) || $item instanceof Condition)) {
 
         $flowchart = $this->chart->getGraph($item);
 
