@@ -36,14 +36,14 @@ class BusinessRulesSettingsForm extends ConfigFormBase {
     $form['debug_screen'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Show debug information on screen'),
-      '#description'   => $this->t('You will need to add the Business rules debug block (visible only when this option is checked).'),
+      '#description'   => $this->t('You will need to add the Business rules debug block on Structure / Block layout (visible only when this option is checked).'),
       '#default_value' => $config->get('debug_screen'),
     ];
 
     $form['clear_render_cache'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Clear rendered cache on each request'),
-      '#description' => $this->t("Disable the Drupal render HTML cache. It makes sense if you have rules triggered by the event 'Entity is viewed' and you need to evaluate this rule every time the entity is rendered."),
+      '#description' => $this->t("Disable the Drupal render HTML cache. IT WILL REDUCE THE SITE PERFORMANCE, use with wisdom. It makes sense if you have rules triggered by the event 'Entity is viewed' and you need to evaluate this rule every time the entity is rendered."),
       '#default_value' => $config->get('clear_render_cache'),
     ];
 

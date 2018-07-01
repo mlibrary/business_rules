@@ -174,7 +174,8 @@ class SendEmail extends BusinessRulesActionPlugin {
 
     $event_variables = $event->getArgument('variables');
     $query_service   = \Drupal::getContainer()->get('entity.query');
-    $arr_to          = explode(';', $action->getSettings('to'));
+    $to              = $this->processVariables($action->getSettings('to'), $event_variables);
+    $arr_to          = explode(';', $to);
     $result          = [];
 
     if ($action->getSettings('use_site_mail_as_sender')) {
@@ -235,7 +236,7 @@ class SendEmail extends BusinessRulesActionPlugin {
           '%result'  => $send_result['result'] ? t('success') : t('fail'),
           '%subject' => $subject,
           '%from'    => $from,
-          '%to'      => $to,
+          '%to'      => implode('; ', $arr_to),
           '%message' => $message,
         ]),
       ];
