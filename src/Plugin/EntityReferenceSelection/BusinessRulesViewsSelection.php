@@ -110,12 +110,16 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $selection_handler_settings = $this->configuration['handler_settings'];
-    $view_settings              = !empty($selection_handler_settings['business_rules_view']) ? $selection_handler_settings['business_rules_view'] : [];
-    $displays                   = Views::getApplicableViews('entity_reference_display');
+    // The ['handler_settings'] was removed on Drupal 8.4. the code bellow is
+    // kept for back compatibility.
+    // @see https://www.drupal.org/node/2870971
+    $handler_settings = isset($this->configuration['handler_settings']) ? $this->configuration['handler_settings'] : $this->configuration;
+
+    $view_settings = !empty($handler_settings['business_rules_view']) ? $handler_settings['business_rules_view'] : [];
+    $displays      = Views::getApplicableViews('entity_reference_display');
     // Filter views that list the entity type we want, and group the separate
     // displays by view.
-    $entity_type = $this->entityManager->getDefinition($this->configuration['target_type']);
+    $entity_type  = $this->entityManager->getDefinition($this->configuration['target_type']);
     $view_storage = $this->entityManager->getStorage('view');
 
     $options = [];
@@ -146,7 +150,8 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
 
       $form['business_rules_view']['help']['#markup'] = t('This plugin do not works for autocomplete form widget. Make sure you have selected "Select list" or "Check boxes/radio buttons" at "Manage form display" tab.');
 
-      $default                                         = !empty($view_settings['view_name']) ? $view_settings['view_name'] . ':' . $view_settings['display_name'] : NULL;
+      $default = !empty($view_settings['view_name']) ? $view_settings['view_name'] . ':' . $view_settings['display_name'] : NULL;
+
       $form['business_rules_view']['view_and_display'] = [
         '#type'          => 'select',
         '#title'         => $this->t('View used to select the entities'),
@@ -165,7 +170,8 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
       $fields_options = [];
       if (count($fields)) {
         foreach ($fields as $key => $name) {
-          if ($key !== 'title') {
+          // Do not include the dependent field itself.
+          if ($key !== 'title' && $key !== $field_config->getName()) {
             $fields_options[$key] = $name;
           }
         }
@@ -212,12 +218,12 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
   /**
    * {@inheritdoc}
    */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {}
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) { }
 
   /**
    * {@inheritdoc}
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {}
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) { }
 
   /**
    * Initializes a view.
@@ -237,7 +243,10 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
    *   Return TRUE if the view was initialized, FALSE otherwise.
    */
   protected function initializeView($match = NULL, $match_operator = 'CONTAINS', $limit = 0, $ids = NULL) {
-    $handler_settings = $this->configuration['handler_settings'];
+    // The ['handler_settings'] was removed on Drupal 8.4. the code bellow is
+    // kept for back compatibility.
+    // @see https://www.drupal.org/node/2870971
+    $handler_settings = isset($this->configuration['handler_settings']) ? $this->configuration['handler_settings'] : $this->configuration;
     $view_name        = $handler_settings['business_rules_view']['view_name'];
     $display_name     = $handler_settings['business_rules_view']['display_name'];
 
@@ -267,14 +276,19 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
    * {@inheritdoc}
    */
   public function getReferenceableEntities($match = NULL, $match_operator = 'CONTAINS', $limit = 0) {
-    $handler_settings = $this->configuration['handler_settings'];
-    $display_name     = $handler_settings['business_rules_view']['display_name'];
-    $arguments        = $handler_settings['business_rules_view']['arguments'];
-    $parent_field     = $handler_settings['business_rules_view']['parent_field'];
+    // The ['handler_settings'] was removed on Drupal 8.4. the code bellow is
+    // kept for back compatibility.
+    // @see https://www.drupal.org/node/2870971
+    $handler_settings = isset($this->configuration['handler_settings']) ? $this->configuration['handler_settings'] : $this->configuration;
+
+    $display_name = $handler_settings['business_rules_view']['display_name'];
+    $arguments    = $handler_settings['business_rules_view']['arguments'];
+    $parent_field = $handler_settings['business_rules_view']['parent_field'];
 
     /** @var \Drupal\Core\Entity\Entity $entity */
     $entity             = $this->configuration['entity'];
-    $parent_field_value = $parent_field_value = $this->util->request->get($parent_field) ? $parent_field_value = $this->util->request->get($parent_field) : $entity->get($parent_field)->getString();
+    $parent_field_value = $parent_field_value = $this->util->request->get($parent_field) ? $parent_field_value = $this->util->request->get($parent_field) : $entity->get($parent_field)
+      ->getString();
     $arguments          = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
     $result             = [];
     if ($this->initializeView($match, $match_operator, $limit)) {
@@ -391,7 +405,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
   /**
    * {@inheritdoc}
    */
-  public function entityQueryAlter(SelectInterface $query) {}
+  public function entityQueryAlter(SelectInterface $query) { }
 
   /**
    * Update the dependent field options.
