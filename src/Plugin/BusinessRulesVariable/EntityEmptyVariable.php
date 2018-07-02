@@ -108,9 +108,16 @@ class EntityEmptyVariable extends BusinessRulesVariablePlugin {
     /** @var \Drupal\Core\Entity\Entity $entity */
     $entity_type    = $variable->getTargetEntityType();
     $bundle         = $variable->getTargetBundle();
+
+    // Get entity bundle key
+    $manager = \Drupal::entityTypeManager();
+    $entity_type1 = $manager->getDefinition($entity_type);// getStorage($entity_type);// ->getEntityType($entity_type);
+    $entity_key = $entity_type1->getBundleEntityType();
+
     $entity         = \Drupal::entityTypeManager()
       ->getStorage($entity_type)
-      ->create(['type' => $bundle]);
+      ->create([$entity_key => $bundle]);
+//      ->create(['type' => $bundle]);
     $variableObject = new VariableObject($variable->id(), $entity, $variable->getType());
     $variableSet    = new VariablesSet();
     $variableSet->append($variableObject);

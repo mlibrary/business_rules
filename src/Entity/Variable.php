@@ -87,8 +87,10 @@ class Variable extends BusinessRulesItemBase implements VariableInterface {
 
     // Previously it was returning the loaded variable, but it was preventing
     // the token replacement. See issue #2980052 from @wombatbuddy
-    // $action = $variable = Variable::load($this->id());
-    return $defined_variable->evaluate($this, $event);
+    $variable = Variable::load($this->id());
+    $defined_variable->processTokens($variable);
+
+    return $defined_variable->evaluate($variable, $event);
   }
 
 }

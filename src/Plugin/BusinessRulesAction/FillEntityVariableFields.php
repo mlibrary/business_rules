@@ -229,59 +229,73 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
     $result             = [];
 
     if ($entity_variable) {
+      /** @var \Drupal\Core\Entity\Entity $entity */
       $entity = $entity_variable->getValue();
 
       $fields_values = $action->getSettings('fields_values');
-      foreach ($fields_values as $field_value) {
+      if (is_array($fields_values)) {
+        foreach ($fields_values as $field_value) {
+          //          $a = $entity->get('uid');
+          //          if(is_null($entity->$field_value['entity_field'])) {
+          //            $cardinality = 1;
+          //          }
+          //          else {
+          //            $cardinality = $entity->$field_value['entity_field']->getFieldDefinition()
+          //              ->getFieldStorageDefinition()
+          //              ->getCardinality();
+          //          }
 
-        $cardinality = $entity->$field_value['entity_field']->getFieldDefinition()
-          ->getFieldStorageDefinition()
-          ->getCardinality();
+          $cardinality = $entity->get($field_value['entity_field'])->getFieldDefinition()
+            ->getFieldStorageDefinition()
+            ->getCardinality();
 
-        if ($cardinality === 1) {
-          // Single value field.
-          $value = $this->processVariables($field_value['field_value'], $event_variables);
-        }
-        else {
-          // Multiple value field.
-          $arr = explode(chr(10) . '|', $field_value['field_value']);
-          if (substr($arr[0], 0, 1) == '|') {
-            $arr[0] = substr($arr[0], 1, strlen($arr[0]) - 1);
+          if ($cardinality === 1) {
+            // Single value field.
+            // TODO check this variable processing
+            $value = $this->processVariables($field_value['field_value'], $event_variables);
           }
-          foreach ($arr as $key => $value) {
-            if (substr($value, strlen($value) - 1, 1) == "\r") {
-              $arr[$key] = substr($value, 0, strlen($value) - 1);
+          else {
+            // Multiple value field.
+            $arr = explode(chr(10) . '|', $field_value['field_value']);
+            if (substr($arr[0], 0, 1) == '|') {
+              $arr[0] = substr($arr[0], 1, strlen($arr[0]) - 1);
             }
-            $arr[$key . '000000'] = $this->processVariables($arr[$key], $event_variables);
-            unset($arr[$key]);
-          }
-
-          // Put all values at the array root.
-          foreach ($arr as $key => $item) {
-            if (is_array($item)) {
+            foreach ($arr as $key => $value) {
+              if (substr($value, strlen($value) - 1, 1) == "\r") {
+                $arr[$key] = substr($value, 0, strlen($value) - 1);
+              }
+              $arr[$key . '000000'] = $this->processVariables($arr[$key], $event_variables);
               unset($arr[$key]);
-              foreach ($item as $new_key => $new_item) {
-                $arr[$key + $new_key] = $new_item;
+            }
+
+            // Put all values at the array root.
+            foreach ($arr as $key => $item) {
+              if (is_array($item)) {
+                unset($arr[$key]);
+                foreach ($item as $new_key => $new_item) {
+                  $arr[$key + $new_key] = $new_item;
+                }
               }
             }
-          }
-          ksort($arr);
+            ksort($arr);
 
-          $value = $arr;
+            $value = $arr;
+
+          }
+          // Set the field value.
+//          $entity->$field_value['entity_field']->setValue($value);
+          $entity->set($field_value['entity_field'], $value);
+
+          $result[$field_value['entity_field']] = [
+            '#type'   => 'markup',
+            '#markup' => t('Entity variable: %variable field: %field filled with value: %value.', [
+              '%variable' => $entity_variable_id,
+              '%field'    => $field_value['entity_field'],
+              '%value'    => is_array($value) ? implode(',', $value) : $value,
+            ]),
+          ];
 
         }
-        // Set the field value.
-        $entity->$field_value['entity_field']->setValue($value);
-
-        $result[$field_value['entity_field']] = [
-          '#type'   => 'markup',
-          '#markup' => t('Entity variable: %variable field: %field filled with value: %value.', [
-            '%variable' => $entity_variable_id,
-            '%field'    => $field_value['entity_field'],
-            '%value'    => is_array($value) ? implode(',', $value) : $value,
-          ]),
-        ];
-
       }
     }
 
