@@ -63,6 +63,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
     $action->setSetting('fields_values', $field_value);
     $action->save();
 
+    \Drupal::request()->query->remove('destination');
     $form_state->setRedirect('entity.business_rules_action.edit_form', ['business_rules_action' => $action->id()], ['fragment' => 'field_value-' . $field]);
   }
 

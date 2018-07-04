@@ -2,8 +2,8 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesVariable;
 
-use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\Entity\Variable;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesVariablePlugin;
 use Drupal\business_rules\VariableObject;
@@ -20,12 +20,9 @@ use Drupal\Core\Link;
  *   id = "entity_empty_variable",
  *   label = @Translation("Empty Entity variable"),
  *   group = @Translation("Entity"),
- *   description = @Translation("Set an empty variable to be filled with a copy of an entity by id."),
- *   reactsOnIds = {},
- *   isContextDependent = FALSE,
- *   hasTargetEntity = TRUE,
- *   hasTargetBundle = TRUE,
- *   hasTargetField = FALSE,
+ *   description = @Translation("Set an empty variable to be filled with a copy
+ *   of an entity by id."), reactsOnIds = {}, isContextDependent = FALSE,
+ *   hasTargetEntity = TRUE, hasTargetBundle = TRUE, hasTargetField = FALSE,
  * )
  */
 class EntityEmptyVariable extends BusinessRulesVariablePlugin {
@@ -70,7 +67,7 @@ class EntityEmptyVariable extends BusinessRulesVariablePlugin {
    */
   public function changeDetails(Variable $variable, array &$row) {
     // Show a link to a modal window which all fields from the Entity Variable.
-    $content = $this->util->getVariableFieldsModalInfo($variable);
+    $content  = $this->util->getVariableFieldsModalInfo($variable);
     $keyvalue = $this->util->getKeyValueExpirable('entity_empty_variable');
     $keyvalue->set('variableFields.' . $variable->id(), $content);
 
@@ -106,18 +103,26 @@ class EntityEmptyVariable extends BusinessRulesVariablePlugin {
   public function evaluate(Variable $variable, BusinessRulesEvent $event) {
 
     /** @var \Drupal\Core\Entity\Entity $entity */
-    $entity_type    = $variable->getTargetEntityType();
-    $bundle         = $variable->getTargetBundle();
+    $entity_type = $variable->getTargetEntityType();
+    $bundle      = $variable->getTargetBundle();
 
-    // Get entity bundle key
-    $manager = \Drupal::entityTypeManager();
-    $entity_type1 = $manager->getDefinition($entity_type);// getStorage($entity_type);// ->getEntityType($entity_type);
-    $entity_key = $entity_type1->getBundleEntityType();
+    // Node has entity key = 'type', comment has another entity key.
+    // Needs to figure out the best way to get the entity key.
+    // TODO review this logic in order to get entity in all situations.
+    if ($bundle == 'node') {
+      $entity_key = 'type';
+    }
+    else {
+      // Get entity bundle key.
+      $manager      = \Drupal::entityTypeManager();
+      $entity_type1 = $manager->getDefinition($entity_type);
+      $entity_key   = $entity_type1->getBundleEntityType();
+    }
 
-    $entity         = \Drupal::entityTypeManager()
+    $entity = \Drupal::entityTypeManager()
       ->getStorage($entity_type)
       ->create([$entity_key => $bundle]);
-//      ->create(['type' => $bundle]);
+    //      ->create(['type' => $bundle]);
     $variableObject = new VariableObject($variable->id(), $entity, $variable->getType());
     $variableSet    = new VariablesSet();
     $variableSet->append($variableObject);
