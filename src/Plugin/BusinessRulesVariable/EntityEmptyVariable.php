@@ -109,7 +109,7 @@ class EntityEmptyVariable extends BusinessRulesVariablePlugin {
     // Node has entity key = 'type', comment has another entity key.
     // Needs to figure out the best way to get the entity key.
     // TODO review this logic in order to get entity in all situations.
-    if ($bundle == 'node') {
+    if ($entity_type == 'node') {
       $entity_key = 'type';
     }
     else {
