@@ -454,11 +454,11 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
 
     $options['_none'] = t('-Select-');
     if ($view->execute()) {
-      $view_result = $view->result;
-      foreach ($view_result as $row) {
-        /** @var \Drupal\Core\Entity\Entity $entity */
-        $entity                 = $row->_entity;
-        $options[$entity->id()] = $entity->label();
+      $renderer     = \Drupal::service('renderer');
+      $render_array = $view->style_plugin->render();
+      foreach ($render_array as $key => $value) {
+        $rendered_value = (string) $renderer->render($value);
+        $options[$key]  = strip_tags($rendered_value);
       }
     }
 
