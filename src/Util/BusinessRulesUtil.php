@@ -557,13 +557,17 @@ class BusinessRulesUtil {
    *   The Url.
    */
   public function getPreviousUri() {
-    // $previousUrl  = $this->request->server->get('HTTP_REFERER');.
-    $previousUrl  = $_SERVER['HTTP_REFERER'];
-    $fake_request = Request::create($previousUrl);
-    $url_object   = $this->container->get('path.validator')
-      ->getUrlIfValid($fake_request->getRequestUri());
-    if ($url_object) {
-      return $url_object;
+    try {
+      $previousUrl  = $_SERVER['HTTP_REFERER'];
+      $fake_request = Request::create($previousUrl);
+      $url_object   = $this->container->get('path.validator')
+        ->getUrlIfValid($fake_request->getRequestUri());
+      if ($url_object) {
+        return $url_object;
+      }
+    }
+    catch (\Exception $e) {
+      $this->logger->error($e);
     }
 
     return NULL;
