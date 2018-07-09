@@ -119,7 +119,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     $displays      = Views::getApplicableViews('entity_reference_display');
     // Filter views that list the entity type we want, and group the separate
     // displays by view.
-    $entity_type  = $this->entityManager->getDefinition($this->configuration['target_type']);
+    $entity_type = $this->entityManager->getDefinition($this->configuration['target_type']);
     $view_storage = $this->entityManager->getStorage('view');
 
     $options = [];
@@ -218,12 +218,12 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
   /**
    * {@inheritdoc}
    */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) { }
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {}
 
   /**
    * {@inheritdoc}
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) { }
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {}
 
   /**
    * Initializes a view.
@@ -320,7 +320,10 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
    * {@inheritdoc}
    */
   public function validateReferenceableEntities(array $ids) {
-    $handler_settings   = $this->configuration['handler_settings'];
+    // The ['handler_settings'] was removed on Drupal 8.4. the code bellow is
+    // kept for back compatibility.
+    // @see https://www.drupal.org/node/2870971
+    $handler_settings   = isset($this->configuration['handler_settings']) ? $this->configuration['handler_settings'] : $this->configuration;
     $display_name       = $handler_settings['business_rules_view']['display_name'];
     $arguments          = $handler_settings['business_rules_view']['arguments'];
     $parent_field       = $handler_settings['business_rules_view']['parent_field'];
@@ -347,7 +350,10 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
    *   Array with valid ids.
    */
   private function getValidIds($parent_field_value) {
-    $handler_settings = $this->configuration['handler_settings'];
+    // The ['handler_settings'] was removed on Drupal 8.4. the code bellow is
+    // kept for back compatibility.
+    // @see https://www.drupal.org/node/2870971
+    $handler_settings = isset($this->configuration['handler_settings']) ? $this->configuration['handler_settings'] : $this->configuration;
     $display_name     = $handler_settings['business_rules_view']['display_name'];
     $arguments        = $handler_settings['business_rules_view']['arguments'];
     $arguments        = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
@@ -405,7 +411,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
   /**
    * {@inheritdoc}
    */
-  public function entityQueryAlter(SelectInterface $query) { }
+  public function entityQueryAlter(SelectInterface $query) {}
 
   /**
    * Update the dependent field options.
@@ -458,7 +464,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
       $render_array = $view->style_plugin->render();
       foreach ($render_array as $key => $value) {
         $rendered_value = (string) $renderer->render($value);
-        $options[$key]  = strip_tags($rendered_value);
+        $options[$key] = strip_tags($rendered_value);
       }
     }
 

@@ -184,7 +184,7 @@ function business_rules_form_alter(&$form, FormStateInterface $form_state, $form
  */
 function business_rules_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
 
-  // TODO check patch inline_entity_form_2973571_1.patch
+  // TODO check patch inline_entity_form_2973571_1.patch.
   $form_object = $form_state->getFormObject();
   // Establish whether we're in a normal EntityForm context or an inline
   // QuickeditFieldForm context and retrieve the entity from the respectively

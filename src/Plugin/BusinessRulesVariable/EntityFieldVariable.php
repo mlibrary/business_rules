@@ -29,7 +29,7 @@ use Drupal\Core\Link;
  */
 class EntityFieldVariable extends BusinessRulesVariablePlugin {
 
-  const CURRENT_DATA  = 'current_data';
+  const CURRENT_DATA = 'current_data';
 
   const ORIGINAL_DATA = 'original_data';
 

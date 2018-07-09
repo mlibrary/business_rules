@@ -81,7 +81,7 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
    */
   public function changeDetails(Variable $variable, array &$row) {
     // Show a link to a modal window which all fields from the view.
-    $content  = $this->variableFields($variable);
+    $content = $this->variableFields($variable);
     $keyvalue = $this->util->getKeyValueExpirable('view_result_variable');
     $keyvalue->set('variableFields.' . $variable->id(), $content);
 

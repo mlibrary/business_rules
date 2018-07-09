@@ -171,6 +171,12 @@ class DataComparison extends BusinessRulesConditionPlugin {
 
           return $this->util->criteriaMet($entity_value, $operator, $compare_value);
         }
+        elseif (isset($value['target_id'])) {
+          $entity_value = strip_tags(strtolower(trim($value['target_id'])));
+          $compare_value = strtolower(trim($compare));
+
+          return $this->util->criteriaMet($entity_value, $operator, $compare_value);
+        }
         else {
           return FALSE;
         }

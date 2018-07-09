@@ -13,7 +13,6 @@ use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use PHPUnit\Framework\Constraint\IsFalse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -563,13 +562,12 @@ class BusinessRuleForm extends EntityForm {
     return $response;
   }
 
-
   /**
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
 
-    // Validate de Business Rule Machine Name
+    // Validate de Business Rule Machine Name.
     $id = $form_state->getValue('id');
     if ($id && $this->entity->isNew()) {
       $br = BusinessRule::load($id);

@@ -142,7 +142,7 @@ class SendEmail extends BusinessRulesActionPlugin {
       if ($form_state->getValue('use_site_mail_as_sender') === '0') {
         // Check if it's a valid email.
         if (!\Drupal::service('email.validator')
-            ->isValid($form_state->getValue('from')) ||
+          ->isValid($form_state->getValue('from')) ||
           // Check if it's not a variable.
           count($this->pregMatch($form_state->getValue('from'))) < 1
         ) {

@@ -236,23 +236,13 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
       $fields_values = $action->getSettings('fields_values');
       if (is_array($fields_values)) {
         foreach ($fields_values as $field_value) {
-          //          $a = $entity->get('uid');
-          //          if(is_null($entity->$field_value['entity_field'])) {
-          //            $cardinality = 1;
-          //          }
-          //          else {
-          //            $cardinality = $entity->$field_value['entity_field']->getFieldDefinition()
-          //              ->getFieldStorageDefinition()
-          //              ->getCardinality();
-          //          }
-
           $cardinality = $entity->get($field_value['entity_field'])->getFieldDefinition()
             ->getFieldStorageDefinition()
             ->getCardinality();
 
           if ($cardinality === 1) {
             // Single value field.
-            // TODO check this variable processing
+            // TODO check this variable processing.
             $value = $this->processVariables($field_value['field_value'], $event_variables);
           }
           else {
@@ -283,8 +273,6 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
             $value = $arr;
 
           }
-          // Set the field value.
-//          $entity->$field_value['entity_field']->setValue($value);
           $entity->set($field_value['entity_field'], $value);
 
           $result[$field_value['entity_field']] = [

@@ -182,7 +182,7 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
         $settings[$key] = $this->util->token->replace($setting);
       }
       elseif (is_array($setting)) {
-//        $settings[$key] = $this->processTokenArraySetting($setting);
+        // $settings[$key] = $this->processTokenArraySetting($setting);
         $this->processTokenArraySetting($settings[$key]);
       }
     }
