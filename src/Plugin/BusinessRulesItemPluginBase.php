@@ -182,10 +182,16 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
       if (is_string($setting)) {
 
         // Get the context entity to pass to token processor.
-        $entity_type = $event->getArgument('entity_type_id');
-        $entity      = $event->getArgument('entity');
+        try {
+          $entity_type = $event->getArgument('entity_type_id');
+          $entity      = $event->getArgument('entity');
+          $context     = [$entity_type => $entity];
+        }
+        catch (\InvalidArgumentException $e) {
+          $context = [];
+        }
 
-        $settings[$key] = $this->util->token->replace($setting, [$entity_type => $entity]);
+        $settings[$key] = $this->util->token->replace($setting, $context);
       }
       elseif (is_array($setting)) {
         // $settings[$key] = $this->processTokenArraySetting($setting);
