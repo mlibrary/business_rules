@@ -144,6 +144,11 @@ class BusinessRulesProcessor {
    */
   public function process(BusinessRulesEvent $event) {
 
+    // Check if it's running in safe mode.
+    if ($this->util->request->get('brmode') == 'safe') {
+      return;
+    }
+
     if ($this->avoidInfiniteLoop($event)) {
       return;
     }
