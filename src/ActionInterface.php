@@ -17,6 +17,8 @@ interface ActionInterface extends ItemInterface {
    *
    * @return array
    *   The render array to be showed on debug block.
+   *
+   * @throws \ReflectionException
    */
   public function execute(BusinessRulesEvent $event);
 

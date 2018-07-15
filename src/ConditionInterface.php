@@ -96,6 +96,8 @@ interface ConditionInterface extends ItemInterface {
    *
    * @return bool
    *   Boolean value that indicates if the condition is true.
+   *
+   * @throws \ReflectionException
    */
   public function process(BusinessRulesEvent $event);
 

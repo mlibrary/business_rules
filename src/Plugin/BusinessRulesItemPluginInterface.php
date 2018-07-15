@@ -2,6 +2,7 @@
 
 namespace Drupal\business_rules\Plugin;
 
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\VariablesSet;
 use Drupal\Component\Plugin\PluginInspectionInterface;
@@ -133,8 +134,10 @@ interface BusinessRulesItemPluginInterface extends PluginInspectionInterface {
    *
    * @param \Drupal\business_rules\ItemInterface $item
    *   The Business Rules item.
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
+   *   The BusinessRulesEvent that triggered the processor.
    */
-  public function processTokens(ItemInterface &$item);
+  public function processTokens(ItemInterface &$item, BusinessRulesEvent $event);
 
   /**
    * Process the item replacing the variables for it's values.

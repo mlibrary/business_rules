@@ -87,27 +87,15 @@ class Action extends BusinessRulesItemBase implements ActionInterface {
   }
 
   /**
-   * Execute the action.
-   *
-   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
-   *   The event that has triggered the action.
-   *
-   * @return array
-   *   The render array to be showed on debug block.
+   * {@inheritdoc}
    */
   public function execute(BusinessRulesEvent $event) {
     $action_type = $this->itemManager->getDefinition($this->getType());
-    $reflection = new \ReflectionClass($action_type['class']);
-
+    $reflection  = new \ReflectionClass($action_type['class']);
     /** @var \Drupal\business_rules\Plugin\BusinessRulesActionPlugin $defined_action */
     $defined_action = $reflection->newInstance($action_type, $action_type['id'], $action_type);
-    $defined_action->processTokens($this);
-
-    // Previously it was returning the loaded action, but it was preventing the
-    // token replacement. See issue #2980052 from @wombatbuddy
-    // TODO needs more work, Can't use $this because it does not have all values.
-    $action = Action::load($this->id());
-    $defined_action->processTokens($action);
+    $action         = Action::load($this->id());
+    $defined_action->processTokens($action, $event);
 
     return $defined_action->execute($action, $event);
   }

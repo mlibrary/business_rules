@@ -223,12 +223,8 @@ class Condition extends BusinessRulesItemBase implements ConditionInterface {
     $reflection     = new \ReflectionClass($condition_type['class']);
     /** @var \Drupal\business_rules\Plugin\BusinessRulesConditionPlugin $defined_condition */
     $defined_condition = $reflection->newInstance($condition_type, $condition_type['id'], $condition_type);
-    $defined_condition->processTokens($this);
-
-    // Previously it was returning the loaded condition, but it was preventing
-    // the token replacement. See issue #2980052 from @wombatbuddy
-    $condition = Condition::load($this->id());
-    $defined_condition->processTokens($condition);
+    $condition         = Condition::load($this->id());
+    $defined_condition->processTokens($condition, $event);
 
     return $defined_condition->process($condition, $event);
   }

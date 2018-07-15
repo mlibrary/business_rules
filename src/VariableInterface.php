@@ -18,6 +18,8 @@ interface VariableInterface extends ConfigEntityInterface, ItemInterface {
    *
    * @return \Drupal\business_rules\VariableObject|\Drupal\business_rules\VariablesSet
    *   The evaluated variables.
+   *
+   * @throws \ReflectionException
    */
   public function evaluate(BusinessRulesEvent $event);
 

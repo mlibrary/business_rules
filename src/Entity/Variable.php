@@ -70,25 +70,15 @@ class Variable extends BusinessRulesItemBase implements VariableInterface {
   }
 
   /**
-   * Evaluate the variable.
-   *
-   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
-   *   The dispatched event.
-   *
-   * @return \Drupal\business_rules\VariableObject|\Drupal\business_rules\VariablesSet
-   *   The evaluated variables.
+   * {@inheritdoc}
    */
   public function evaluate(BusinessRulesEvent $event) {
     $variable_type = $this->itemManager->getDefinition($this->getType());
     $reflection    = new \ReflectionClass($variable_type['class']);
     /** @var \Drupal\business_rules\Plugin\BusinessRulesVariablePluginInterface $defined_variable */
     $defined_variable = $reflection->newInstance($variable_type, $variable_type['id'], $variable_type);
-    $defined_variable->processTokens($this);
-
-    // Previously it was returning the loaded variable, but it was preventing
-    // the token replacement. See issue #2980052 from @wombatbuddy
-    $variable = Variable::load($this->id());
-    $defined_variable->processTokens($variable);
+    $variable         = Variable::load($this->id());
+    $defined_variable->processTokens($variable, $event);
 
     return $defined_variable->evaluate($variable, $event);
   }

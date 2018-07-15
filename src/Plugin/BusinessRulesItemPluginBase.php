@@ -3,6 +3,7 @@
 namespace Drupal\business_rules\Plugin;
 
 use Drupal\business_rules\Entity\Variable;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\VariableObject;
 use Drupal\business_rules\VariablesSet;
@@ -158,7 +159,7 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
               $content = $variable->getValue();
             }
             elseif (stristr($content, '{{' . $variable->getId() . '}}')) {
-              $value = implode(chr(10), $variable->getValue());
+              $value   = implode(chr(10), $variable->getValue());
               $content = str_replace('{{' . $variable->getId() . '}}', $value, $content);
             }
           }
@@ -175,11 +176,16 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
   /**
    * {@inheritdoc}
    */
-  public function processTokens(ItemInterface &$item) {
+  public function processTokens(ItemInterface &$item, BusinessRulesEvent $event) {
     $settings = $item->getSettings();
     foreach ($settings as $key => $setting) {
       if (is_string($setting)) {
-        $settings[$key] = $this->util->token->replace($setting);
+
+        // Get the context entity to pass to token processor.
+        $entity_type = $event->getArgument('entity_type_id');
+        $entity      = $event->getArgument('entity');
+
+        $settings[$key] = $this->util->token->replace($setting, [$entity_type => $entity]);
       }
       elseif (is_array($setting)) {
         // $settings[$key] = $this->processTokenArraySetting($setting);
