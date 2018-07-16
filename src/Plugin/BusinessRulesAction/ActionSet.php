@@ -3,9 +3,9 @@
 namespace Drupal\business_rules\Plugin\BusinessRulesAction;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\BusinessRulesItemObject;
 use Drupal\business_rules\Entity\Action;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\Core\Form\FormStateInterface;
@@ -131,45 +131,6 @@ class ActionSet extends BusinessRulesActionPlugin {
     $settings['items'][] = $this->formItems($form, $form_state, $item);
 
     return $settings;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function buildForm(array &$form, FormStateInterface $form_state) {
-    $action = $form_state->get('business_rule_action');
-    if (!empty($action) && $action->isNew()) {
-      $form['actions']['submit']['#value'] = t('Continue');
-    }
-    // We don't need variables for this action.
-    unset($form['variables']);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function processSettings(array $settings, ItemInterface $item) {
-    if (empty($settings['items'])) {
-      $settings['items'] = [];
-    }
-    else {
-      foreach ($settings['items'] as $key => $item) {
-        $settings['items'][$key]['id'] = $key;
-      }
-    }
-
-    return $settings;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function execute(ActionInterface $action, BusinessRulesEvent $event) {
-    $actions = $action->getSettings('items');
-    $actions = BusinessRulesItemObject::itemsArrayToItemsObject($actions);
-
-    // Process items.
-    $this->processor->processItems($actions, $event, $action->id());
   }
 
   /**
@@ -356,6 +317,45 @@ class ActionSet extends BusinessRulesActionPlugin {
 
       return $this->generateItemWeight($settings_type, $weight);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array &$form, FormStateInterface $form_state) {
+    $action = $form_state->get('business_rule_action');
+    if (!empty($action) && $action->isNew()) {
+      $form['actions']['submit']['#value'] = t('Continue');
+    }
+    // We don't need variables for this action.
+    unset($form['variables']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function processSettings(array $settings, ItemInterface $item) {
+    if (empty($settings['items'])) {
+      $settings['items'] = [];
+    }
+    else {
+      foreach ($settings['items'] as $key => $item) {
+        $settings['items'][$key]['id'] = $key;
+      }
+    }
+
+    return $settings;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function execute(ActionInterface $action, BusinessRulesEvent $event) {
+    $actions = $action->getSettings('items');
+    $actions = BusinessRulesItemObject::itemsArrayToItemsObject($actions);
+
+    // Process items.
+    $this->processor->processItems($actions, $event, $action->id());
   }
 
 }

@@ -25,10 +25,10 @@ class ActionDeleteForm extends EntityConfirmFormBase {
     $form = parent::form($form, $form_state);
 
     /** @var \Drupal\business_rules\Util\BusinessRulesUtil $util */
-    $util = \Drupal::service('business_rules.util');
-    $form['rules_using_this_item'] = $util->getUsedByBusinessRulesDetailsBox($this->entity);
+    $util                               = \Drupal::service('business_rules.util');
+    $form['rules_using_this_item']      = $util->getUsedByBusinessRulesDetailsBox($this->entity);
     $form['conditions_using_this_item'] = $util->getUsedByConditionsDetailsBox($this->entity);
-    $form['actions_using_this_item'] = $util->getUsedByActionsDetailsBox($this->entity);
+    $form['actions_using_this_item']    = $util->getUsedByActionsDetailsBox($this->entity);
 
     return $form;
   }

@@ -41,9 +41,9 @@ class BusinessRulesSettingsForm extends ConfigFormBase {
     ];
 
     $form['clear_render_cache'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Clear rendered cache on each request'),
-      '#description' => $this->t("Disable the Drupal render HTML cache. IT WILL REDUCE THE SITE PERFORMANCE, use with wisdom. It makes sense if you have rules triggered by the event 'Entity is viewed' and you need to evaluate this rule every time the entity is rendered."),
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Clear rendered cache on each request'),
+      '#description'   => $this->t("Disable the Drupal render HTML cache. IT WILL REDUCE THE SITE PERFORMANCE, use with wisdom. It makes sense if you have rules triggered by the event 'Entity is viewed' and you need to evaluate this rule every time the entity is rendered."),
       '#default_value' => $config->get('clear_render_cache'),
     ];
 

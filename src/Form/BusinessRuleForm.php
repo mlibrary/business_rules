@@ -23,11 +23,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class BusinessRuleForm extends EntityForm {
 
   /**
-   * The Business Rule flowchart.
+   * The business rules Util.
    *
-   * @var \Drupal\business_rules\Util\Flowchart\Flowchart
+   * @var \Drupal\business_rules\Util\BusinessRulesUtil
    */
-  private $chart;
+  public $util;
 
   /**
    * The reactsOnManager.
@@ -44,18 +44,18 @@ class BusinessRuleForm extends EntityForm {
   protected $step = 1;
 
   /**
+   * The Business Rule flowchart.
+   *
+   * @var \Drupal\business_rules\Util\Flowchart\Flowchart
+   */
+  private $chart;
+
+  /**
    * We don't want to use the same wait two times for an item.
    *
    * @var array
    */
   private $usedWeight = [];
-
-  /**
-   * The business rules Util.
-   *
-   * @var \Drupal\business_rules\Util\BusinessRulesUtil
-   */
-  public $util;
 
   /**
    * BusinessRuleForm constructor.
@@ -187,97 +187,8 @@ class BusinessRuleForm extends EntityForm {
     }
 
     $form['#validate'][] = '::validateForm';
+
     return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function actionsElement(array $form, FormStateInterface $form_state) {
-    $actions = parent::actionsElement($form, $form_state);
-
-    if (!$this->entity->isNew()) {
-      $actions['done'] = [
-        '#type'   => 'submit',
-        '#value'  => $this->t('Done'),
-        '#submit' => ['::submitForm', '::save'],
-        '#op'     => 'done',
-        '#weight' => 7,
-        '#validate' => ['::validateForm'],
-      ];
-    }
-    elseif ($this->step === 1) {
-      $actions['submit']['#value'] = $this->t('Continue');
-    }
-
-    $actions['submit']['#op'] = 'save';
-
-    return $actions;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function save(array $form, FormStateInterface $form_state) {
-
-    if ($this->step < 2 && $this->entity->isNew()) {
-      $this->step++;
-      $form_state->setRebuild();
-
-      return $form;
-    }
-    else {
-      /** @var \Drupal\business_rules\Entity\BusinessRule $business_rule */
-      $business_rule = $this->entity;
-
-      $items = $form_state->getValue('items');
-      $business_rule->set('items', []);
-      $br_items = [];
-      if (is_array($items)) {
-        foreach ($items as $key => $value) {
-          $itemObj                    = new BusinessRulesItemObject($key, $value['business_rule_item_type'], $value['weight']);
-          $br_items[$value['weight']] = $itemObj;
-        }
-      }
-
-      ksort($br_items);
-      foreach ($br_items as $item) {
-        $business_rule->addItem($item);
-      }
-
-      $business_rule->setTags(explode(',', $form_state->getValue('tags')));
-      $status = $business_rule->save();
-      // As the rule may need to be executed under a cached hook, we need to
-      // invalidate all rendered caches.
-      Cache::invalidateTags(['rendered']);
-
-      switch ($status) {
-        case SAVED_NEW:
-          drupal_set_message($this->t('Created the %label Rule.', [
-            '%label' => $business_rule->label(),
-          ]));
-          break;
-
-        default:
-          drupal_set_message($this->t('Saved the %label Rule.', [
-            '%label' => $business_rule->label(),
-          ]));
-      }
-
-      if (isset($form_state->getTriggeringElement()['#op'])) {
-        $op = $form_state->getTriggeringElement()['#op'];
-
-        if ($op == 'save') {
-          $form_state->setRedirectUrl($business_rule->urlInfo('edit-form', ['business_rule' => $business_rule->id()]));
-        }
-        else {
-          $form_state->setRedirectUrl($business_rule->urlInfo('collection'));
-        }
-      }
-    }
-
-    return $status;
-
   }
 
   /**
@@ -540,6 +451,111 @@ class BusinessRuleForm extends EntityForm {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  protected function actionsElement(array $form, FormStateInterface $form_state) {
+    $actions = parent::actionsElement($form, $form_state);
+
+    if (!$this->entity->isNew()) {
+      $actions['done'] = [
+        '#type'     => 'submit',
+        '#value'    => $this->t('Done'),
+        '#submit'   => ['::submitForm', '::save'],
+        '#op'       => 'done',
+        '#weight'   => 7,
+        '#validate' => ['::validateForm'],
+      ];
+    }
+    elseif ($this->step === 1) {
+      $actions['submit']['#value'] = $this->t('Continue');
+    }
+
+    $actions['submit']['#op'] = 'save';
+
+    return $actions;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function save(array $form, FormStateInterface $form_state) {
+
+    if ($this->step < 2 && $this->entity->isNew()) {
+      $this->step++;
+      $form_state->setRebuild();
+
+      return $form;
+    }
+    else {
+      /** @var \Drupal\business_rules\Entity\BusinessRule $business_rule */
+      $business_rule = $this->entity;
+
+      $items = $form_state->getValue('items');
+      $business_rule->set('items', []);
+      $br_items = [];
+      if (is_array($items)) {
+        foreach ($items as $key => $value) {
+          $itemObj                    = new BusinessRulesItemObject($key, $value['business_rule_item_type'], $value['weight']);
+          $br_items[$value['weight']] = $itemObj;
+        }
+      }
+
+      ksort($br_items);
+      foreach ($br_items as $item) {
+        $business_rule->addItem($item);
+      }
+
+      $business_rule->setTags(explode(',', $form_state->getValue('tags')));
+      $status = $business_rule->save();
+      // As the rule may need to be executed under a cached hook, we need to
+      // invalidate all rendered caches.
+      Cache::invalidateTags(['rendered']);
+
+      switch ($status) {
+        case SAVED_NEW:
+          drupal_set_message($this->t('Created the %label Rule.', [
+            '%label' => $business_rule->label(),
+          ]));
+          break;
+
+        default:
+          drupal_set_message($this->t('Saved the %label Rule.', [
+            '%label' => $business_rule->label(),
+          ]));
+      }
+
+      if (isset($form_state->getTriggeringElement()['#op'])) {
+        $op = $form_state->getTriggeringElement()['#op'];
+
+        if ($op == 'save') {
+          $form_state->setRedirectUrl($business_rule->urlInfo('edit-form', ['business_rule' => $business_rule->id()]));
+        }
+        else {
+          $form_state->setRedirectUrl($business_rule->urlInfo('collection'));
+        }
+      }
+    }
+
+    return $status;
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+
+    // Validate de Business Rule Machine Name.
+    $id = $form_state->getValue('id');
+    if ($id && $this->entity->isNew()) {
+      $br = BusinessRule::load($id);
+      if (!empty($br)) {
+        $form_state->setErrorByName('id', $this->t('The machine-readable name is already in use. It must be unique.'));
+      }
+    }
+  }
+
+  /**
    * Populates target_bundle options according to the selected entity type.
    *
    * @param array $form
@@ -560,21 +576,6 @@ class BusinessRuleForm extends EntityForm {
     $response->addCommand(new ReplaceCommand('#target_bundle-wrapper', $form['entity']['context']['target_bundle']));
 
     return $response;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-
-    // Validate de Business Rule Machine Name.
-    $id = $form_state->getValue('id');
-    if ($id && $this->entity->isNew()) {
-      $br = BusinessRule::load($id);
-      if (!empty($br)) {
-        $form_state->setErrorByName('id', $this->t('The machine-readable name is already in use. It must be unique.'));
-      }
-    }
   }
 
 }

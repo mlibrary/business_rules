@@ -31,6 +31,22 @@ class VariableObject {
   protected $type;
 
   /**
+   * VariableObject constructor.
+   *
+   * @param string $id
+   *   The variable id.
+   * @param mixed $value
+   *   The variable value.
+   * @param string $type
+   *   The variable type.
+   */
+  public function __construct($id = NULL, $value = NULL, $type = NULL) {
+    $this->setId($id);
+    $this->setValue($value);
+    $this->setType($type);
+  }
+
+  /**
    * Get the variable id.
    *
    * @return string
@@ -88,22 +104,6 @@ class VariableObject {
    */
   public function setType($type) {
     $this->type = $type;
-  }
-
-  /**
-   * VariableObject constructor.
-   *
-   * @param string $id
-   *   The variable id.
-   * @param mixed $value
-   *   The variable value.
-   * @param string $type
-   *   The variable type.
-   */
-  public function __construct($id = NULL, $value = NULL, $type = NULL) {
-    $this->setId($id);
-    $this->setValue($value);
-    $this->setType($type);
   }
 
 }

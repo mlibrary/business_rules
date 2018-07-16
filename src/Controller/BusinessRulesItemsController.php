@@ -7,7 +7,6 @@ use Drupal\business_rules\BusinessRulesItemObject;
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\BusinessRule;
 use Drupal\business_rules\Entity\Condition;
-use Drupal\business_rules\Util\Flowchart\Flowchart;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\OpenModalDialogCommand;
 use Drupal\Core\Ajax\RemoveCommand;
@@ -113,6 +112,13 @@ class BusinessRulesItemsController extends ControllerBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static($container);
+  }
+
+  /**
    * Add one item on the Business Rule.
    *
    * @param string $business_rule
@@ -138,13 +144,6 @@ class BusinessRulesItemsController extends ControllerBase {
     $string_url = $url->toString() . '#' . $item_id;
 
     return new RedirectResponse($string_url);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static($container);
   }
 
   /**

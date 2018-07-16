@@ -19,6 +19,7 @@ use Drupal\Core\Url;
  * @package Drupal\business_rules\Util
  */
 class Flowchart {
+
   use StringTranslationTrait;
 
   /**
@@ -91,31 +92,37 @@ class Flowchart {
   }
 
   /**
-   * Get the workflow graph definition.
+   * Check if item has children.
    *
    * @param \Drupal\Core\Entity\EntityInterface $item
    *   The item.
    *
-   * @return array|string
-   *   The graph definition.
+   * @return bool
+   *   True|False.
    */
-  public function getGraphDefinition(EntityInterface $item) {
-    // Variables does not have graph.
-    if ($item instanceof Variable) {
-      return '';
+  private function itemHasChildren(EntityInterface $item) {
+    if ($item instanceof BusinessRule) {
+      $children = $item->getItems();
+      if (!is_null($children) && count($children)) {
+        return TRUE;
+      }
+    }
+    elseif ($item instanceof Action) {
+      $children = $item->getSettings('items');
+      if (!is_null($children) && count($children)) {
+        return TRUE;
+      }
+    }
+    elseif ($item instanceof Condition) {
+      $success_items = $item->getSuccessItems();
+      $fail_items    = $item->getFailItems();
+
+      if (count($success_items) || count($fail_items)) {
+        return TRUE;
+      }
     }
 
-    $this->mountMatrix($item);
-
-    $graph_definition   = [];
-    $graph_definition[] = '<mxGraphModel dx="1426" dy="847" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#ffffff"><root><mxCell id="0"/><mxCell id="1" parent="0"/>';
-
-    // Prepare the graph.
-    $graph_definition = array_merge($graph_definition, $this->processMatrix());
-
-    $graph_definition[] = '</root></mxGraphModel>';
-
-    return implode('', $graph_definition);
+    return FALSE;
   }
 
   /**
@@ -169,7 +176,8 @@ class Flowchart {
         }
         // If item is condition and grandparent is the root, then change X off.
         if ($item instanceof Condition) {
-          if (!empty($parent->getParent()) && $parent->getParent()->getItem() instanceof BusinessRule) {
+          if (!empty($parent->getParent()) && $parent->getParent()
+            ->getItem() instanceof BusinessRule) {
             if ($direction == 'right') {
               if (count($item->getFailItems())) {
                 $off_x = 1;
@@ -275,40 +283,6 @@ class Flowchart {
     }
 
     return $graph;
-  }
-
-  /**
-   * Check if item has children.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $item
-   *   The item.
-   *
-   * @return bool
-   *   True|False.
-   */
-  private function itemHasChildren(EntityInterface $item) {
-    if ($item instanceof BusinessRule) {
-      $children = $item->getItems();
-      if (!is_null($children) && count($children)) {
-        return TRUE;
-      }
-    }
-    elseif ($item instanceof Action) {
-      $children = $item->getSettings('items');
-      if (!is_null($children) && count($children)) {
-        return TRUE;
-      }
-    }
-    elseif ($item instanceof Condition) {
-      $success_items = $item->getSuccessItems();
-      $fail_items    = $item->getFailItems();
-
-      if (count($success_items) || count($fail_items)) {
-        return TRUE;
-      }
-    }
-
-    return FALSE;
   }
 
   /**
@@ -466,6 +440,34 @@ class Flowchart {
 
     }
 
+  }
+
+  /**
+   * Get the workflow graph definition.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $item
+   *   The item.
+   *
+   * @return array|string
+   *   The graph definition.
+   */
+  public function getGraphDefinition(EntityInterface $item) {
+    // Variables does not have graph.
+    if ($item instanceof Variable) {
+      return '';
+    }
+
+    $this->mountMatrix($item);
+
+    $graph_definition   = [];
+    $graph_definition[] = '<mxGraphModel dx="1426" dy="847" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#ffffff"><root><mxCell id="0"/><mxCell id="1" parent="0"/>';
+
+    // Prepare the graph.
+    $graph_definition = array_merge($graph_definition, $this->processMatrix());
+
+    $graph_definition[] = '</root></mxGraphModel>';
+
+    return implode('', $graph_definition);
   }
 
 }

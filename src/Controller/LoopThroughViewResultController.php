@@ -86,6 +86,13 @@ class LoopThroughViewResultController extends ControllerBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static($container);
+  }
+
+  /**
    * Add item on Action.
    *
    * @param string $action_id
@@ -142,13 +149,6 @@ class LoopThroughViewResultController extends ControllerBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static($container);
-  }
-
-  /**
    * The items table.
    *
    * @param string $action_id
@@ -168,7 +168,7 @@ class LoopThroughViewResultController extends ControllerBase {
     $action = Action::load($action_id);
 
     $table['#title'] = $this->t('Add @label_plural on %action', [
-      '%action'    => $action->label(),
+      '%action'       => $action->label(),
       '@label_plural' => $this->labelPlural,
     ]);
 

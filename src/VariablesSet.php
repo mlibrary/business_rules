@@ -48,6 +48,16 @@ class VariablesSet {
   }
 
   /**
+   * Number of variables inside the set.
+   *
+   * @return int
+   *   The number of variables on the variable set.
+   */
+  public function count() {
+    return count($this->variables);
+  }
+
+  /**
    * Remove one variable from the variables set.
    *
    * @param string $variable_id
@@ -62,16 +72,6 @@ class VariablesSet {
         }
       }
     }
-  }
-
-  /**
-   * Number of variables inside the set.
-   *
-   * @return int
-   *   The number of variables on the variable set.
-   */
-  public function count() {
-    return count($this->variables);
   }
 
   /**

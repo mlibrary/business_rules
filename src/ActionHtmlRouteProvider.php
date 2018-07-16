@@ -45,14 +45,14 @@ class ActionHtmlRouteProvider extends AdminHtmlRouteProvider {
   protected function getCollectionRoute(EntityTypeInterface $entity_type) {
     if ($entity_type->hasLinkTemplate('collection') && $entity_type->hasListBuilderClass()) {
       $entity_type_id = $entity_type->id();
-      $route = new Route($entity_type->getLinkTemplate('collection'));
+      $route          = new Route($entity_type->getLinkTemplate('collection'));
       $route
         ->setDefaults([
           '_entity_list' => $entity_type_id,
           // Make sure this is not a TranslatableMarkup object as the
           // TitleResolver translates this string again.
-          '_title' => (string) $entity_type->getLabel(),
-          'view_mode' => 'list',
+          '_title'       => (string) $entity_type->getLabel(),
+          'view_mode'    => 'list',
         ])
         ->setRequirement('_permission', $entity_type->getAdminPermission())
         ->setOption('_admin_route', TRUE);
@@ -73,7 +73,7 @@ class ActionHtmlRouteProvider extends AdminHtmlRouteProvider {
   protected function getAddFormRoute(EntityTypeInterface $entity_type) {
     if ($entity_type->hasLinkTemplate('add-form')) {
       $entity_type_id = $entity_type->id();
-      $route = new Route($entity_type->getLinkTemplate('add-form'));
+      $route          = new Route($entity_type->getLinkTemplate('add-form'));
       // Use the add form handler, if available, otherwise default.
       $operation = 'default';
       if ($entity_type->getFormClass('add')) {
@@ -82,7 +82,7 @@ class ActionHtmlRouteProvider extends AdminHtmlRouteProvider {
       $route
         ->setDefaults([
           '_entity_form' => "{$entity_type_id}.{$operation}",
-          '_title' => "Add {$entity_type->getLabel()}",
+          '_title'       => "Add {$entity_type->getLabel()}",
         ])
         ->setRequirement('_entity_create_access', $entity_type_id)
         ->setOption('parameters', [

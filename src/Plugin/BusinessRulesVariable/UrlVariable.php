@@ -55,7 +55,7 @@ class UrlVariable extends BusinessRulesVariablePlugin {
     $fields = explode('/', $url);
     unset($fields[0]);
 
-    $rows = [];
+    $rows   = [];
     $rows[] = [
       'variable' => ['data' => ['#markup' => '{{' . $variable->id() . '}}']],
       'field'    => ['data' => ['#markup' => $url]],
@@ -70,7 +70,7 @@ class UrlVariable extends BusinessRulesVariablePlugin {
     }
 
     $content['description'] = [
-      '#type' => 'markup',
+      '#type'   => 'markup',
       '#markup' => t('As an example, the current Url would return the following values:'),
     ];
 

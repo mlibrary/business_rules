@@ -95,8 +95,8 @@ class SetFieldValue extends BusinessRulesActionPlugin {
       '#type'   => 'markup',
       '#markup' => t('Entity %entity updated. Field: %field, value: %value', [
         '%entity' => $entity->getEntityTypeId(),
-        '%field' => $field,
-        '%value' => is_array($value) ? implode(',', $value) : $value,
+        '%field'  => $field,
+        '%value'  => is_array($value) ? implode(',', $value) : $value,
       ]),
     ];
 

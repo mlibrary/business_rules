@@ -12,6 +12,27 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 interface ItemInterface extends ConfigEntityInterface {
 
   /**
+   * Load all Business Rule's tags.
+   *
+   * @return array
+   *   Array of tags.
+   */
+  public static function loadAllTags();
+
+  /**
+   * Load multiple items by type.
+   *
+   * @param string $type
+   *   The item type. i.e. The plugin id.
+   * @param array|null $ids
+   *   The items ids.
+   *
+   * @return array
+   *   Array with the matched items.
+   */
+  public static function loadMultipleByType($type, array $ids = NULL);
+
+  /**
    * Get the Item type translated. Action|Condition.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
@@ -125,27 +146,6 @@ interface ItemInterface extends ConfigEntityInterface {
    *   The item label.
    */
   public function label();
-
-  /**
-   * Load all Business Rule's tags.
-   *
-   * @return array
-   *   Array of tags.
-   */
-  public static function loadAllTags();
-
-  /**
-   * Load multiple items by type.
-   *
-   * @param string $type
-   *   The item type. i.e. The plugin id.
-   * @param array|null $ids
-   *   The items ids.
-   *
-   * @return array
-   *   Array with the matched items.
-   */
-  public static function loadMultipleByType($type, array $ids = NULL);
 
   /**
    * Set a value to the Item Settings.

@@ -3,11 +3,11 @@
 namespace Drupal\business_rules\Plugin\BusinessRulesAction;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\BusinessRulesItemObject;
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\Condition;
 use Drupal\business_rules\Entity\Variable;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\business_rules\VariableObject;
@@ -90,67 +90,6 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
     }
 
     return $settings;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function buildForm(array &$form, FormStateInterface $form_state) {
-    parent::buildForm($form, $form_state);
-
-    // We don't need variables for this action.
-    unset($form['variables']);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getVariables(ItemInterface $item) {
-    $variableSet = new VariablesSet();
-    $variableObj = new VariableObject($item->getSettings('variable'));
-    $variableSet->append($variableObj);
-
-    return $variableSet;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function processSettings(array $settings, ItemInterface $item) {
-    if (empty($settings['items'])) {
-      $settings['items'] = [];
-    }
-    else {
-      foreach ($settings['items'] as $key => $item) {
-        $settings['items'][$key]['id'] = $key;
-      }
-    }
-
-    return $settings;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function execute(ActionInterface $action, BusinessRulesEvent $event) {
-    /** @var \Drupal\business_rules\VariablesSet $event_variables */
-    $event_variables = $event->getArgument('variables');
-    $view_variable   = $event_variables->getVariable($action->getSettings('variable'));
-    $action_items    = $action->getSettings('items');
-
-    // Execute action items.
-    foreach ($view_variable->getValue() as $row) {
-      // Append each field as variable.
-      foreach ($row as $field => $value) {
-        $varObj = new VariableObject($view_variable->getId() . '->' . $field, $value, $view_variable->getType());
-        $event_variables->append($varObj);
-      }
-
-      // Process items.
-      $items = BusinessRulesItemObject::itemsArrayToItemsObject($action_items);
-      $this->processor->processItems($items, $event, $action->id());
-    }
-
   }
 
   /**
@@ -349,6 +288,67 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
 
       return $this->generateItemWeight($settings_type, $weight);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array &$form, FormStateInterface $form_state) {
+    parent::buildForm($form, $form_state);
+
+    // We don't need variables for this action.
+    unset($form['variables']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getVariables(ItemInterface $item) {
+    $variableSet = new VariablesSet();
+    $variableObj = new VariableObject($item->getSettings('variable'));
+    $variableSet->append($variableObj);
+
+    return $variableSet;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function processSettings(array $settings, ItemInterface $item) {
+    if (empty($settings['items'])) {
+      $settings['items'] = [];
+    }
+    else {
+      foreach ($settings['items'] as $key => $item) {
+        $settings['items'][$key]['id'] = $key;
+      }
+    }
+
+    return $settings;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function execute(ActionInterface $action, BusinessRulesEvent $event) {
+    /** @var \Drupal\business_rules\VariablesSet $event_variables */
+    $event_variables = $event->getArgument('variables');
+    $view_variable   = $event_variables->getVariable($action->getSettings('variable'));
+    $action_items    = $action->getSettings('items');
+
+    // Execute action items.
+    foreach ($view_variable->getValue() as $row) {
+      // Append each field as variable.
+      foreach ($row as $field => $value) {
+        $varObj = new VariableObject($view_variable->getId() . '->' . $field, $value, $view_variable->getType());
+        $event_variables->append($varObj);
+      }
+
+      // Process items.
+      $items = BusinessRulesItemObject::itemsArrayToItemsObject($action_items);
+      $this->processor->processItems($items, $event, $action->id());
+    }
+
   }
 
 }

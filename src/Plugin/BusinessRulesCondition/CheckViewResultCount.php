@@ -2,8 +2,8 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesCondition;
 
-use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ConditionInterface;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesConditionPlugin;
 use Drupal\Core\Form\FormStateInterface;

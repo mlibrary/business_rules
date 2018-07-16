@@ -102,13 +102,6 @@ class BusinessRulesUtil {
   public $flowchart;
 
   /**
-   * The KeyValueExpirableFactory.
-   *
-   * @var \Drupal\Core\KeyValueStore\KeyValueExpirableFactoryInterface
-   */
-  protected $keyValueExpirable;
-
-  /**
    * The Business Rules logger.
    *
    * @var \Psr\Log\LoggerInterface
@@ -142,6 +135,13 @@ class BusinessRulesUtil {
    * @var \Drupal\token\TreeBuilderInterface
    */
   public $tokenTree;
+
+  /**
+   * The KeyValueExpirableFactory.
+   *
+   * @var \Drupal\Core\KeyValueStore\KeyValueExpirableFactoryInterface
+   */
+  protected $keyValueExpirable;
 
   /**
    * The variable manager.

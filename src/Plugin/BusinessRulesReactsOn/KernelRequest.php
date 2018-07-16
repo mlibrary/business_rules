@@ -2,8 +2,8 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesReactsOn;
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\business_rules\Plugin\BusinessRulesReactsOnPlugin;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Class KernelRequest.

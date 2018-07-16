@@ -12,6 +12,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  * @package Drupal\business_rules\Entity
  */
 abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInterface {
+
   /**
    * The Item description.
    *
@@ -132,6 +133,13 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
   /**
    * {@inheritdoc}
    */
+  public function getType() {
+    return $this->type;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getSettings($settingId = '') {
     if ($settingId == '') {
       return $this->settings;
@@ -200,13 +208,6 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
    */
   public function getTargetEntityType() {
     return $this->target_entity_type;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getType() {
-    return $this->type;
   }
 
   /**
@@ -292,19 +293,6 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
   /**
    * {@inheritdoc}
    */
-  public function delete() {
-    parent::delete();
-
-    if (!$this->isNew()) {
-      // Dispatch an event about the item deletion.
-      $event = new BusinessRulesEvent($this);
-      $this->eventDispatcher->dispatch('business_rules.item_pos_delete', $event);
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public static function loadAllTags() {
     $business_rules = self::loadMultiple();
     $tags           = [];
@@ -319,6 +307,19 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
     ksort($tags);
 
     return $tags;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function delete() {
+    parent::delete();
+
+    if (!$this->isNew()) {
+      // Dispatch an event about the item deletion.
+      $event = new BusinessRulesEvent($this);
+      $this->eventDispatcher->dispatch('business_rules.item_pos_delete', $event);
+    }
   }
 
 }

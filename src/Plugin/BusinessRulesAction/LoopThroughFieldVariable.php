@@ -259,33 +259,6 @@ class LoopThroughFieldVariable extends BusinessRulesActionPlugin {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function getVariables(ItemInterface $item) {
-    $variableSet = new VariablesSet();
-    $variableObj = new VariableObject($item->getSettings('variable'));
-    $variableSet->append($variableObj);
-
-    return $variableSet;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function processSettings(array $settings, ItemInterface $item) {
-    if (empty($settings['items'])) {
-      $settings['items'] = [];
-    }
-    else {
-      foreach ($settings['items'] as $key => $item) {
-        $settings['items'][$key]['id'] = $key;
-      }
-    }
-
-    return $settings;
-  }
-
-  /**
    * Generate the item weight.
    *
    * @param string $settings_type
@@ -314,6 +287,33 @@ class LoopThroughFieldVariable extends BusinessRulesActionPlugin {
 
       return $this->generateItemWeight($settings_type, $weight);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getVariables(ItemInterface $item) {
+    $variableSet = new VariablesSet();
+    $variableObj = new VariableObject($item->getSettings('variable'));
+    $variableSet->append($variableObj);
+
+    return $variableSet;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function processSettings(array $settings, ItemInterface $item) {
+    if (empty($settings['items'])) {
+      $settings['items'] = [];
+    }
+    else {
+      foreach ($settings['items'] as $key => $item) {
+        $settings['items'][$key]['id'] = $key;
+      }
+    }
+
+    return $settings;
   }
 
   /**

@@ -2,8 +2,8 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesReactsOn;
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\business_rules\Plugin\BusinessRulesReactsOnPlugin;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Class UserLogout.
@@ -36,9 +36,9 @@ class UserLogout extends BusinessRulesReactsOnPlugin {
       'user' => $form['entity']['context']['target_entity_type']['#options']['user'],
     ];
 
-    $form['entity']['context']['target_bundle']['#options'] = ['user' => t('User')];
+    $form['entity']['context']['target_bundle']['#options']  = ['user' => t('User')];
     $form['entity']['context']['target_bundle']['#required'] = FALSE;
-    $form['entity']['context']['target_bundle']['#value'] = 'user';
+    $form['entity']['context']['target_bundle']['#value']    = 'user';
     $form['entity']['context']['target_bundle']['#disabled'] = TRUE;
 
   }

@@ -2,9 +2,9 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesCondition;
 
-use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ConditionInterface;
 use Drupal\business_rules\Entity\Variable;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesConditionPlugin;
 use Drupal\business_rules\VariableObject;
@@ -117,6 +117,7 @@ class UserVariableHasRole extends BusinessRulesConditionPlugin {
       $this->util->logger->error('Trying to check user roles in a null user object. Condition: %condition', [
         '%condition' => $condition->label() . ' [' . $condition->id() . ']',
       ]);
+
       return FALSE;
     }
 

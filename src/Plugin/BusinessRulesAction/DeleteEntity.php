@@ -69,11 +69,11 @@ class DeleteEntity extends BusinessRulesActionPlugin {
     $entityManager->delete($entities);
 
     $result = [
-      '#type' => 'markup',
+      '#type'   => 'markup',
       '#markup' => t('Entity: %entity, Bundle: %bundle, Id(s): (%id) has been deleted.', [
         '%entity' => $entity_type,
         '%bundle' => $bundle,
-        '%id' => implode(',', $ids),
+        '%id'     => implode(',', $ids),
       ]),
     ];
 

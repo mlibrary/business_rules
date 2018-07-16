@@ -81,7 +81,7 @@ class ConditionForm extends ItemForm {
           '#title'       => $this->t('No items available'),
           '#description' => $this->t('As this condition is part of a condition set (AND|OR), you can not add success/fail items here. Use the condition set instead.'),
           '#open'        => TRUE,
-          '#weight'        => 900,
+          '#weight'      => 900,
         ];
 
         unset($form['flowchart']);
@@ -92,50 +92,35 @@ class ConditionForm extends ItemForm {
   }
 
   /**
-   * Additional steps to save condition's items.
+   * Check if one condition is part of a conditions set.
    *
-   * {@inheritdoc}
+   * @param \Drupal\business_rules\Entity\Condition $condition
+   *   The condition.
+   *
+   * @return bool
+   *   TRUE|FALSE.
    */
-  public function save(array $form, FormStateInterface $form_state) {
-    /** @var \Drupal\business_rules\Entity\Condition $condition */
-    $condition = $this->entity;
-    if (!$condition->isNew()) {
-      $success_items = $form_state->getValue('success');
-      $fail_items    = $form_state->getValue('fail');
-      $condition->set('success_items', []);
-      $condition->set('fail_items', []);
-      $new_success_items = [];
-      $new_fail_items    = [];
-      if (is_array($success_items)) {
-        foreach ($success_items as $key => $value) {
-          $itemObj = new BusinessRulesItemObject($key, $value['business_rule_item_type'], $value['weight']);
+  private function isPartOfConditionSet(Condition $condition) {
+    $conditions = Condition::loadMultipleByType('logical_and');
+    $conditions = array_merge($conditions, Condition::loadMultipleByType('logical_or'));
 
-          $new_success_items[$value['weight']] = $itemObj;
-        }
+    $items = [];
+    /** @var \Drupal\business_rules\Entity\Condition $c */
+    foreach ($conditions as $c) {
+      if (is_array($c->getSettings('items'))) {
+        $items = array_merge($items, $c->getSettings('items'));
       }
-
-      if (is_array($fail_items)) {
-        foreach ($fail_items as $key => $value) {
-          $itemObj = new BusinessRulesItemObject($key, $value['business_rule_item_type'], $value['weight']);
-
-          $new_fail_items[$value['weight']] = $itemObj;
-        }
-      }
-
-      ksort($new_success_items);
-      foreach ($new_success_items as $item) {
-        $condition->addSuccessItem($item);
-      }
-
-      ksort($new_fail_items);
-      foreach ($new_fail_items as $item) {
-        $condition->addFailItem($item);
-      }
-
-      $condition->save();
     }
 
-    return parent::save($form, $form_state);
+    foreach ($items as $item) {
+      if ($item['type'] == 'condition') {
+        if ($this->entity->id() == $item['id']) {
+          return TRUE;
+        }
+      }
+    }
+
+    return FALSE;
   }
 
   /**
@@ -342,35 +327,50 @@ class ConditionForm extends ItemForm {
   }
 
   /**
-   * Check if one condition is part of a conditions set.
+   * Additional steps to save condition's items.
    *
-   * @param \Drupal\business_rules\Entity\Condition $condition
-   *   The condition.
-   *
-   * @return bool
-   *   TRUE|FALSE.
+   * {@inheritdoc}
    */
-  private function isPartOfConditionSet(Condition $condition) {
-    $conditions = Condition::loadMultipleByType('logical_and');
-    $conditions = array_merge($conditions, Condition::loadMultipleByType('logical_or'));
+  public function save(array $form, FormStateInterface $form_state) {
+    /** @var \Drupal\business_rules\Entity\Condition $condition */
+    $condition = $this->entity;
+    if (!$condition->isNew()) {
+      $success_items = $form_state->getValue('success');
+      $fail_items    = $form_state->getValue('fail');
+      $condition->set('success_items', []);
+      $condition->set('fail_items', []);
+      $new_success_items = [];
+      $new_fail_items    = [];
+      if (is_array($success_items)) {
+        foreach ($success_items as $key => $value) {
+          $itemObj = new BusinessRulesItemObject($key, $value['business_rule_item_type'], $value['weight']);
 
-    $items = [];
-    /** @var \Drupal\business_rules\Entity\Condition $c */
-    foreach ($conditions as $c) {
-      if (is_array($c->getSettings('items'))) {
-        $items = array_merge($items, $c->getSettings('items'));
-      }
-    }
-
-    foreach ($items as $item) {
-      if ($item['type'] == 'condition') {
-        if ($this->entity->id() == $item['id']) {
-          return TRUE;
+          $new_success_items[$value['weight']] = $itemObj;
         }
       }
+
+      if (is_array($fail_items)) {
+        foreach ($fail_items as $key => $value) {
+          $itemObj = new BusinessRulesItemObject($key, $value['business_rule_item_type'], $value['weight']);
+
+          $new_fail_items[$value['weight']] = $itemObj;
+        }
+      }
+
+      ksort($new_success_items);
+      foreach ($new_success_items as $item) {
+        $condition->addSuccessItem($item);
+      }
+
+      ksort($new_fail_items);
+      foreach ($new_fail_items as $item) {
+        $condition->addFailItem($item);
+      }
+
+      $condition->save();
     }
 
-    return FALSE;
+    return parent::save($form, $form_state);
   }
 
 }

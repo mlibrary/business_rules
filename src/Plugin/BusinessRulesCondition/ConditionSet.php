@@ -120,34 +120,6 @@ abstract class ConditionSet extends BusinessRulesConditionPlugin {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function buildForm(array &$form, FormStateInterface $form_state) {
-    $condition = $form_state->get('business_rule_condition');
-    unset($form['variables']);
-    if (!empty($condition) && $condition->isNew()) {
-      $form['actions']['submit']['#value'] = t('Continue');
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function processSettings(array $settings, ItemInterface $item) {
-    if (empty($settings['items'])) {
-      $settings['items'] = [];
-    }
-    else {
-      foreach ($settings['items'] as $key => $item) {
-        $settings['items'][$key]['id'] = $key;
-      }
-    }
-
-    return $settings;
-
-  }
-
-  /**
    * Provide the form fields for add Business Rule's Items.
    *
    * @param array $form
@@ -331,6 +303,34 @@ abstract class ConditionSet extends BusinessRulesConditionPlugin {
 
       return $this->generateItemWeight($settings_type, $weight);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array &$form, FormStateInterface $form_state) {
+    $condition = $form_state->get('business_rule_condition');
+    unset($form['variables']);
+    if (!empty($condition) && $condition->isNew()) {
+      $form['actions']['submit']['#value'] = t('Continue');
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function processSettings(array $settings, ItemInterface $item) {
+    if (empty($settings['items'])) {
+      $settings['items'] = [];
+    }
+    else {
+      foreach ($settings['items'] as $key => $item) {
+        $settings['items'][$key]['id'] = $key;
+      }
+    }
+
+    return $settings;
+
   }
 
 }

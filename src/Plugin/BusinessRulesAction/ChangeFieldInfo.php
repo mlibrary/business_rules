@@ -65,6 +65,74 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
   }
 
   /**
+   * Add new field on action settings.
+   *
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form_state.
+   */
+  public static function addFieldSubmit(array $form, FormStateInterface $form_state) {
+    /** @var \Drupal\business_rules\Entity\Action $action */
+    $action   = $form_state->get('action');
+    $field    = $form_state->getValue('fields')['new.field'];
+    $id       = $field['field'] . '__' . $field['action'];
+    $settings = $action->getSettings();
+
+    $availableFields = \Drupal::getContainer()
+      ->get('business_rules.util')
+      ->getBundleEditableFields($action->getTargetEntityType(), $action->getTargetBundle());
+
+    $settings['fields'][$id] = [
+      'id'     => $id,
+      'field'  => $field['field'],
+      'action' => $field['action'],
+    ];
+
+    uasort($settings['fields'], function ($a, $b) use ($availableFields) {
+      return ($availableFields[$a['field']] > $availableFields[$b['field']]) ? 1 : -1;
+    });
+
+    $action->setSetting('fields', $settings['fields']);
+    $action->save();
+
+    $form_state->setRedirect('entity.business_rules_action.edit_form', ['business_rules_action' => $action->id()], ['fragment' => 'field-' . $id]);
+  }
+
+  /**
+   * Remove one field from the action.
+   *
+   * @param string $action
+   *   The action id.
+   * @param string $field
+   *   The field id.
+   * @param string $method
+   *   The method: ajax|nojs.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse|\Symfony\Component\HttpFoundation\RedirectResponse
+   *   The response.
+   */
+  public static function removeField($action, $field, $method) {
+    $action = Action::load($action);
+    $fields = $action->getSettings('fields');
+    unset($fields[$field]);
+    $action->setSetting('fields', $fields);
+    $action->save();
+
+    if ($method == 'ajax') {
+      $response = new AjaxResponse();
+      $response->addCommand(new RemoveCommand('#field-' . $field));
+
+      return $response;
+    }
+    else {
+      $url = new Url('entity.business_rules_action.edit_form', ['business_rules_action' => $action->id()]);
+
+      return new RedirectResponse($url->toString());
+    }
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $item) {
@@ -168,41 +236,6 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
   }
 
   /**
-   * Add new field on action settings.
-   *
-   * @param array $form
-   *   The form array.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form_state.
-   */
-  public static function addFieldSubmit(array $form, FormStateInterface $form_state) {
-    /** @var \Drupal\business_rules\Entity\Action $action */
-    $action   = $form_state->get('action');
-    $field    = $form_state->getValue('fields')['new.field'];
-    $id       = $field['field'] . '__' . $field['action'];
-    $settings = $action->getSettings();
-
-    $availableFields = \Drupal::getContainer()
-      ->get('business_rules.util')
-      ->getBundleEditableFields($action->getTargetEntityType(), $action->getTargetBundle());
-
-    $settings['fields'][$id] = [
-      'id'     => $id,
-      'field'  => $field['field'],
-      'action' => $field['action'],
-    ];
-
-    uasort($settings['fields'], function ($a, $b) use ($availableFields) {
-      return ($availableFields[$a['field']] > $availableFields[$b['field']]) ? 1 : -1;
-    });
-
-    $action->setSetting('fields', $settings['fields']);
-    $action->save();
-
-    $form_state->setRedirect('entity.business_rules_action.edit_form', ['business_rules_action' => $action->id()], ['fragment' => 'field-' . $id]);
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function buildForm(array &$form, FormStateInterface $form_state) {
@@ -210,36 +243,10 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
   }
 
   /**
-   * Remove one field from the action.
-   *
-   * @param string $action
-   *   The action id.
-   * @param string $field
-   *   The field id.
-   * @param string $method
-   *   The method: ajax|nojs.
-   *
-   * @return \Drupal\Core\Ajax\AjaxResponse|\Symfony\Component\HttpFoundation\RedirectResponse
-   *   The response.
+   * {@inheritdoc}
    */
-  public static function removeField($action, $field, $method) {
-    $action = Action::load($action);
-    $fields = $action->getSettings('fields');
-    unset($fields[$field]);
-    $action->setSetting('fields', $fields);
-    $action->save();
-
-    if ($method == 'ajax') {
-      $response = new AjaxResponse();
-      $response->addCommand(new RemoveCommand('#field-' . $field));
-
-      return $response;
-    }
-    else {
-      $url = new Url('entity.business_rules_action.edit_form', ['business_rules_action' => $action->id()]);
-
-      return new RedirectResponse($url->toString());
-    }
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    self::validateAddFieldForm($form, $form_state);
   }
 
   /**
@@ -263,13 +270,6 @@ class ChangeFieldInfo extends BusinessRulesActionPlugin {
     if ($field['new.field']['field'] == 'title' && $field['new.field']['action'] == self::MAKE_OPTIONAL) {
       $form_state->setErrorByName('fields', t('The title field cannot be optional.'));
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    self::validateAddFieldForm($form, $form_state);
   }
 
   /**

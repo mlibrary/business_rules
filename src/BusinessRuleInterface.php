@@ -10,6 +10,22 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 interface BusinessRuleInterface extends ConfigEntityInterface {
 
   /**
+   * Return all types of reactions events for business rules.
+   *
+   * @return array
+   *   Array of event types.
+   */
+  public static function getEventTypes();
+
+  /**
+   * Load all Business Rule's tags.
+   *
+   * @return array
+   *   Array of tags.
+   */
+  public static function loadAllTags();
+
+  /**
    * Add one item on the Business Rule's items.
    *
    * @param \Drupal\business_rules\BusinessRulesItemObject $item
@@ -62,14 +78,6 @@ interface BusinessRuleInterface extends ConfigEntityInterface {
    *   The business rule description.
    */
   public function getDescription();
-
-  /**
-   * Return all types of reactions events for business rules.
-   *
-   * @return array
-   *   Array of event types.
-   */
-  public static function getEventTypes();
 
   /**
    * Get one Business Rule item.
@@ -161,14 +169,6 @@ interface BusinessRuleInterface extends ConfigEntityInterface {
    *   If the rule is enabled.
    */
   public function isEnabled();
-
-  /**
-   * Load all Business Rule's tags.
-   *
-   * @return array
-   *   Array of tags.
-   */
-  public static function loadAllTags();
 
   /**
    * Remove one item from the Business rule's items.

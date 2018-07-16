@@ -57,7 +57,7 @@ abstract class ItemListBuilder extends ConfigEntityListBuilder {
    */
   public function render() {
 
-    $view_mode = \Drupal::request()->get('view_mode');
+    $view_mode                        = \Drupal::request()->get('view_mode');
     $output['#attached']['library'][] = 'system/drupal.system.modules';
 
     $output['filters'] = [
@@ -120,7 +120,7 @@ abstract class ItemListBuilder extends ConfigEntityListBuilder {
         }
       }
 
-      $output['tags_table_no_tags'] = [
+      $output['tags_table_no_tags']     = [
         '#type'  => 'details',
         '#title' => $this->t('Untagged items'),
         '#open'  => FALSE,

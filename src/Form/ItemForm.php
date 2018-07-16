@@ -19,12 +19,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @package Drupal\business_rules\Form
  */
 abstract class ItemForm extends EntityForm {
-  /**
-   * The Business Rule flowchart.
-   *
-   * @var \Drupal\business_rules\Util\Flowchart\Flowchart
-   */
-  private $chart;
 
   /**
    * The services container.
@@ -53,6 +47,13 @@ abstract class ItemForm extends EntityForm {
    * @var \Drupal\business_rules\Plugin\BusinessRulesVariableManager
    */
   protected $variableManager;
+
+  /**
+   * The Business Rule flowchart.
+   *
+   * @var \Drupal\business_rules\Util\Flowchart\Flowchart
+   */
+  private $chart;
 
   /**
    * {@inheritdoc}
@@ -206,6 +207,112 @@ abstract class ItemForm extends EntityForm {
         }
       }
 
+    }
+
+    return $form;
+  }
+
+  /**
+   * Get the pluginManager.
+   *
+   * @return \Drupal\Core\Plugin\DefaultPluginManager
+   *   The item PluginManager.
+   */
+  abstract public function getItemManager();
+
+  /**
+   * Get the fields for entity type and bundle.
+   *
+   * @param array $item_definition
+   *   The item definition.
+   *
+   * @return array
+   *   The render array.
+   */
+  public function getEntityInformationForm(array $item_definition) {
+
+    $form = [];
+
+    /** @var \Drupal\business_rules\ItemInterface $item */
+    $item = $this->entity;
+
+    $show_entity       = FALSE;
+    $show_bundle       = FALSE;
+    $show_field        = FALSE;
+    $context_dependent = $item_definition['isContextDependent'];
+
+    if ($item_definition['hasTargetField']) {
+      $show_entity = TRUE;
+      $show_bundle = TRUE;
+      $show_field = TRUE;
+    }
+    elseif ($item_definition['hasTargetBundle']) {
+      $show_entity = TRUE;
+      $show_bundle = TRUE;
+    }
+    elseif ($item_definition['hasTargetEntity']) {
+      $show_entity = TRUE;
+    }
+
+    if ($show_entity) {
+      if ($context_dependent) {
+        $form['context'] = [
+          '#type'  => 'fieldset',
+          '#title' => $this->t('Context: This information cannot be changed after the item is saved.'),
+        ];
+      }
+
+      $form['context']['target_entity_type'] = [
+        '#type'          => 'select',
+        '#options'       => $this->util->getEntityTypes(),
+        '#required'      => TRUE,
+        '#title'         => $this->t('Target Entity Type'),
+        '#description'   => $this->t('The Entity Type which this item is applicable.'),
+        '#default_value' => $item->getTargetEntityType(),
+        '#disabled'      => $this->entity->isNew() || !$context_dependent ? FALSE : TRUE,
+      ];
+    }
+
+    if ($show_bundle) {
+      $form['context']['target_entity_type']['#ajax'] = [
+        'callback' => [
+          $this,
+          'targetEntityTypeCallback',
+        ],
+      ];
+
+      $form['context']['target_bundle'] = [
+        '#type'          => 'select',
+        '#title'         => $this->t('Target Bundle'),
+        '#description'   => $this->t('The Bundle which this item is applicable.'),
+        '#options'       => $this->util->getBundles($item->getTargetEntityType()),
+        '#required'      => TRUE,
+        '#default_value' => $item->getTargetBundle(),
+        '#disabled'      => $this->entity->isNew() || !$context_dependent ? FALSE : TRUE,
+        '#prefix'        => '<div id="target_bundle-wrapper">',
+        '#suffix'        => '</div>',
+      ];
+    }
+
+    if ($show_field) {
+      $form['context']['target_bundle']['#ajax'] = [
+        'callback' => [
+          $this,
+          'targetBundleCallback',
+        ],
+      ];
+
+      $form['field'] = [
+        '#type'          => 'select',
+        '#options'       => $this->util->getBundleFields($item->getTargetEntityType(), $item->getTargetBundle()),
+        '#required'      => TRUE,
+        '#disabled'      => FALSE,
+        '#title'         => $this->t('Field'),
+        '#description'   => $this->t('The entity field.'),
+        '#default_value' => $item->getSettings('field'),
+        '#prefix'        => '<div id="field_selector-wrapper">',
+        '#suffix'        => '</div>',
+      ];
     }
 
     return $form;
@@ -389,112 +496,6 @@ abstract class ItemForm extends EntityForm {
     $reflection  = new \ReflectionClass($definition['class']);
     $custom_item = $reflection->newInstance($definition, $definition['id'], $definition);
     $custom_item->validateForm($form, $form_state);
-  }
-
-  /**
-   * Get the pluginManager.
-   *
-   * @return \Drupal\Core\Plugin\DefaultPluginManager
-   *   The item PluginManager.
-   */
-  abstract public function getItemManager();
-
-  /**
-   * Get the fields for entity type and bundle.
-   *
-   * @param array $item_definition
-   *   The item definition.
-   *
-   * @return array
-   *   The render array.
-   */
-  public function getEntityInformationForm(array $item_definition) {
-
-    $form = [];
-
-    /** @var \Drupal\business_rules\ItemInterface $item */
-    $item = $this->entity;
-
-    $show_entity       = FALSE;
-    $show_bundle       = FALSE;
-    $show_field        = FALSE;
-    $context_dependent = $item_definition['isContextDependent'];
-
-    if ($item_definition['hasTargetField']) {
-      $show_entity = TRUE;
-      $show_bundle = TRUE;
-      $show_field = TRUE;
-    }
-    elseif ($item_definition['hasTargetBundle']) {
-      $show_entity = TRUE;
-      $show_bundle = TRUE;
-    }
-    elseif ($item_definition['hasTargetEntity']) {
-      $show_entity = TRUE;
-    }
-
-    if ($show_entity) {
-      if ($context_dependent) {
-        $form['context'] = [
-          '#type'  => 'fieldset',
-          '#title' => $this->t('Context: This information cannot be changed after the item is saved.'),
-        ];
-      }
-
-      $form['context']['target_entity_type'] = [
-        '#type'          => 'select',
-        '#options'       => $this->util->getEntityTypes(),
-        '#required'      => TRUE,
-        '#title'         => $this->t('Target Entity Type'),
-        '#description'   => $this->t('The Entity Type which this item is applicable.'),
-        '#default_value' => $item->getTargetEntityType(),
-        '#disabled'      => $this->entity->isNew() || !$context_dependent ? FALSE : TRUE,
-      ];
-    }
-
-    if ($show_bundle) {
-      $form['context']['target_entity_type']['#ajax'] = [
-        'callback' => [
-          $this,
-          'targetEntityTypeCallback',
-        ],
-      ];
-
-      $form['context']['target_bundle'] = [
-        '#type'          => 'select',
-        '#title'         => $this->t('Target Bundle'),
-        '#description'   => $this->t('The Bundle which this item is applicable.'),
-        '#options'       => $this->util->getBundles($item->getTargetEntityType()),
-        '#required'      => TRUE,
-        '#default_value' => $item->getTargetBundle(),
-        '#disabled'      => $this->entity->isNew() || !$context_dependent ? FALSE : TRUE,
-        '#prefix'        => '<div id="target_bundle-wrapper">',
-        '#suffix'        => '</div>',
-      ];
-    }
-
-    if ($show_field) {
-      $form['context']['target_bundle']['#ajax'] = [
-        'callback' => [
-          $this,
-          'targetBundleCallback',
-        ],
-      ];
-
-      $form['field'] = [
-        '#type'          => 'select',
-        '#options'       => $this->util->getBundleFields($item->getTargetEntityType(), $item->getTargetBundle()),
-        '#required'      => TRUE,
-        '#disabled'      => FALSE,
-        '#title'         => $this->t('Field'),
-        '#description'   => $this->t('The entity field.'),
-        '#default_value' => $item->getSettings('field'),
-        '#prefix'        => '<div id="field_selector-wrapper">',
-        '#suffix'        => '</div>',
-      ];
-    }
-
-    return $form;
   }
 
   /**

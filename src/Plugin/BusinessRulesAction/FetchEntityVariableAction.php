@@ -37,67 +37,6 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
   private $entityIsFetched = FALSE;
 
   /**
-   * Fetch the entity.
-   *
-   * @param string $id
-   *   The entity id.
-   * @param \Drupal\business_rules\VariableObject $variable
-   *   The VariableObject.
-   * @param string $id_field
-   *   The field id.
-   * @param \Drupal\business_rules\Entity\Action $action
-   *   The Business rule Action action.
-   * @param string $bundle
-   *   The bundle.
-   * @param mixed $original_variable_value
-   *   The original variable value.
-   *
-   * @return \Drupal\Core\Entity\EntityInterface|null
-   *   The entity.
-   */
-  private function fetchEntity($id, VariableObject $variable, $id_field, Action $action, $bundle, $original_variable_value) {
-    try {
-      $var = Variable::load($variable->getId());
-      if ($var) {
-        $entity_type = $var->getTargetEntityType();
-        $entity      = \Drupal::entityTypeManager()
-          ->getStorage($entity_type)
-          ->load($id);
-
-        if (is_object($entity)) {
-          $new_entity            = clone $entity;
-          $this->entityIsFetched = TRUE;
-
-          return $new_entity;
-        }
-        else {
-          drupal_set_message(t("Action: %action fail. It's not possible to fetch entity %entity, bundle %bundle, with id=%id", [
-            '%action' => $action->label() . ' [' . $action->id() . ']',
-            '%entity' => $entity_type,
-            '%bundle' => $bundle,
-            '%id'     => $id,
-          ]), 'error');
-
-          return $original_variable_value;
-        }
-      }
-      else {
-        drupal_set_message(t("Action: %action fail. Variable: %variable could not be loaded.", [
-          '%action'   => $action->label() . ' [' . $action->id() . ']',
-          '%variable' => $variable->getId(),
-        ]), 'error');
-
-        return $original_variable_value;
-      }
-    }
-    catch (\Exception $e) {
-      drupal_set_message($e, 'error');
-
-      return $original_variable_value;
-    }
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $item) {
@@ -128,6 +67,34 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
   }
 
   /**
+   * Get the available empty variables for the context.
+   *
+   * @param \Drupal\business_rules\Entity\Action $item
+   *   The action.
+   *
+   * @return array
+   *   Array of available entities variables.
+   */
+  public function getAvailableEmptyVariables(Action $item) {
+    $variables = Variable::loadMultiple();
+    $output    = [];
+
+    /** @var \Drupal\business_rules\Entity\Variable $variable */
+
+    foreach ($variables as $variable) {
+      if ($item->getTargetEntityType() == $variable->getTargetEntityType() &&
+        $item->getTargetBundle() == $variable->getTargetBundle() &&
+        $variable->getType() == 'entity_empty_variable'
+      ) {
+        $output[$variable->id()] = $variable->label() . ' [' . $variable->id() . ']';
+      }
+    }
+    asort($output);
+
+    return $output;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function buildForm(array &$form, FormStateInterface $form_state) {
@@ -152,18 +119,6 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
     ];
 
     return $result;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getVariables(ItemInterface $item) {
-    $variableSet    = parent::getVariables($item);
-    $empty_variable = new VariableObject($item->getSettings('empty_variable'));
-
-    $variableSet->append($empty_variable);
-
-    return $variableSet;
   }
 
   /**
@@ -264,31 +219,76 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
   }
 
   /**
-   * Get the available empty variables for the context.
+   * Fetch the entity.
    *
-   * @param \Drupal\business_rules\Entity\Action $item
-   *   The action.
+   * @param string $id
+   *   The entity id.
+   * @param \Drupal\business_rules\VariableObject $variable
+   *   The VariableObject.
+   * @param string $id_field
+   *   The field id.
+   * @param \Drupal\business_rules\Entity\Action $action
+   *   The Business rule Action action.
+   * @param string $bundle
+   *   The bundle.
+   * @param mixed $original_variable_value
+   *   The original variable value.
    *
-   * @return array
-   *   Array of available entities variables.
+   * @return \Drupal\Core\Entity\EntityInterface|null
+   *   The entity.
    */
-  public function getAvailableEmptyVariables(Action $item) {
-    $variables = Variable::loadMultiple();
-    $output    = [];
+  private function fetchEntity($id, VariableObject $variable, $id_field, Action $action, $bundle, $original_variable_value) {
+    try {
+      $var = Variable::load($variable->getId());
+      if ($var) {
+        $entity_type = $var->getTargetEntityType();
+        $entity      = \Drupal::entityTypeManager()
+          ->getStorage($entity_type)
+          ->load($id);
 
-    /** @var \Drupal\business_rules\Entity\Variable $variable */
+        if (is_object($entity)) {
+          $new_entity            = clone $entity;
+          $this->entityIsFetched = TRUE;
 
-    foreach ($variables as $variable) {
-      if ($item->getTargetEntityType() == $variable->getTargetEntityType() &&
-        $item->getTargetBundle() == $variable->getTargetBundle() &&
-        $variable->getType() == 'entity_empty_variable'
-      ) {
-        $output[$variable->id()] = $variable->label() . ' [' . $variable->id() . ']';
+          return $new_entity;
+        }
+        else {
+          drupal_set_message(t("Action: %action fail. It's not possible to fetch entity %entity, bundle %bundle, with id=%id", [
+            '%action' => $action->label() . ' [' . $action->id() . ']',
+            '%entity' => $entity_type,
+            '%bundle' => $bundle,
+            '%id'     => $id,
+          ]), 'error');
+
+          return $original_variable_value;
+        }
+      }
+      else {
+        drupal_set_message(t("Action: %action fail. Variable: %variable could not be loaded.", [
+          '%action'   => $action->label() . ' [' . $action->id() . ']',
+          '%variable' => $variable->getId(),
+        ]), 'error');
+
+        return $original_variable_value;
       }
     }
-    asort($output);
+    catch (\Exception $e) {
+      drupal_set_message($e, 'error');
 
-    return $output;
+      return $original_variable_value;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getVariables(ItemInterface $item) {
+    $variableSet    = parent::getVariables($item);
+    $empty_variable = new VariableObject($item->getSettings('empty_variable'));
+
+    $variableSet->append($empty_variable);
+
+    return $variableSet;
   }
 
 }

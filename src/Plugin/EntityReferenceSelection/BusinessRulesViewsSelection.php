@@ -58,6 +58,13 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
   protected $util;
 
   /**
+   * The loaded View object.
+   *
+   * @var \Drupal\views\ViewExecutable
+   */
+  protected $view;
+
+  /**
    * Constructs a new SelectionBase object.
    *
    * @param array $configuration
@@ -100,11 +107,99 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
   }
 
   /**
-   * The loaded View object.
-   *
-   * @var \Drupal\views\ViewExecutable
+   * Element validate; Check View is valid.
    */
-  protected $view;
+  public static function settingsFormValidate($element, FormStateInterface $form_state, $form) {
+    // Split view name and display name from the 'view_and_display' value.
+    if (!empty($element['view_and_display']['#value'])) {
+      list($view, $display) = explode(':', $element['view_and_display']['#value']);
+    }
+    else {
+      $form_state->setError($element, t('The views entity selection mode requires a view.'));
+
+      return;
+    }
+
+    // Explode the 'arguments' string into an actual array. Beware, explode()
+    // turns an empty string into an array with one empty string. We'll need an
+    // empty array instead.
+    $arguments_string = trim($element['arguments']['#value']);
+    if ($arguments_string === '') {
+      $arguments = [];
+    }
+    else {
+      // array_map() is called to trim whitespaces from the arguments.
+      $arguments = array_map('trim', explode(',', $arguments_string));
+    }
+
+    $value = [
+      'view_name'    => $view,
+      'display_name' => $display,
+      'arguments'    => $arguments,
+      'parent_field' => $element['parent_field']['#value'],
+    ];
+    $form_state->setValueForElement($element, $value);
+  }
+
+  /**
+   * Update the dependent field options.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return mixed
+   *   The updated field.
+   */
+  public static function updateDependentField(array $form, FormStateInterface $form_state) {
+
+    $entity             = $form_state->getFormObject()->getEntity();
+    $trigger_field      = $form_state->getTriggeringElement();
+    $trigger_field_name = $trigger_field['#field_name'];
+
+    $fields_definitions = $entity->getFieldDefinitions();
+    $child_field        = NULL;
+    foreach ($fields_definitions as $field_name => $field_definition) {
+      $handler = $field_definition->getSetting('handler');
+      if ($handler == 'business_rules_views') {
+        $handle_settings = $field_definition->getSetting('handler_settings');
+        $parent_field    = $handle_settings['business_rules_view']['parent_field'];
+
+        if ($trigger_field_name == $parent_field) {
+          $child_field = $field_name;
+          break;
+        }
+      }
+    }
+
+    $parent_field_value = $trigger_field['#value'];
+    $arguments          = $handle_settings['business_rules_view']['arguments'];
+    $args               = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
+    $view_id            = $handle_settings['business_rules_view']['view_name'];
+    $display_id         = $handle_settings['business_rules_view']['display_name'];
+
+    // Get values from the view.
+    $view = Views::getView($view_id);
+    $view->setArguments($args);
+    $view->setDisplay($display_id);
+    $view->preExecute();
+    $view->build();
+
+    $options['_none'] = t('-Select-');
+    if ($view->execute()) {
+      $renderer     = \Drupal::service('renderer');
+      $render_array = $view->style_plugin->render();
+      foreach ($render_array as $key => $value) {
+        $rendered_value = (string) $renderer->render($value);
+        $options[$key] = strip_tags($rendered_value);
+      }
+    }
+
+    $form[$child_field]['widget']['#options'] = $options;
+
+    return $form[$child_field]['widget'];
+  }
 
   /**
    * {@inheritdoc}
@@ -374,103 +469,8 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
   }
 
   /**
-   * Element validate; Check View is valid.
-   */
-  public static function settingsFormValidate($element, FormStateInterface $form_state, $form) {
-    // Split view name and display name from the 'view_and_display' value.
-    if (!empty($element['view_and_display']['#value'])) {
-      list($view, $display) = explode(':', $element['view_and_display']['#value']);
-    }
-    else {
-      $form_state->setError($element, t('The views entity selection mode requires a view.'));
-
-      return;
-    }
-
-    // Explode the 'arguments' string into an actual array. Beware, explode()
-    // turns an empty string into an array with one empty string. We'll need an
-    // empty array instead.
-    $arguments_string = trim($element['arguments']['#value']);
-    if ($arguments_string === '') {
-      $arguments = [];
-    }
-    else {
-      // array_map() is called to trim whitespaces from the arguments.
-      $arguments = array_map('trim', explode(',', $arguments_string));
-    }
-
-    $value = [
-      'view_name'    => $view,
-      'display_name' => $display,
-      'arguments'    => $arguments,
-      'parent_field' => $element['parent_field']['#value'],
-    ];
-    $form_state->setValueForElement($element, $value);
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function entityQueryAlter(SelectInterface $query) {}
-
-  /**
-   * Update the dependent field options.
-   *
-   * @param array $form
-   *   The form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state.
-   *
-   * @return mixed
-   *   The updated field.
-   */
-  public static function updateDependentField(array $form, FormStateInterface $form_state) {
-
-    $entity             = $form_state->getFormObject()->getEntity();
-    $trigger_field      = $form_state->getTriggeringElement();
-    $trigger_field_name = $trigger_field['#field_name'];
-
-    $fields_definitions = $entity->getFieldDefinitions();
-    $child_field        = NULL;
-    foreach ($fields_definitions as $field_name => $field_definition) {
-      $handler = $field_definition->getSetting('handler');
-      if ($handler == 'business_rules_views') {
-        $handle_settings = $field_definition->getSetting('handler_settings');
-        $parent_field    = $handle_settings['business_rules_view']['parent_field'];
-
-        if ($trigger_field_name == $parent_field) {
-          $child_field = $field_name;
-          break;
-        }
-      }
-    }
-
-    $parent_field_value = $trigger_field['#value'];
-    $arguments          = $handle_settings['business_rules_view']['arguments'];
-    $args               = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
-    $view_id            = $handle_settings['business_rules_view']['view_name'];
-    $display_id         = $handle_settings['business_rules_view']['display_name'];
-
-    // Get values from the view.
-    $view = Views::getView($view_id);
-    $view->setArguments($args);
-    $view->setDisplay($display_id);
-    $view->preExecute();
-    $view->build();
-
-    $options['_none'] = t('-Select-');
-    if ($view->execute()) {
-      $renderer     = \Drupal::service('renderer');
-      $render_array = $view->style_plugin->render();
-      foreach ($render_array as $key => $value) {
-        $rendered_value = (string) $renderer->render($value);
-        $options[$key] = strip_tags($rendered_value);
-      }
-    }
-
-    $form[$child_field]['widget']['#options'] = $options;
-
-    return $form[$child_field]['widget'];
-  }
 
 }

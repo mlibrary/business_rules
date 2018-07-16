@@ -85,6 +85,40 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
   }
 
   /**
+   * Remove one field/value's setting.
+   *
+   * @param string $action
+   *   The action id.
+   * @param string $field
+   *   The field id.
+   * @param string $method
+   *   The method ajax|nojs.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse|\Symfony\Component\HttpFoundation\RedirectResponse
+   *   The AjaxResponse or RedirectResponse object.
+   */
+  public static function removeFieldValue($action, $field, $method) {
+    $action        = Action::load($action);
+    $fields_values = $action->getSettings('fields_values');
+    unset($fields_values[$field]);
+    $action->setSetting('fields_values', $fields_values);
+    $action->save();
+
+    if ($method == 'ajax') {
+      $response = new AjaxResponse();
+      $response->addCommand(new RemoveCommand('#field_value-' . $field));
+
+      return $response;
+    }
+    else {
+      $url = new Url('entity.business_rules_action.edit_form', ['business_rules_action' => $action->id()]);
+
+      return new RedirectResponse($url->toString());
+    }
+
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $item) {
@@ -209,6 +243,32 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
   }
 
   /**
+   * Get the available empty variables for the context.
+   *
+   * @param \Drupal\business_rules\Entity\Action $item
+   *   The action object.
+   *
+   * @return array
+   *   Array of available variables.
+   */
+  public function getAvailableEmptyVariables(Action $item) {
+    $variables = Variable::loadMultiple();
+    $output    = [];
+
+    /** @var \Drupal\business_rules\Entity\Variable $variable */
+    foreach ($variables as $variable) {
+      if ($item->getTargetEntityType() == $variable->getTargetEntityType() &&
+        $item->getTargetBundle() == $variable->getTargetBundle() &&
+        $variable->getType() == 'entity_empty_variable'
+      ) {
+        $output[$variable->id()] = $variable->label() . ' [' . $variable->id() . ']';
+      }
+    }
+
+    return $output;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function processSettings(array $settings, ItemInterface $item) {
@@ -236,7 +296,8 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
       $fields_values = $action->getSettings('fields_values');
       if (is_array($fields_values)) {
         foreach ($fields_values as $field_value) {
-          $cardinality = $entity->get($field_value['entity_field'])->getFieldDefinition()
+          $cardinality = $entity->get($field_value['entity_field'])
+            ->getFieldDefinition()
             ->getFieldStorageDefinition()
             ->getCardinality();
 
@@ -312,66 +373,6 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
     }
 
     return $variableSet;
-  }
-
-  /**
-   * Get the available empty variables for the context.
-   *
-   * @param \Drupal\business_rules\Entity\Action $item
-   *   The action object.
-   *
-   * @return array
-   *   Array of available variables.
-   */
-  public function getAvailableEmptyVariables(Action $item) {
-    $variables = Variable::loadMultiple();
-    $output    = [];
-
-    /** @var \Drupal\business_rules\Entity\Variable $variable */
-    foreach ($variables as $variable) {
-      if ($item->getTargetEntityType() == $variable->getTargetEntityType() &&
-        $item->getTargetBundle() == $variable->getTargetBundle() &&
-        $variable->getType() == 'entity_empty_variable'
-      ) {
-        $output[$variable->id()] = $variable->label() . ' [' . $variable->id() . ']';
-      }
-    }
-
-    return $output;
-  }
-
-  /**
-   * Remove one field/value's setting.
-   *
-   * @param string $action
-   *   The action id.
-   * @param string $field
-   *   The field id.
-   * @param string $method
-   *   The method ajax|nojs.
-   *
-   * @return \Drupal\Core\Ajax\AjaxResponse|\Symfony\Component\HttpFoundation\RedirectResponse
-   *   The AjaxResponse or RedirectResponse object.
-   */
-  public static function removeFieldValue($action, $field, $method) {
-    $action        = Action::load($action);
-    $fields_values = $action->getSettings('fields_values');
-    unset($fields_values[$field]);
-    $action->setSetting('fields_values', $fields_values);
-    $action->save();
-
-    if ($method == 'ajax') {
-      $response = new AjaxResponse();
-      $response->addCommand(new RemoveCommand('#field_value-' . $field));
-
-      return $response;
-    }
-    else {
-      $url = new Url('entity.business_rules_action.edit_form', ['business_rules_action' => $action->id()]);
-
-      return new RedirectResponse($url->toString());
-    }
-
   }
 
 }

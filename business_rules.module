@@ -9,14 +9,14 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\Entity;
+use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
-use Drupal\user\Entity\User;
 use Drupal\quickedit\Form\QuickEditFieldForm;
-use Drupal\Core\Entity\EntityFormInterface;
+use Drupal\user\Entity\User;
 
 /**
  * Implements hook_help().
@@ -28,7 +28,8 @@ function business_rules_help($route_name, RouteMatchInterface $route_match) {
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('Business Rules') . '</p>';
-      $output .= '<p>' . Link::fromTextAndUrl(t('Click here to access the online Business Rules documentation.'), Url::fromUri('https://www.drupal.org/docs/8/modules/business-rules'))->toString() . '</p>';
+      $output .= '<p>' . Link::fromTextAndUrl(t('Click here to access the online Business Rules documentation.'), Url::fromUri('https://www.drupal.org/docs/8/modules/business-rules'))
+        ->toString() . '</p>';
 
       return $output;
 
@@ -47,7 +48,7 @@ function business_rules_entity_presave(EntityInterface $entity) {
       ->getDefinition('entity_presave');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event = new BusinessRulesEvent($entity, [
+    $event          = new BusinessRulesEvent($entity, [
       'entity_type_id'   => $entity_type_id,
       'bundle'           => $entity->bundle(),
       'entity'           => $entity,
@@ -73,7 +74,7 @@ function business_rules_entity_update(EntityInterface $entity) {
       ->getDefinition('entity_update');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event = new BusinessRulesEvent($entity, [
+    $event          = new BusinessRulesEvent($entity, [
       'entity_type_id'   => $entity_type_id,
       'bundle'           => $entity->bundle(),
       'entity'           => $entity,
@@ -98,7 +99,7 @@ function business_rules_entity_insert(EntityInterface $entity) {
       ->getDefinition('entity_insert');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event = new BusinessRulesEvent($entity, [
+    $event          = new BusinessRulesEvent($entity, [
       'entity_type_id'   => $entity_type_id,
       'bundle'           => $entity->bundle(),
       'entity'           => $entity,
@@ -123,7 +124,7 @@ function business_rules_entity_delete(EntityInterface $entity) {
       ->getDefinition('entity_delete');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event = new BusinessRulesEvent($entity, [
+    $event          = new BusinessRulesEvent($entity, [
       'entity_type_id'   => $entity_type_id,
       'bundle'           => $entity->bundle(),
       'entity'           => $entity,
@@ -204,7 +205,7 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
   if ($entity instanceof Entity) {
     // Check if the field is a dependent field.
     /** @var \Drupal\Core\Field\FieldItemList $items */
-    $items = $context['items'];
+    $items   = $context['items'];
     $handler = $items->getSetting('handler');
     if ($handler == 'business_rules_views') {
       // Add prefix and suffix to the dependent field.
@@ -215,14 +216,14 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
     // Check if field is configured as parent of one dependent field.
     if (method_exists($entity, 'getFieldDefinitions')) {
       $fields_definitions = $entity->getFieldDefinitions();
-      $parent_field = NULL;
+      $parent_field       = NULL;
       foreach ($fields_definitions as $field_name => $field_definition) {
         $handler = $field_definition->getSetting('handler');
         if ($handler == 'business_rules_views') {
           $handle_settings = $field_definition->getSetting('handler_settings');
-          $parent_field = $handle_settings['business_rules_view']['parent_field'];
-          $child_field = $field_name;
-          $child_title = $field_definition->label();
+          $parent_field    = $handle_settings['business_rules_view']['parent_field'];
+          $child_field     = $field_name;
+          $child_title     = $field_definition->label();
           break;
         }
       }
@@ -289,7 +290,7 @@ function business_rules_entity_view(array &$build, EntityInterface $entity, Enti
       ->getDefinition('entity_is_viewed');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event = new BusinessRulesEvent($entity, [
+    $event          = new BusinessRulesEvent($entity, [
       'entity_type_id'   => $entity_type_id,
       'bundle'           => $entity->bundle(),
       'entity'           => $entity,
@@ -315,7 +316,7 @@ function business_rules_entity_load(array $entities, $entity_type_id) {
         ->getDefinition('entity_is_loaded');
 
       $entity_type_id = $entity->getEntityTypeId();
-      $event = new BusinessRulesEvent($entity, [
+      $event          = new BusinessRulesEvent($entity, [
         'entity_type_id'   => $entity_type_id,
         'bundle'           => $entity->bundle(),
         'entity'           => $entity,
@@ -339,7 +340,7 @@ function business_rules_user_login($account) {
     ->getDefinition('user_login');
 
   $entity_type_id = $account->getEntityTypeId();
-  $entity = $account;
+  $entity         = $account;
 
   $event = new BusinessRulesEvent($entity, [
     'entity_type_id'   => $entity_type_id,
@@ -366,7 +367,7 @@ function business_rules_user_logout($account) {
   $entity = User::load($account->id());
 
   $entity_type_id = $entity->getEntityTypeId();
-  $event = new BusinessRulesEvent($entity, [
+  $event          = new BusinessRulesEvent($entity, [
     'entity_type_id'   => $entity_type_id,
     'bundle'           => $entity->bundle(),
     'entity'           => $entity,
@@ -392,9 +393,9 @@ function business_rules_cache_flush() {
  */
 function business_rules_mail($key, &$message, $params) {
   if ($key == 'business_rules_mail') {
-    $message['from'] = \Drupal::config('system.site')->get('mail');
+    $message['from']    = \Drupal::config('system.site')->get('mail');
     $message['subject'] = $params['subject'];
-    $message['body'][] = $params['message'];
+    $message['body'][]  = $params['message'];
   }
 }
 

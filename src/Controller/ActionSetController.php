@@ -96,6 +96,13 @@ class ActionSetController extends ControllerBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static($container);
+  }
+
+  /**
    * Add item on Action.
    *
    * @param string $action_id
@@ -147,13 +154,6 @@ class ActionSetController extends ControllerBase {
     }
 
     return $max;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static($container);
   }
 
   /**

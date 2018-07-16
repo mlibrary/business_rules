@@ -22,5 +22,4 @@ use Drupal\business_rules\Plugin\BusinessRulesReactsOnPlugin;
  */
 class EntityPreSave extends BusinessRulesReactsOnPlugin {
 
-
 }

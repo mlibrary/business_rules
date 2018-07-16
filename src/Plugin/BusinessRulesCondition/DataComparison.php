@@ -65,6 +65,41 @@ class DataComparison extends BusinessRulesConditionPlugin {
   }
 
   /**
+   * Return the type and description for value_to_compare field.
+   *
+   * @param string $operator
+   *   The selected operator.
+   *
+   * @return array
+   *   The configuration helper array.
+   */
+  public static function getTypeAndDescription($operator) {
+    $textarea_fields = ['contains', '==', 'starts_with', 'ends_with', '!='];
+    if (in_array($operator, $textarea_fields)) {
+      $type        = 'textarea';
+      $description = t('For multiple values comparison, include one per line. 
+        It will return TRUE if at least one element was found.
+        <br>If the comparison field is a list of values, enter the element(s) id(s)
+        <br>Enter the element(s) id(s), one per line.
+        <br>To use variables, just type the variable machine name as {{variable_id}}. If the variable is an Entity Variable, you can access the fields values using {{variable_id->field}}');
+    }
+    elseif ($operator == 'empty') {
+      $type        = 'markup';
+      $description = '';
+    }
+    else {
+      $type        = 'textfield';
+      $description = t('The value to compare the field value.
+        <br>To use variables, just type the variable machine name as {{variable_id}}. If the variable is an Entity Variable, you can access the fields values using {{variable_id->field}}');
+    }
+
+    return [
+      'type'        => $type,
+      'description' => $description,
+    ];
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getSettingsForm(array &$form, FormStateInterface $form_state, ItemInterface $condition) {
@@ -223,41 +258,6 @@ class DataComparison extends BusinessRulesConditionPlugin {
     }
 
     return $values_to_compare;
-  }
-
-  /**
-   * Return the type and description for value_to_compare field.
-   *
-   * @param string $operator
-   *   The selected operator.
-   *
-   * @return array
-   *   The configuration helper array.
-   */
-  public static function getTypeAndDescription($operator) {
-    $textarea_fields = ['contains', '==', 'starts_with', 'ends_with', '!='];
-    if (in_array($operator, $textarea_fields)) {
-      $type        = 'textarea';
-      $description = t('For multiple values comparison, include one per line. 
-        It will return TRUE if at least one element was found.
-        <br>If the comparison field is a list of values, enter the element(s) id(s)
-        <br>Enter the element(s) id(s), one per line.
-        <br>To use variables, just type the variable machine name as {{variable_id}}. If the variable is an Entity Variable, you can access the fields values using {{variable_id->field}}');
-    }
-    elseif ($operator == 'empty') {
-      $type        = 'markup';
-      $description = '';
-    }
-    else {
-      $type        = 'textfield';
-      $description = t('The value to compare the field value.
-        <br>To use variables, just type the variable machine name as {{variable_id}}. If the variable is an Entity Variable, you can access the fields values using {{variable_id->field}}');
-    }
-
-    return [
-      'type'        => $type,
-      'description' => $description,
-    ];
   }
 
 }

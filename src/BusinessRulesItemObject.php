@@ -98,45 +98,6 @@ class BusinessRulesItemObject {
   }
 
   /**
-   * Transform the object into array.
-   *
-   * @return array
-   *   The business rule item array representation:
-   *    - id
-   *    - type
-   *    weight.
-   */
-  public function toArray() {
-    return [
-      $this->getId() => [
-        'id'     => $this->getId(),
-        'type'   => $this->getType(),
-        'weight' => $this->getWeight(),
-      ],
-    ];
-  }
-
-  /**
-   * Get the item id.
-   *
-   * @return string
-   *   The item id.
-   */
-  public function getId() {
-    return $this->id;
-  }
-
-  /**
-   * Set the item id.
-   *
-   * @param string $id
-   *   The item id.
-   */
-  public function setId($id) {
-    $this->id = $id;
-  }
-
-  /**
    * Get the item type.
    *
    * @return string
@@ -161,6 +122,45 @@ class BusinessRulesItemObject {
     else {
       throw new \Exception("The only Business Rule item type available are 'action' and 'condition'. $type given.");
     }
+  }
+
+  /**
+   * Get the item id.
+   *
+   * @return string
+   *   The item id.
+   */
+  public function getId() {
+    return $this->id;
+  }
+
+  /**
+   * Set the item id.
+   *
+   * @param string $id
+   *   The item id.
+   */
+  public function setId($id) {
+    $this->id = $id;
+  }
+
+  /**
+   * Transform the object into array.
+   *
+   * @return array
+   *   The business rule item array representation:
+   *    - id
+   *    - type
+   *    weight.
+   */
+  public function toArray() {
+    return [
+      $this->getId() => [
+        'id'     => $this->getId(),
+        'type'   => $this->getType(),
+        'weight' => $this->getWeight(),
+      ],
+    ];
   }
 
   /**

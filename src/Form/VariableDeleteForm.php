@@ -25,9 +25,9 @@ class VariableDeleteForm extends EntityConfirmFormBase {
     $form = parent::form($form, $form_state);
 
     /** @var \Drupal\business_rules\Util\BusinessRulesUtil $util */
-    $util = \Drupal::service('business_rules.util');
+    $util                               = \Drupal::service('business_rules.util');
     $form['conditions_using_this_item'] = $util->getUsedByConditionsDetailsBox($this->entity);
-    $form['actions_using_this_item'] = $util->getUsedByActionsDetailsBox($this->entity);
+    $form['actions_using_this_item']    = $util->getUsedByActionsDetailsBox($this->entity);
 
     return $form;
   }

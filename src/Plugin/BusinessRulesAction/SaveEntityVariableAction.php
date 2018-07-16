@@ -3,9 +3,9 @@
 namespace Drupal\business_rules\Plugin\BusinessRulesAction;
 
 use Drupal\business_rules\ActionInterface;
-use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\Variable;
+use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\business_rules\VariableObject;
@@ -59,58 +59,6 @@ class SaveEntityVariableAction extends BusinessRulesActionPlugin {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function buildForm(array &$form, FormStateInterface $form_state) {
-    unset($form['variables']);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function execute(ActionInterface $action, BusinessRulesEvent $event) {
-    /** @var \Drupal\business_rules\VariablesSet $variables */
-    /** @var \Drupal\Core\Entity\Entity $entity */
-    $variables = $event->getArgument('variables');
-    $key_value = $this->util->getKeyValueExpirable('save_entity_variable');
-    if ($variables->count()) {
-      $entity = $variables->getVariable($action->getSettings('variable'))
-        ->getValue();
-
-      // Prevent infinite calls regarding the dispatched entity events such as
-      // save / presave, etc.
-      $uuid = $entity->uuid->value;
-      $saved_uuid = $key_value->get($uuid);
-
-      if ($entity instanceof Entity && $entity->uuid->getValue() !== $saved_uuid) {
-        $key_value->set($uuid, $uuid);
-        $entity->save();
-
-        $result = [
-          '#type'   => 'markup',
-          '#markup' => t('Entity: %entity on variable: %variable saved.', [
-            '%entity' => $entity->getEntityTypeId(),
-            '%variable' => $action->getSettings('variable'),
-          ]),
-        ];
-
-        return $result;
-      }
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getVariables(ItemInterface $item) {
-    $variableSet = parent::getVariables($item);
-    $variable    = new VariableObject($item->getSettings('variable'));
-    $variableSet->append($variable);
-
-    return $variableSet;
-  }
-
-  /**
    * Get the available empty variables for the context.
    *
    * @param \Drupal\business_rules\Entity\Action $item
@@ -134,6 +82,58 @@ class SaveEntityVariableAction extends BusinessRulesActionPlugin {
     }
 
     return $output;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array &$form, FormStateInterface $form_state) {
+    unset($form['variables']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function execute(ActionInterface $action, BusinessRulesEvent $event) {
+    /** @var \Drupal\business_rules\VariablesSet $variables */
+    /** @var \Drupal\Core\Entity\Entity $entity */
+    $variables = $event->getArgument('variables');
+    $key_value = $this->util->getKeyValueExpirable('save_entity_variable');
+    if ($variables->count()) {
+      $entity = $variables->getVariable($action->getSettings('variable'))
+        ->getValue();
+
+      // Prevent infinite calls regarding the dispatched entity events such as
+      // save / presave, etc.
+      $uuid       = $entity->uuid->value;
+      $saved_uuid = $key_value->get($uuid);
+
+      if ($entity instanceof Entity && $entity->uuid->getValue() !== $saved_uuid) {
+        $key_value->set($uuid, $uuid);
+        $entity->save();
+
+        $result = [
+          '#type'   => 'markup',
+          '#markup' => t('Entity: %entity on variable: %variable saved.', [
+            '%entity'   => $entity->getEntityTypeId(),
+            '%variable' => $action->getSettings('variable'),
+          ]),
+        ];
+
+        return $result;
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getVariables(ItemInterface $item) {
+    $variableSet = parent::getVariables($item);
+    $variable    = new VariableObject($item->getSettings('variable'));
+    $variableSet->append($variable);
+
+    return $variableSet;
   }
 
 }

@@ -13,18 +13,18 @@ use Drupal\Core\Entity\EntityInterface;
 class Matrix {
 
   /**
-   * The internal matrix.
-   *
-   * @var array
-   */
-  private $matrix = [];
-
-  /**
    * The number of root items if root is instance of BusinessRule.
    *
    * @var int
    */
   protected $numberOfRootItems = 0;
+
+  /**
+   * The internal matrix.
+   *
+   * @var array
+   */
+  private $matrix = [];
 
   /**
    * The root element.
@@ -70,21 +70,6 @@ class Matrix {
   }
 
   /**
-   * Get cell by position.
-   *
-   * @param int $x
-   *   The X position.
-   * @param int $y
-   *   The Y position.
-   *
-   * @return array
-   *   The cell
-   */
-  public function getCellByPosition($x, $y) {
-    return $this->matrix[$x][$y];
-  }
-
-  /**
    * Get the element above in the matrix.
    *
    * @param \Drupal\business_rules\Util\Flowchart\Element $element
@@ -112,6 +97,30 @@ class Matrix {
     else {
       return NULL;
     }
+  }
+
+  /**
+   * Get one matrix cell by Element UUID.
+   *
+   * @param string $uuid
+   *   The element uuid.
+   *
+   * @return null|array
+   *   The matrix cell or NULL if not found.
+   */
+  public function getCellByElementUuid($uuid) {
+    for ($y = 0; $y <= 100; $y++) {
+      for ($x = 0; $x <= 100; $x++) {
+        $element = $this->matrix[$x][$y]['element'];
+        if ($element instanceof Element) {
+          if ($element->getUuid() == $uuid) {
+            return $this->matrix[$x][$y];
+          }
+        }
+      }
+    }
+
+    return NULL;
   }
 
   /**
@@ -269,45 +278,6 @@ class Matrix {
   }
 
   /**
-   * Get one matrix cell by Element UUID.
-   *
-   * @param string $uuid
-   *   The element uuid.
-   *
-   * @return null|array
-   *   The matrix cell or NULL if not found.
-   */
-  public function getCellByElementUuid($uuid) {
-    for ($y = 0; $y <= 100; $y++) {
-      for ($x = 0; $x <= 100; $x++) {
-        $element = $this->matrix[$x][$y]['element'];
-        if ($element instanceof Element) {
-          if ($element->getUuid() == $uuid) {
-            return $this->matrix[$x][$y];
-          }
-        }
-      }
-    }
-
-    return NULL;
-  }
-
-  /**
-   * Put the root element at the matrix.
-   *
-   * @param \Drupal\business_rules\Util\Flowchart\Element $element
-   *   The element.
-   */
-  public function putRootElement(Element $element) {
-    $this->putElementInPosition($element, 0, 0);
-    $this->rootElement = $element;
-
-    if ($element->getItem() instanceof BusinessRule) {
-      $this->numberOfRootItems = count($element->getItem()->getItems());
-    }
-  }
-
-  /**
    * Put an element at one position in the matrix.
    *
    * @param \Drupal\business_rules\Util\Flowchart\Element $element
@@ -348,6 +318,21 @@ class Matrix {
           $this->matrix[$x][$y]['element'] = NULL;
         }
       }
+    }
+  }
+
+  /**
+   * Put the root element at the matrix.
+   *
+   * @param \Drupal\business_rules\Util\Flowchart\Element $element
+   *   The element.
+   */
+  public function putRootElement(Element $element) {
+    $this->putElementInPosition($element, 0, 0);
+    $this->rootElement = $element;
+
+    if ($element->getItem() instanceof BusinessRule) {
+      $this->numberOfRootItems = count($element->getItem()->getItems());
     }
   }
 
@@ -507,6 +492,21 @@ class Matrix {
     }
 
     return $empty;
+  }
+
+  /**
+   * Get cell by position.
+   *
+   * @param int $x
+   *   The X position.
+   * @param int $y
+   *   The Y position.
+   *
+   * @return array
+   *   The cell
+   */
+  public function getCellByPosition($x, $y) {
+    return $this->matrix[$x][$y];
   }
 
   /**

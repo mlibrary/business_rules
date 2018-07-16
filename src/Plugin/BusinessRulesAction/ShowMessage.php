@@ -73,7 +73,7 @@ class ShowMessage extends BusinessRulesActionPlugin {
       '#type'   => 'markup',
       '#markup' => t('Message type: %type, text: %message showed.', [
         '%message' => $message,
-        '%type' => $message_type,
+        '%type'    => $message_type,
       ]),
     ];
 

@@ -96,6 +96,13 @@ class ConditionSetController extends ControllerBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static($container);
+  }
+
+  /**
    * Add item on Condition.
    *
    * @param string $condition_id
@@ -147,13 +154,6 @@ class ConditionSetController extends ControllerBase {
     }
 
     return $max;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static($container);
   }
 
   /**

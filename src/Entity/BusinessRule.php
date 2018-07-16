@@ -46,6 +46,13 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
 class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
 
   /**
+   * The reactsOnManger.
+   *
+   * @var \Drupal\business_rules\Plugin\BusinessRulesReactsOnManager
+   */
+  protected static $reactsOnManager;
+
+  /**
    * The ConfigFactory.
    *
    * @var \Drupal\Core\Config\ConfigFactory
@@ -79,13 +86,6 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
    * @var string
    */
   protected $label;
-
-  /**
-   * The reactsOnManger.
-   *
-   * @var \Drupal\business_rules\Plugin\BusinessRulesReactsOnManager
-   */
-  protected static $reactsOnManager;
 
   /**
    * The trigger that will start the rule.
@@ -159,228 +159,6 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
   /**
    * {@inheritdoc}
    */
-  public function getItems() {
-    $obj_items = BusinessRulesItemObject::itemsArrayToItemsObject($this->items);
-
-    return $obj_items;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getItem($item_id) {
-    if (isset($this->items[$item_id])) {
-      $item    = $this->items[$item_id];
-      $itemObj = new BusinessRulesItemObject($item['id'], $item['type'], $item['weight']);
-
-      return $itemObj;
-    }
-    else {
-      return NULL;
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getItemMaxWeight() {
-    $items = $this->getItems();
-    $max   = -10;
-    if (is_array($items)) {
-      foreach ($items as $item) {
-        if ($max < $item->getWeight()) {
-          $max = $item->getWeight();
-        }
-      }
-    }
-
-    return $max;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getReactsOn() {
-    return $this->reacts_on;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getTargetEntityType() {
-    return $this->target_entity_type;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getTargetBundle() {
-    return $this->target_bundle;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getDescription() {
-    return $this->description;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isEnabled() {
-    return $this->status;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setEnabled($status) {
-    $this->status = $status;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getReactsOnLabel() {
-    $reacts = self::getEventTypes();
-
-    foreach ($reacts as $react) {
-      foreach ($react as $key => $value) {
-        if ($key == $this->getReactsOn()) {
-          return $value;
-        }
-      }
-    }
-
-    return '';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getTags() {
-    return $this->tags;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setTags(array $tags) {
-    $formatted_tags = [];
-    foreach ($tags as $tag) {
-      $this->util->toSafeLowerString($tag);
-      $formatted_tags[$tag] = $tag;
-    }
-    ksort($formatted_tags);
-    $this->tags = $formatted_tags;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function addItem(BusinessRulesItemObject $item) {
-    $item_array                  = $item->toArray();
-    $this->items[$item->getId()] = $item_array[$item->getId()];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function removeItem(BusinessRulesItemObject $item) {
-    unset($this->items[$item->getId()]);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getTargetBundleLabel() {
-    $bundles = $this->util->getBundles($this->getTargetEntityType());
-    foreach ($bundles as $key => $value) {
-      if ($key == $this->getTargetBundle()) {
-        if ($key === '') {
-          return t('All');
-        }
-
-        return $value;
-      }
-    }
-
-    return '';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getTargetEntityTypeLabel() {
-    $entities = $this->util->getEntityTypes();
-    foreach ($entities as $key => $value) {
-      if ($key == $this->getTargetEntityType()) {
-        return $value;
-      }
-    }
-
-    return '';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function getEventTypes() {
-    $types = [];
-    $events = self::$reactsOnManager->getDefinitions();
-
-    uasort($events, function ($a, $b) {
-      return ($a['label']->render() > $b['label']->render()) ? 1 : -1;
-    });
-
-    foreach ($events as $event) {
-      if (isset($types[$event['group']->render()])) {
-        $types[$event['group']->render()] += [$event['id'] => $event['label']];
-      }
-      else {
-        $types[$event['group']->render()] = [$event['id'] => $event['label']];
-      }
-
-    }
-
-    ksort($types);
-
-    return $types;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function filterContextAvailableItems(array $items) {
-
-    /** @var \Drupal\business_rules\ItemInterface $value */
-
-    $entity_type     = $this->getTargetEntityType();
-    $bundle          = $this->getTargetBundle();
-    $available_items = [];
-
-    foreach ($items as $key => $value) {
-      // Evaluate Target Entity Type.
-      if ((($value->getTargetEntityType() == $entity_type || empty($value->getTargetEntityType())) &&
-          // Evaluate target bundle.
-          ($value->getTargetBundle() == $bundle || empty($value->getTargetBundle())) &&
-          // Evaluate ReactsOn events.
-          (in_array($this->getReactsOn(), $value->getReactOnEvents()) || count($value->getReactOnEvents()) === 0)) ||
-        // Item is context dependent.
-        (!$value->isContextDependent())
-      ) {
-        $available_items[$key] = $value;
-      }
-    }
-
-    return $available_items;
-
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getVariables() {
     return is_array($this->variables) ? $this->variables : [];
   }
@@ -445,6 +223,68 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
   /**
    * {@inheritdoc}
    */
+  public function getTargetEntityType() {
+    return $this->target_entity_type;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTargetBundle() {
+    return $this->target_bundle;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getReactsOn() {
+    return $this->reacts_on;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getItemMaxWeight() {
+    $items = $this->getItems();
+    $max   = -10;
+    if (is_array($items)) {
+      foreach ($items as $item) {
+        if ($max < $item->getWeight()) {
+          $max = $item->getWeight();
+        }
+      }
+    }
+
+    return $max;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getItems() {
+    $obj_items = BusinessRulesItemObject::itemsArrayToItemsObject($this->items);
+
+    return $obj_items;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getItem($item_id) {
+    if (isset($this->items[$item_id])) {
+      $item    = $this->items[$item_id];
+      $itemObj = new BusinessRulesItemObject($item['id'], $item['type'], $item['weight']);
+
+      return $itemObj;
+    }
+    else {
+      return NULL;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function loadAllTags() {
     $business_rules = self::loadMultiple();
     $tags           = [];
@@ -459,6 +299,166 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
     ksort($tags);
 
     return $tags;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTags() {
+    return $this->tags;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setTags(array $tags) {
+    $formatted_tags = [];
+    foreach ($tags as $tag) {
+      $this->util->toSafeLowerString($tag);
+      $formatted_tags[$tag] = $tag;
+    }
+    ksort($formatted_tags);
+    $this->tags = $formatted_tags;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addItem(BusinessRulesItemObject $item) {
+    $item_array                  = $item->toArray();
+    $this->items[$item->getId()] = $item_array[$item->getId()];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function removeItem(BusinessRulesItemObject $item) {
+    unset($this->items[$item->getId()]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTargetBundleLabel() {
+    $bundles = $this->util->getBundles($this->getTargetEntityType());
+    foreach ($bundles as $key => $value) {
+      if ($key == $this->getTargetBundle()) {
+        if ($key === '') {
+          return t('All');
+        }
+
+        return $value;
+      }
+    }
+
+    return '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDescription() {
+    return $this->description;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isEnabled() {
+    return $this->status;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setEnabled($status) {
+    $this->status = $status;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getReactsOnLabel() {
+    $reacts = self::getEventTypes();
+
+    foreach ($reacts as $react) {
+      foreach ($react as $key => $value) {
+        if ($key == $this->getReactsOn()) {
+          return $value;
+        }
+      }
+    }
+
+    return '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getEventTypes() {
+    $types = [];
+    $events = self::$reactsOnManager->getDefinitions();
+
+    uasort($events, function ($a, $b) {
+      return ($a['label']->render() > $b['label']->render()) ? 1 : -1;
+    });
+
+    foreach ($events as $event) {
+      if (isset($types[$event['group']->render()])) {
+        $types[$event['group']->render()] += [$event['id'] => $event['label']];
+      }
+      else {
+        $types[$event['group']->render()] = [$event['id'] => $event['label']];
+      }
+
+    }
+
+    ksort($types);
+
+    return $types;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTargetEntityTypeLabel() {
+    $entities = $this->util->getEntityTypes();
+    foreach ($entities as $key => $value) {
+      if ($key == $this->getTargetEntityType()) {
+        return $value;
+      }
+    }
+
+    return '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function filterContextAvailableItems(array $items) {
+
+    /** @var \Drupal\business_rules\ItemInterface $value */
+
+    $entity_type     = $this->getTargetEntityType();
+    $bundle          = $this->getTargetBundle();
+    $available_items = [];
+
+    foreach ($items as $key => $value) {
+      // Evaluate Target Entity Type.
+      if ((($value->getTargetEntityType() == $entity_type || empty($value->getTargetEntityType())) &&
+          // Evaluate target bundle.
+          ($value->getTargetBundle() == $bundle || empty($value->getTargetBundle())) &&
+          // Evaluate ReactsOn events.
+          (in_array($this->getReactsOn(), $value->getReactOnEvents()) || count($value->getReactOnEvents()) === 0)) ||
+        // Item is context dependent.
+        (!$value->isContextDependent())
+      ) {
+        $available_items[$key] = $value;
+      }
+    }
+
+    return $available_items;
+
   }
 
 }

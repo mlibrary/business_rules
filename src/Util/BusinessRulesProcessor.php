@@ -25,7 +25,15 @@ use Symfony\Component\EventDispatcher\Event;
  * @package Drupal\business_rules\Util
  */
 class BusinessRulesProcessor {
+
   use StringTranslationTrait;
+
+  /**
+   * The business rule id being executed.
+   *
+   * @var \Drupal\business_rules\Entity\BusinessRule
+   */
+  public $ruleBeingExecuted;
 
   /**
    * The action manager.
@@ -33,13 +41,6 @@ class BusinessRulesProcessor {
    * @var \Drupal\business_rules\Plugin\BusinessRulesActionManager
    */
   protected $actionManager;
-
-  /**
-   * The condition manager.
-   *
-   * @var \Drupal\business_rules\Plugin\BusinessRulesConditionManager
-   */
-  private $conditionManager;
 
   /**
    * A configuration object with business_rules settings.
@@ -92,11 +93,18 @@ class BusinessRulesProcessor {
   protected $processId;
 
   /**
-   * The business rule id being executed.
+   * The variable manager.
    *
-   * @var \Drupal\business_rules\Entity\BusinessRule
+   * @var \Drupal\business_rules\Plugin\BusinessRulesVariableManager
    */
-  public $ruleBeingExecuted;
+  protected $variableManager;
+
+  /**
+   * The condition manager.
+   *
+   * @var \Drupal\business_rules\Plugin\BusinessRulesConditionManager
+   */
+  private $conditionManager;
 
   /**
    * The storage.
@@ -111,13 +119,6 @@ class BusinessRulesProcessor {
    * @var \Drupal\business_rules\Util\BusinessRulesUtil
    */
   private $util;
-
-  /**
-   * The variable manager.
-   *
-   * @var \Drupal\business_rules\Plugin\BusinessRulesVariableManager
-   */
-  protected $variableManager;
 
   /**
    * BusinessRulesProcessor constructor.
@@ -207,18 +208,6 @@ class BusinessRulesProcessor {
   }
 
   /**
-   * Destructor.
-   */
-  public function __destruct() {
-    $keyvalue = $this->util->getKeyValueExpirable('process');
-    $keyvalue->deleteAll();
-
-    if ($this->config->get('clear_render_cache')) {
-      Cache::invalidateTags(['rendered']);
-    }
-  }
-
-  /**
    * Check if there is a Business rule configured for the given event.
    *
    * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
@@ -266,7 +255,7 @@ class BusinessRulesProcessor {
   public function processTriggeredRules(array $triggered_rules, BusinessRulesEvent $event) {
     /** @var \Drupal\business_rules\Entity\BusinessRule $rule */
     foreach ($triggered_rules as $rule) {
-      $items = $rule->getItems();
+      $items                   = $rule->getItems();
       $this->ruleBeingExecuted = $rule;
       $this->processItems($items, $event, $rule->id());
       $this->processedRules[$rule->id()]     = $rule->id();
@@ -706,6 +695,18 @@ class BusinessRulesProcessor {
     }
     else {
       throw new \Exception(get_class($value) . '::evaluate should return instance of ' . get_class(new VariableObject()) . ' or ' . get_class(new VariablesSet()) . '.');
+    }
+  }
+
+  /**
+   * Destructor.
+   */
+  public function __destruct() {
+    $keyvalue = $this->util->getKeyValueExpirable('process');
+    $keyvalue->deleteAll();
+
+    if ($this->config->get('clear_render_cache')) {
+      Cache::invalidateTags(['rendered']);
     }
   }
 

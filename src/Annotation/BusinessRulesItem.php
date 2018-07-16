@@ -12,6 +12,7 @@ use Drupal\Component\Annotation\Plugin;
  * @Annotation
  */
 abstract class BusinessRulesItem extends Plugin {
+
   /**
    * A human readable description of the item.
    *

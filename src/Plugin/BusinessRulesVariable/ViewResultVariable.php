@@ -105,62 +105,6 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function evaluate(Variable $variable, BusinessRulesEvent $event) {
-    // Get settings.
-    $defined_view    = $variable->getSettings('view');
-    $args            = $variable->getSettings('arguments');
-    $event_variables = $event->getArgument('variables');
-
-    // Process settings.
-    $defined_view = explode(':', $defined_view);
-    $view_id      = $defined_view[0];
-    $display      = $defined_view[1];
-
-    $args = explode(chr(10), $args);
-    $args = array_map('trim', $args);
-    $args = array_filter($args, 'strlen');
-
-    // Process variables.
-    foreach ($args as $key => $value) {
-      $args[$key] = $this->processVariables($value, $event_variables);
-    }
-
-    // Execute view.
-    $view = Views::getView($view_id);
-    $view->setArguments($args);
-    $view->setDisplay($display);
-    $view->preExecute();
-    $view->build();
-    $fields = $view->field;
-
-    $variableObject = NULL;
-    if ($view->execute()) {
-      $view_result = $view->result;
-      $values      = [];
-      /** @var \Drupal\views\ResultRow $resultRow */
-      foreach ($view_result as $key => $resultRow) {
-        /** @var \Drupal\views\Plugin\views\field\Field $field */
-        foreach ($fields as $field) {
-          $field_id                = $field->field;
-          $values[$key][$field_id] = $field->getValue($resultRow);
-        }
-      }
-
-      $variableObject = new VariableObject($variable->id(), $values, $variable->getType());
-    }
-    else {
-      $this->util->logger->error('View %view could not be executed. Arguments: %args', [
-        '%view' => $defined_view,
-        '%args' => implode(', ', $args),
-      ]);
-    }
-
-    return $variableObject;
-  }
-
-  /**
    * Display the view variable fields.
    *
    * @param \Drupal\business_rules\Entity\Variable $variable
@@ -250,6 +194,62 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
     ];
 
     return $content;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function evaluate(Variable $variable, BusinessRulesEvent $event) {
+    // Get settings.
+    $defined_view    = $variable->getSettings('view');
+    $args            = $variable->getSettings('arguments');
+    $event_variables = $event->getArgument('variables');
+
+    // Process settings.
+    $defined_view = explode(':', $defined_view);
+    $view_id      = $defined_view[0];
+    $display      = $defined_view[1];
+
+    $args = explode(chr(10), $args);
+    $args = array_map('trim', $args);
+    $args = array_filter($args, 'strlen');
+
+    // Process variables.
+    foreach ($args as $key => $value) {
+      $args[$key] = $this->processVariables($value, $event_variables);
+    }
+
+    // Execute view.
+    $view = Views::getView($view_id);
+    $view->setArguments($args);
+    $view->setDisplay($display);
+    $view->preExecute();
+    $view->build();
+    $fields = $view->field;
+
+    $variableObject = NULL;
+    if ($view->execute()) {
+      $view_result = $view->result;
+      $values      = [];
+      /** @var \Drupal\views\ResultRow $resultRow */
+      foreach ($view_result as $key => $resultRow) {
+        /** @var \Drupal\views\Plugin\views\field\Field $field */
+        foreach ($fields as $field) {
+          $field_id                = $field->field;
+          $values[$key][$field_id] = $field->getValue($resultRow);
+        }
+      }
+
+      $variableObject = new VariableObject($variable->id(), $values, $variable->getType());
+    }
+    else {
+      $this->util->logger->error('View %view could not be executed. Arguments: %args', [
+        '%view' => $defined_view,
+        '%args' => implode(', ', $args),
+      ]);
+    }
+
+    return $variableObject;
   }
 
 }

@@ -95,6 +95,13 @@ class ConditionsItemsController extends ControllerBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static($container);
+  }
+
+  /**
    * Add item on Condition.
    *
    * @param string $condition_id
@@ -128,13 +135,6 @@ class ConditionsItemsController extends ControllerBase {
     ], ['fragment' => $condition_item_type . '-' . $item_id]);
 
     return new RedirectResponse($url->toString());
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static($container);
   }
 
   /**
