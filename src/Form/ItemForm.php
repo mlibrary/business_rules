@@ -150,7 +150,7 @@ abstract class ItemForm extends EntityForm {
       $form['tags'] = [
         '#type'                          => 'textfield',
         '#title'                         => $this->t('Tags'),
-        '#default_value'                 => implode(', ', $item->getTags()),
+        '#default_value'                 => $item->getTags() ? implode(', ', $item->getTags()) : '',
         '#description'                   => $this->t('List of comma-separated tags.'),
         '#required'                      => FALSE,
         '#weight'                        => 41,

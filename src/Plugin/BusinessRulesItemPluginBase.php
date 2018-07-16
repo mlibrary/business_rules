@@ -178,24 +178,23 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
    */
   public function processTokens(ItemInterface &$item, BusinessRulesEvent $event) {
     $settings = $item->getSettings();
+
+    // Get the context entity to pass to token processor.
+    try {
+      $entity_type = $event->getArgument('entity_type_id');
+      $entity      = $event->getArgument('entity');
+      $context     = [$entity_type => $entity];
+    }
+    catch (\InvalidArgumentException $e) {
+      $context = [];
+    }
+
     foreach ($settings as $key => $setting) {
       if (is_string($setting)) {
-
-        // Get the context entity to pass to token processor.
-        try {
-          $entity_type = $event->getArgument('entity_type_id');
-          $entity      = $event->getArgument('entity');
-          $context     = [$entity_type => $entity];
-        }
-        catch (\InvalidArgumentException $e) {
-          $context = [];
-        }
-
         $settings[$key] = $this->util->token->replace($setting, $context);
       }
       elseif (is_array($setting)) {
-        // $settings[$key] = $this->processTokenArraySetting($setting);
-        $this->processTokenArraySetting($settings[$key]);
+        $this->processTokenArraySetting($settings[$key], $context);
       }
     }
 
@@ -209,15 +208,17 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
    *
    * @param array $setting
    *   The setting array.
+   * @param array $context
+   *   The context to replace the tokens.
    */
-  private function processTokenArraySetting(array &$setting) {
+  private function processTokenArraySetting(array &$setting, array $context) {
     if (count($setting)) {
       foreach ($setting as $key => $value) {
         if (is_string($value)) {
-          $setting[$key] = $this->util->token->replace($value);
+          $setting[$key] = $this->util->token->replace($value, $context);
         }
         elseif (is_array($value)) {
-          $this->processTokenArraySetting($value);
+          $this->processTokenArraySetting($setting[$key], $context);
         }
       }
     }
