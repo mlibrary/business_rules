@@ -50,7 +50,7 @@ class Condition extends BusinessRulesItemBase implements ConditionInterface {
    *
    * @var array
    */
-  protected $failItems = [];
+  protected $fail_items = [];
 
   /**
    * If it's a reverse condition (NOT).
@@ -64,7 +64,7 @@ class Condition extends BusinessRulesItemBase implements ConditionInterface {
    *
    * @var array
    */
-  protected $successItems = [];
+  protected $success_items = [];
 
   /**
    * {@inheritdoc}
@@ -120,7 +120,7 @@ class Condition extends BusinessRulesItemBase implements ConditionInterface {
    * {@inheritdoc}
    */
   public function getSuccessItems() {
-    $success_items = BusinessRulesItemObject::itemsArrayToItemsObject($this->successItems);
+    $success_items = BusinessRulesItemObject::itemsArrayToItemsObject($this->success_items);
 
     return $success_items;
   }
@@ -129,7 +129,7 @@ class Condition extends BusinessRulesItemBase implements ConditionInterface {
    * {@inheritdoc}
    */
   public function getFailItems() {
-    $fail_items = BusinessRulesItemObject::itemsArrayToItemsObject($this->failItems);
+    $fail_items = BusinessRulesItemObject::itemsArrayToItemsObject($this->fail_items);
 
     return $fail_items;
   }
@@ -138,14 +138,14 @@ class Condition extends BusinessRulesItemBase implements ConditionInterface {
    * {@inheritdoc}
    */
   public function removeSuccessItem(BusinessRulesItemObject $item) {
-    unset($this->successItems[$item->getId()]);
+    unset($this->success_items[$item->getId()]);
   }
 
   /**
    * {@inheritdoc}
    */
   public function removeFailItem(BusinessRulesItemObject $item) {
-    unset($this->failItems[$item->getId()]);
+    unset($this->fail_items[$item->getId()]);
   }
 
   /**
@@ -182,10 +182,10 @@ class Condition extends BusinessRulesItemBase implements ConditionInterface {
    */
   public function getMaxItemWeight($success = TRUE) {
     if ($success) {
-      $items = $this->successItems;
+      $items = $this->success_items;
     }
     else {
-      $items = $this->failItems;
+      $items = $this->fail_items;
     }
     $max = -10;
     if (is_array($items)) {
@@ -203,16 +203,16 @@ class Condition extends BusinessRulesItemBase implements ConditionInterface {
    * {@inheritdoc}
    */
   public function addSuccessItem(BusinessRulesItemObject $item) {
-    $item_array                         = $item->toArray();
-    $this->successItems[$item->getId()] = $item_array[$item->getId()];
+    $item_array                          = $item->toArray();
+    $this->success_items[$item->getId()] = $item_array[$item->getId()];
   }
 
   /**
    * {@inheritdoc}
    */
   public function addFailItem(BusinessRulesItemObject $item) {
-    $item_array                      = $item->toArray();
-    $this->failItems[$item->getId()] = $item_array[$item->getId()];
+    $item_array                       = $item->toArray();
+    $this->fail_items[$item->getId()] = $item_array[$item->getId()];
   }
 
   /**
