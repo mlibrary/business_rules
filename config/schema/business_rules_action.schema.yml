@@ -299,6 +299,7 @@ business_rules.action.type.change_field_info:
             type: string
             label: 'Action'
 
+# TODO create an action to change entity_view mode
 business_rules.action.type.change_entity_view:
   type: mapping
   label: 'Change entity form field'
@@ -321,3 +322,25 @@ business_rules.action.type.change_entity_view:
           weight:
             type: integer
             label: 'Weight'
+
+business_rules.action.type.schedule_a_task:
+  type: mapping
+  label: 'Schedule a task'
+  mapping:
+    identiier:
+      type: string
+      label: 'Identifier'
+    field:
+      type: string
+      label: 'Entity Field' #the field in which the time offset will be based on.
+    time_offset:
+      type: integer
+      label: 'Time offset'
+    time_unit:
+      type: string
+      label: 'Time unit'
+    items:
+      type: sequence
+      label: 'Items'
+      sequence:
+        type: business_rules.item

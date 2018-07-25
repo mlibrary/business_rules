@@ -5,6 +5,7 @@
  * Business Rules module.
  */
 
+use Drupal\business_rules\Entity\Schedule;
 use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
@@ -429,4 +430,35 @@ function business_rules_page_load_event() {
  */
 function business_rules_page_top(array &$page_top) {
   business_rules_page_load_event();
+}
+
+/**
+ * Implements hook_cron().
+ */
+function business_rules_cron() {
+  if (Drupal::hasContainer()) {
+
+    // Dispatch the cron runs business rules items.
+    $reacts_on_definition = \Drupal::getContainer()
+      ->get('plugin.manager.business_rules.reacts_on')
+      ->getDefinition('cron_runs');
+
+    $loop_control = time();
+    $dummy = new stdClass();
+
+    $event = new BusinessRulesEvent($dummy, [
+      'entity_type_id'   => '',
+      'bundle'           => NULL,
+      'entity'           => NULL,
+      'entity_unchanged' => NULL,
+      'reacts_on'        => $reacts_on_definition,
+      'loop_control'     => $loop_control,
+    ]);
+
+    $event_dispatcher = \Drupal::service('event_dispatcher');
+    $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+
+    // Dispatch the scheduled items.
+    Schedule::executeSchedule($event);
+  }
 }
