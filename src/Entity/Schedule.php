@@ -53,17 +53,19 @@ use Drupal\user\UserInterface;
  *     "add-form" = "/admin/config/workflow/business_rules/schedule/add",
  *     "edit-form" = "/admin/config/workflow/business_rules/schedule/{business_rules_schedule}/edit",
  *     "delete-form" = "/admin/config/workflow/business_rules/schedule/{business_rules_schedule}/delete",
- *     "version-history" = "/admin/config/workflow/business_rules/schedule/{business_rules_schedule}/revisions",
- *     "revision" = "/admin/config/workflow/business_rules/schedule/{schedule}/revisions/{schedule_revision}/view",
- *     "revision_revert" = "/admin/config/workflow/business_rules/schedule/{schedule}/revisions/{schedule_revision}/revert",
- *     "revision_delete" = "/admin/config/workflow/business_rules/schedule/{schedule}/revisions/{schedule_revision}/delete",
- *     "collection" = "/admin/config/workflow/business_rules/schedule",
+ *     "collection" = "/admin/config/workflow/business_rules/schedule/collection/{view_mode}",
  *   },
  * )
  */
 class Schedule extends RevisionableContentEntityBase implements ScheduleInterface {
 
   use EntityChangedTrait;
+
+  //TODO think about include revisions in the future.
+  //"version-history" = "/admin/config/workflow/business_rules/schedule/{business_rules_schedule}/revisions",
+  //"revision" = "/admin/config/workflow/business_rules/schedule/{schedule}/revisions/{schedule_revision}/view",
+  //"revision_revert" = "/admin/config/workflow/business_rules/schedule/{schedule}/revisions/{schedule_revision}/revert",
+  //"revision_delete" = "/admin/config/workflow/business_rules/schedule/{schedule}/revisions/{schedule_revision}/delete",
 
   /**
    * {@inheritdoc}
@@ -77,6 +79,7 @@ class Schedule extends RevisionableContentEntityBase implements ScheduleInterfac
    */
   public function setExecuted($executed) {
     $this->set('status', $executed ? TRUE : FALSE);
+    $this->setExecutedTime(time());
 
     return $this;
   }
@@ -199,6 +202,22 @@ class Schedule extends RevisionableContentEntityBase implements ScheduleInterfac
   /**
    * {@inheritdoc}
    */
+  public function getExecutedTime() {
+    return $this->get('executed')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setExecutedTime($timestamp) {
+    $this->set('executed', $timestamp);
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
     parent::preCreate($storage_controller, $values);
     $values += [
@@ -248,6 +267,12 @@ class Schedule extends RevisionableContentEntityBase implements ScheduleInterfac
     if (!$this->getRevisionUser()) {
       $this->setRevisionUserId($this->getOwnerId());
     }
+
+    if ($this->isNew()) {
+      $this->setCreatedTime(time());
+    }
+
+    $this->setChangedTime(time());
   }
 
   /**
@@ -305,6 +330,10 @@ class Schedule extends RevisionableContentEntityBase implements ScheduleInterfac
       ->setLabel(t('Scheduled date'))
       ->setDescription(t('The date and time which it is scheduled.'));
 
+    $fields['executed'] = BaseFieldDefinition::create('timestamp')
+      ->setLabel(t('Execution date'))
+      ->setDescription(t('The date and time which was executed.'));
+
     $fields['triggered_by'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Action'))
       ->setDescription(t('Business Rule Action which has triggered this schedule.'))
@@ -318,43 +347,51 @@ class Schedule extends RevisionableContentEntityBase implements ScheduleInterfac
    */
   public static function executeSchedule(BusinessRulesEvent $event) {
 
-    // Load non-executed tasks from the action.
-    $ids = \Drupal::entityTypeManager()
-      ->getStorage('business_rules_schedule')
-      ->getQuery()
-      ->condition('status', 0)
-      ->condition('scheduled', time(), '<=')
-      ->execute();
+    // Check if the schedule execution is enabled on Business Rules settings.
+    $config = \Drupal::configFactory()->get('business_rules.settings');
+    $enabled = $config->get('enable_scheduler');
 
-    $tasks     = self::loadMultiple($ids);
-    $container = \Drupal::getContainer();
-    $util      = new BusinessRulesUtil($container);
-    if (count($tasks)) {
-      /** @var \Drupal\business_rules\Entity\Schedule $task */
-      foreach ($tasks as $task) {
-        /** @var \Drupal\business_rules\Entity\Action $action */
-        $action = $task->getTriggeredBy();
-        $items  = $action->getSettings('items');
+    if ($enabled) {
 
-        try {
-          foreach ($items as $item) {
-            $action_item = Action::load($item['id']);
-            $action_item->execute($event);
+      // Load non-executed tasks from the action.
+      $ids = \Drupal::entityTypeManager()
+        ->getStorage('business_rules_schedule')
+        ->getQuery()
+        ->condition('status', 0)
+        ->condition('scheduled', time(), '<=')
+        ->execute();
+
+      $tasks     = self::loadMultiple($ids);
+      $container = \Drupal::getContainer();
+      $util      = new BusinessRulesUtil($container);
+      if (count($tasks)) {
+        /** @var \Drupal\business_rules\Entity\Schedule $task */
+        foreach ($tasks as $task) {
+          /** @var \Drupal\business_rules\Entity\Action $action */
+          $action = $task->getTriggeredBy();
+          $items = $action->getSettings('items');
+
+          try {
+            foreach ($items as $item) {
+              $action_item = Action::load($item['id']);
+              $action_item->execute($event);
+            }
+            $task->setExecuted(1);
+            $task->save();
+            $util->logger->notice(t('Scheduled task id: @id, name: "@name", triggered by: "@by" has been executed at: @time', [
+              '@id'   => $task->id(),
+              '@name' => $task->getName(),
+              '@by'   => $task->getTriggeredBy()->id(),
+              '@time' => $container->get('date.formatter')
+                ->format(time(), 'medium'),
+            ]));
           }
-          $task->setExecuted(1);
-          $task->save();
-          $util->logger->notice(t('Scheduled task id: @id, name: "@name", triggered by: "@by" has been executed at: @time', [
-            '@id'   => $task->id(),
-            '@name' => $task->getName(),
-            '@by'   => $task->getTriggeredBy()->id(),
-            '@time' => $container->get('date.formatter')
-              ->format(time(), 'medium'),
-          ]));
-        }
-        catch (\Exception $e) {
-          $util->logger->error($e->getMessage());
+          catch (\Exception $e) {
+            $util->logger->error($e->getMessage());
+          }
         }
       }
+
     }
   }
 
@@ -369,7 +406,7 @@ class Schedule extends RevisionableContentEntityBase implements ScheduleInterfac
     $id = $query->execute();
 
     if (count($id) > 0) {
-      $schedule = self::load(array_keys($id)[0]);
+      $schedule = self::load(array_values($id)[0]);
     }
     else {
       $schedule = new self([], 'business_rules_schedule');

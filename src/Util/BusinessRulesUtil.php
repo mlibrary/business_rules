@@ -15,10 +15,7 @@ use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\VariableListBuilder;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\ContentEntityType;
-use Drupal\Core\Entity\Entity;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Link;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldConfig;
@@ -781,8 +778,8 @@ class BusinessRulesUtil {
       '#type'   => 'markup',
       '#markup' => $this->t('To access a particular multi-value field such as target id, you can use <code>{{@variable_id[delta]}}</code> where "delta" is the delta value to get a one value or <code>{{@variable_id}}</code> to get an array of values.
         <br>To access a particular multi-value field label you can use <code>{{@variable_id[delta]->label}}</code> where "delta" is the delta value to get one label or <code>{{@variable_id->label}}</code> to get an array of labels.', [
-        '@variable_id' => $variable->id(),
-      ]),
+          '@variable_id' => $variable->id(),
+        ]),
     ];
 
     $content['variable_fields'] = [
@@ -1173,7 +1170,7 @@ class BusinessRulesUtil {
           if (isset($value['mapping'])) {
             $result += $this->getMappingsArray($mv);
           }
-//          elseif (is_array($))
+          // Elseif (is_array($))
         }
       }
     }

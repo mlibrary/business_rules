@@ -247,3 +247,17 @@ business_rules.plugins.action.change_field_info.info_form:
   requirements:
     _permission: 'administer site configuration'
     method: 'nojs|ajax'
+
+entity.business_rules_schedule.canonical:
+  path: '/admin/config/workflow/business_rules/schedule/{business_rules_schedule}'
+  defaults:
+    _controller: '\Drupal\business_rules\Controller\ScheduleController::view'
+  requirements:
+    _permission: 'view schedule entities'
+
+entity.business_rules_schedule.execute:
+  path: '/admin/config/workflow/business_rules/schedule/execute/{business_rules_schedule}'
+  defaults:
+    _controller: '\Drupal\business_rules\Controller\ScheduleController::execute'
+  requirements:
+    _permission: 'execute schedule entities'

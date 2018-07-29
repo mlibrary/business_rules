@@ -83,7 +83,7 @@ abstract class ItemForm extends EntityForm {
     $form_state->set('business_rules_step', $this->step);
 
     /** @var \Drupal\business_rules\ItemInterface $item */
-    $item  = $this->entity;
+    $item = $this->entity;
     $class = get_class($item);
 
     if ($this->step === 1 && $item->isNew()) {
@@ -246,7 +246,7 @@ abstract class ItemForm extends EntityForm {
     if ($item_definition['hasTargetField']) {
       $show_entity = TRUE;
       $show_bundle = TRUE;
-      $show_field  = TRUE;
+      $show_field = TRUE;
     }
     elseif ($item_definition['hasTargetBundle']) {
       $show_entity = TRUE;

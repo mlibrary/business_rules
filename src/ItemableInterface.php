@@ -29,4 +29,5 @@ interface ItemableInterface {
    *   The available items considering the rule context.
    */
   public function filterContextAvailableItems(array $items);
+
 }

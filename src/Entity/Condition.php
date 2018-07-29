@@ -31,15 +31,11 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "canonical" =
- *   "/admin/config/workflow/business_rules/condition/{business_rules_condition}",
+ *     "canonical" = "/admin/config/workflow/business_rules/condition/{business_rules_condition}",
  *     "add-form" = "/admin/config/workflow/business_rules/condition/add",
- *     "edit-form" =
- *   "/admin/config/workflow/business_rules/condition/{business_rules_condition}/edit",
- *     "delete-form" =
- *   "/admin/config/workflow/business_rules/condition/{business_rules_condition}/delete",
- *     "collection" =
- *   "/admin/config/workflow/business_rules/condition/collection/{view_mode}"
+ *     "edit-form" = "/admin/config/workflow/business_rules/condition/{business_rules_condition}/edit",
+ *     "delete-form" = "/admin/config/workflow/business_rules/condition/{business_rules_condition}/delete",
+ *     "collection" = "/admin/config/workflow/business_rules/condition/collection/{view_mode}"
  *   }
  * )
  */

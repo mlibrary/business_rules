@@ -107,6 +107,8 @@ class ScheduleTaskController extends ControllerBase {
    *
    * @param string $action_id
    *   The action id.
+   * @param string $item_type
+   *   The item type.
    * @param string $item_id
    *   The item id.
    *
@@ -219,7 +221,7 @@ class ScheduleTaskController extends ControllerBase {
       if (!in_array($item->id(), array_keys($this->savedItems)) && $item->id() != $action->id()) {
 
         $listBuilder = $this->entityTypeManager->getListBuilder($item->getEntityTypeId());
-        $operations  = $listBuilder->buildOperations($item);
+        $operations = $listBuilder->buildOperations($item);
 
         $search_string = $item->label() . ' ' .
           $item->id() . ' ' .
@@ -273,9 +275,17 @@ class ScheduleTaskController extends ControllerBase {
     }
   }
 
+  /**
+   * Remove the action items.
+   *
+   * @param string $action_id
+   *   The Action id.
+   * @param array $items
+   *   The items.
+   */
   public function removeCurrentItems($action_id, &$items) {
-    $action = Action::load($action_id);
-    $current = $action->getSettings('items');
+    $action       = Action::load($action_id);
+    $current      = $action->getSettings('items');
     $current_keys = array_keys($current);
     foreach ($items as $key => $value) {
       if (in_array($value->id(), $current_keys)) {
@@ -328,7 +338,7 @@ class ScheduleTaskController extends ControllerBase {
    */
   public function removeItem($action_id, $item_id, $method) {
     $action = Action::load($action_id);
-    $items  = $action->getSettings('items');
+    $items = $action->getSettings('items');
     unset($items[$item_id]);
     $items = is_null($items) ? [] : $items;
 

@@ -22,7 +22,7 @@ class ScheduleStorage extends SqlContentEntityStorage implements ScheduleStorage
    */
   public function revisionIds(ScheduleInterface $entity) {
     return $this->database->query(
-      'SELECT vid FROM {schedule_revision} WHERE id=:id ORDER BY vid',
+      'SELECT vid FROM {br_schedule_revision} WHERE id=:id ORDER BY vid',
       [':id' => $entity->id()]
     )->fetchCol();
   }
@@ -32,7 +32,7 @@ class ScheduleStorage extends SqlContentEntityStorage implements ScheduleStorage
    */
   public function userRevisionIds(AccountInterface $account) {
     return $this->database->query(
-      'SELECT vid FROM {schedule_field_revision} WHERE uid = :uid ORDER BY vid',
+      'SELECT vid FROM {br_schedule_field_revision} WHERE uid = :uid ORDER BY vid',
       [':uid' => $account->id()]
     )->fetchCol();
   }
@@ -41,7 +41,7 @@ class ScheduleStorage extends SqlContentEntityStorage implements ScheduleStorage
    * {@inheritdoc}
    */
   public function countDefaultLanguageRevisions(ScheduleInterface $entity) {
-    return $this->database->query('SELECT COUNT(*) FROM {schedule_field_revision} WHERE id = :id AND default_langcode = 1', [':id' => $entity->id()])
+    return $this->database->query('SELECT COUNT(*) FROM {br_schedule_field_revision} WHERE id = :id AND default_langcode = 1', [':id' => $entity->id()])
       ->fetchField();
   }
 

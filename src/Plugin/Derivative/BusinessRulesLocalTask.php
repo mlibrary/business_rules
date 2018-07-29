@@ -56,6 +56,30 @@ class BusinessRulesLocalTask extends DeriverBase implements ContainerDeriverInte
       ];
     }
 
+    $this->derivatives['entity.business_rules_schedule.collection.list'] = [
+      'title'            => t('All'),
+      'route_name'       => "entity.business_rules_schedule.collection",
+      'parent_id'        => "entity.business_rules_schedule.collection",
+      'route_parameters' => ['view_mode' => 'list'],
+      'weight'           => 10,
+    ];
+
+    $this->derivatives['entity.business_rules_schedule.collection.not_executed'] = [
+      'title'            => t('Not Executed'),
+      'route_name'       => "entity.business_rules_schedule.collection",
+      'parent_id'        => "entity.business_rules_schedule.collection",
+      'route_parameters' => ['view_mode' => 'not_executed'],
+      'weight'           => 20,
+    ];
+
+    $this->derivatives['entity.business_rules_schedule.collection.executed'] = [
+      'title'            => t('Executed'),
+      'route_name'       => "entity.business_rules_schedule.collection",
+      'parent_id'        => "entity.business_rules_schedule.collection",
+      'route_parameters' => ['view_mode' => 'executed'],
+      'weight'           => 30,
+    ];
+
     foreach ($this->derivatives as &$entry) {
       $entry += $base_plugin_definition;
     }

@@ -55,14 +55,14 @@ entity.business_rules_schedule.edit_form:
   base_route: entity.business_rules_schedule.canonical
   title: 'Edit'
 
-entity.business_rules_schedule.version_history:
-  route_name: entity.business_rules_schedule.version_history
-  base_route: entity.business_rules_schedule.canonical
-  title: 'Revisions'
+# TODO think about including revisions for schedule.
+#entity.business_rules_schedule.version_history:
+#  route_name: entity.business_rules_schedule.version_history
+#  base_route: entity.business_rules_schedule.canonical
+#  title: 'Revisions'
 
 entity.business_rules_schedule.delete_form:
   route_name:  entity.business_rules_schedule.delete_form
   base_route:  entity.business_rules_schedule.canonical
   title: Delete
   weight: 10
-

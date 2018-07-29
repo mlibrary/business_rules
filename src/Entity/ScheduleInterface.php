@@ -2,9 +2,7 @@
 
 namespace Drupal\business_rules\Entity;
 
-use Drupal\business_rules\BusinessRulesItemObject;
 use Drupal\business_rules\Events\BusinessRulesEvent;
-use Drupal\business_rules\Plugin\BusinessRulesItemPluginBase;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\RevisionLogInterface;
@@ -16,8 +14,6 @@ use Drupal\user\EntityOwnerInterface;
  * @ingroup business_rules
  */
 interface ScheduleInterface extends ContentEntityInterface, RevisionLogInterface, EntityChangedInterface, EntityOwnerInterface {
-
-  // Add get/set methods for your configuration properties here.
 
   /**
    * Gets the Schedule name.

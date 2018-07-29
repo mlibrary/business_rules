@@ -15,7 +15,7 @@ use Drupal\Core\Link;
 use Drupal\Core\Url;
 
 /**
- * Class ScheduleTask
+ * Class ScheduleTask.
  *
  * @package Drupal\business_rules\Plugin\BusinessRulesAction
  *
@@ -41,7 +41,10 @@ class ScheduleTask extends BusinessRulesActionPlugin {
    */
   private $usedWeight = [];
 
-  /** @var ItemInterface $item */
+  /**
+   * Business Rules item.
+   *
+   * @var \Drupal\business_rules\ItemInterface*/
   private $item;
 
   /**
@@ -71,8 +74,6 @@ class ScheduleTask extends BusinessRulesActionPlugin {
 
     $settings['time_offset'] = [];
     $settings['time_unit']   = [];
-
-    // TODO: A data de agendamento pode ser também baseada na criação da task ao invés de um campo.
 
     $settings['identifier'] = [
       '#type'          => 'textfield',
@@ -129,14 +130,6 @@ class ScheduleTask extends BusinessRulesActionPlugin {
 
     $this->item          = $item;
     $settings['items'][] = $this->formItems($form, $form_state, $item);
-
-    $definition  = \Drupal::service('config.typed')
-      ->getDefinition('business_rules.action.type.schedule_a_task');
-    $definition2 = \Drupal::service('config.typed')
-      ->getDefinition('business_rules.action.type.change_field_info');
-
-    $r1 = $this->util->getFieldsSchema('business_rules.action.type.schedule_a_task');
-    $r2 = $this->util->getFieldsSchema('business_rules.action.type.change_field_info');
 
     return $settings;
   }
@@ -253,7 +246,7 @@ class ScheduleTask extends BusinessRulesActionPlugin {
 
           $listBuilder = $this->util->container->get('entity_type.manager')
             ->getListBuilder($item->getEntityTypeId());
-          $operations  = $listBuilder->buildOperations($item);
+          $operations = $listBuilder->buildOperations($item);
 
           $operations['#links']['remove'] = [
             'title'  => t('Remove'),
@@ -398,7 +391,7 @@ class ScheduleTask extends BusinessRulesActionPlugin {
     $time_unit   = $action->getSettings('time_unit');
     /** @var \Drupal\Core\Entity\Entity $entity */
     $entity = $event->getSubject();
-    $field  = $entity->get($action->getSettings('field'))->value;
+    $field = $entity->get($action->getSettings('field'))->value;
 
     if (is_int($field)) {
       // Add number of seconds to timestamp data type.
@@ -438,10 +431,8 @@ class ScheduleTask extends BusinessRulesActionPlugin {
     $schedule->setScheduled($scheduled_date);
     $schedule->setExecuted(0);
     $schedule->setTriggeredBy($action);
-    //    $schedule->setItems();
 
     $schedule->save();
-    // TODO parei aqui. Criando new scheduler.
   }
 
 }
