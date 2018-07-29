@@ -392,13 +392,11 @@ class BusinessRulesUtil {
       return [];
     }
 
-    $fields      = $this->entityFieldManager->getFieldDefinitions($entityType, $bundle);
-    $field_types = $this->fieldTypePluginManager->getDefinitions();
+    $fields = $this->entityFieldManager->getFieldDefinitions($entityType, $bundle);
     foreach ($fields as $field_name => $field_storage) {
-
       $field_type           = $field_storage->getType();
       $options[$field_name] = $this->t('@type: @field', [
-        '@type'  => $field_types[$field_type]['label'],
+        '@type'  => $field_type,
         '@field' => $field_storage->getLabel() . " [$field_name]",
       ]);
 
@@ -1132,6 +1130,52 @@ class BusinessRulesUtil {
         $array[$key] = Xss::filterAdmin($value);
       }
     }
+  }
+
+  /**
+   * Return a the mapping fields for a given entity config schema.
+   *
+   * It's based on *.schema.yml file.
+   *
+   * @param string $schema_name
+   *   The schema name.
+   *
+   * @return array
+   *   Array with schema fields.
+   */
+  public function getFieldsSchema($schema_name) {
+    $schema = \Drupal::service('config.typed')
+      ->getDefinition($schema_name);
+    $result = $this->getMappingsArray($schema);
+
+    return $result;
+  }
+
+  /**
+   * Helper function to return the fields schema.
+   *
+   * @param array $schema
+   *   The schema array.
+   *
+   * @return array
+   *   The items that belongs to array mapping key.
+   */
+  private function getMappingsArray(array $schema) {
+    $result = [];
+
+    foreach ($schema as $key => $value) {
+      if ($key == 'mapping') {
+        foreach ($value as $mk => $mv) {
+          $result[] = $mk;
+          if (isset($value['mapping'])) {
+            $result += $this->getMappingsArray($mv);
+          }
+          // Elseif (is_array($))
+        }
+      }
+    }
+
+    return $result;
   }
 
 }

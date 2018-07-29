@@ -33,12 +33,9 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
  *     "canonical" =
  *   "/admin/config/workflow/business_rules/action/{business_rules_action}",
  *     "add-form" = "/admin/config/workflow/business_rules/action/add",
- *     "edit-form" =
- *   "/admin/config/workflow/business_rules/action/{business_rules_action}/edit",
- *     "delete-form" =
- *   "/admin/config/workflow/business_rules/action/{business_rules_action}/delete",
- *     "collection" =
- *   "/admin/config/workflow/business_rules/action/collection/{view_mode}"
+ *     "edit-form" = "/admin/config/workflow/business_rules/action/{business_rules_action}/edit",
+ *     "delete-form" = "/admin/config/workflow/business_rules/action/{business_rules_action}/delete",
+ *     "collection" = "/admin/config/workflow/business_rules/action/collection/{view_mode}"
  *   }
  * )
  */

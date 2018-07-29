@@ -189,8 +189,10 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
   public function setTags(array $tags) {
     $formatted_tags = [];
     foreach ($tags as $tag) {
-      $this->util->toSafeLowerString($tag);
-      $formatted_tags[$tag] = $tag;
+      if ($tag != '') {
+        $this->util->toSafeLowerString($tag);
+        $formatted_tags[$tag] = $tag;
+      }
     }
     ksort($formatted_tags);
     $this->tags = $formatted_tags;
@@ -300,7 +302,9 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
     foreach ($business_rules as $business_rule) {
       if (count($business_rule->getTags())) {
         foreach ($business_rule->getTags() as $key => $value) {
-          $tags[$key] = $value;
+          if ($key != '' || $value != '') {
+            $tags[$key] = $value;
+          }
         }
       }
     }

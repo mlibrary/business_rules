@@ -85,6 +85,36 @@ business_rules.action_set.items.remove:
     condition_item_type: 'success|fail'
     method: 'nojs|ajax'
 
+# Show table which the available actions for action_set
+business_rules.schedule_task.items.table:
+  path: '/admin/config/workflow/business_rule/action/{action_id}/items/{method}/schedule_task/{item_type}/table'
+  defaults:
+    _controller: '\Drupal\business_rules\Controller\ScheduleTaskController::itemsTable'
+  requirements:
+    _permission: 'administer site configuration'
+    method: 'nojs|ajax'
+    item_type: 'action|condition'
+
+# Add item on action_set Action
+business_rules.schedule_task.items.add:
+  path: '/admin/config/workflow/business_rule/action/{action_id}/items/{item_id}/schedule_task/{item_type}/add'
+  defaults:
+    _controller: '\Drupal\business_rules\Controller\ScheduleTaskController::addItem'
+  requirements:
+    _permission: 'administer site configuration'
+    item_type: 'action|condition'
+
+# Remove item from action_set
+business_rules.schedule_task.items.remove:
+  path: '/admin/config/workflow/business_rule/action/{action_id}/items/{item_id}/schedule_task/remove/{method}'
+  defaults:
+    _controller: '\Drupal\business_rules\Controller\ScheduleTaskController::removeItem'
+  requirements:
+    _permission: 'administer site configuration'
+    item_type: 'action|condition'
+    condition_item_type: 'success|fail'
+    method: 'nojs|ajax'
+
 # Modal for help content.
 business_rules.ajax.modal:
   path: 'admin/config/workflow/business_rules/modal/{title}/{collection}/{key}/{method}'
@@ -217,3 +247,17 @@ business_rules.plugins.action.change_field_info.info_form:
   requirements:
     _permission: 'administer site configuration'
     method: 'nojs|ajax'
+
+entity.business_rules_schedule.canonical:
+  path: '/admin/config/workflow/business_rules/schedule/{business_rules_schedule}'
+  defaults:
+    _controller: '\Drupal\business_rules\Controller\ScheduleController::view'
+  requirements:
+    _permission: 'view schedule entities'
+
+entity.business_rules_schedule.execute:
+  path: '/admin/config/workflow/business_rules/schedule/execute/{business_rules_schedule}'
+  defaults:
+    _controller: '\Drupal\business_rules\Controller\ScheduleController::execute'
+  requirements:
+    _permission: 'execute schedule entities'

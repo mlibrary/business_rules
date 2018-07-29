@@ -33,6 +33,13 @@ class BusinessRulesSettingsForm extends ConfigFormBase {
 
     $config = $this->config('business_rules.settings');
 
+    $form['enable_scheduler'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Enable schedule on cron'),
+      '#description'   => $this->t('Enable execution of scheduled items when cron runs.'),
+      '#default_value' => $config->get('enable_scheduler'),
+    ];
+
     $form['debug_screen'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Show debug information on screen'),
@@ -54,9 +61,14 @@ class BusinessRulesSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $enable_scheduler = $form_state->getValue('enable_scheduler');
+    $debug_screen = $form_state->getValue('debug_screen');
+    $clear_render_cache = $form_state->getValue('clear_render_cache');
+
     $this->config('business_rules.settings')
-      ->set('debug_screen', $form_state->getValue('debug_screen'))
-      ->set('clear_render_cache', $form_state->getValue('clear_render_cache'))
+      ->set('enable_scheduler', $enable_scheduler)
+      ->set('debug_screen', $debug_screen)
+      ->set('clear_render_cache', $clear_render_cache)
       ->save();
 
     parent::submitForm($form, $form_state);

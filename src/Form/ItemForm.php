@@ -209,6 +209,8 @@ abstract class ItemForm extends EntityForm {
 
     }
 
+    $form['#attached']['library'][] = 'business_rules/style';
+
     return $form;
   }
 
@@ -510,10 +512,11 @@ abstract class ItemForm extends EntityForm {
    *   The AjaxResponse.
    */
   public function targetBundleCallback(array &$form, FormStateInterface $form_state) {
-    $selected_bundle      = $form_state->getValue('target_bundle');
-    $selected_entity_type = $form_state->getValue('target_entity_type');
-    $field                = &$form['settings']['field'];
-    $field['#options']    = $this->util->getBundleFields($selected_entity_type, $selected_bundle);
+    $selected_bundle         = $form_state->getValue('target_bundle');
+    $selected_entity_type    = $form_state->getValue('target_entity_type');
+    $field                   = &$form['settings']['field'];
+    $field['#options']       = $this->util->getBundleFields($selected_entity_type, $selected_bundle);
+    $field['#default_value'] = '';
 
     $response = new AjaxResponse();
     $response->addCommand(new ReplaceCommand('#field_selector-wrapper', $field));
@@ -536,15 +539,23 @@ abstract class ItemForm extends EntityForm {
    */
   public function targetEntityTypeCallback(array &$form, FormStateInterface $form_state) {
 
-    $selected_entity_type      = $form_state->getValue('target_entity_type');
-    $target_bundle             = &$form['settings']['context']['target_bundle'];
-    $target_bundle['#options'] = $this->util->getBundles($selected_entity_type);
-    $target_bundle['#ajax']    = [
+    $selected_entity_type            = $form_state->getValue('target_entity_type');
+    $target_bundle                   = &$form['settings']['context']['target_bundle'];
+    $target_bundle['#options']       = $this->util->getBundles($selected_entity_type);
+    $target_bundle['#default_value'] = '';
+    $target_bundle['#ajax']          = [
       'callback' => [$this, 'targetBundleCallback'],
     ];
 
+    $field                   = &$form['settings']['field'];
+    $field['#options']       = [
+      '' => t('-Select-'),
+    ];
+    $field['#default_value'] = '';
+
     $response = new AjaxResponse();
     $response->addCommand(new ReplaceCommand('#target_bundle-wrapper', $target_bundle));
+    $response->addCommand(new ReplaceCommand('#field_selector-wrapper', $field));
     $form_state->setRebuild();
 
     return $response;

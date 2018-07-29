@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  *   id = "change_field_info",
  *   label = @Translation("Change entity form field"),
  *   group = @Translation("Entity"),
- *   description = @Translation("Change a form field: Make required/optional/ready only/hidden/dependent/change field options values."),
+ *   description = @Translation("Change a form field: Make required/optional/read-only/hidden/dependent/change field options values."),
  *   reactsOnIds = {"form_field_alter"},
  *   isContextDependent = TRUE,
  *   hasTargetEntity = TRUE,

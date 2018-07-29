@@ -292,7 +292,9 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
     foreach ($business_rules as $business_rule) {
       if (count($business_rule->getTags())) {
         foreach ($business_rule->getTags() as $key => $value) {
-          $tags[$key] = $value;
+          if ($key != '' || $value != '') {
+            $tags[$key] = $value;
+          }
         }
       }
     }
@@ -314,8 +316,10 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
   public function setTags(array $tags) {
     $formatted_tags = [];
     foreach ($tags as $tag) {
-      $this->util->toSafeLowerString($tag);
-      $formatted_tags[$tag] = $tag;
+      if ($tag != '') {
+        $this->util->toSafeLowerString($tag);
+        $formatted_tags[$tag] = $tag;
+      }
     }
     ksort($formatted_tags);
     $this->tags = $formatted_tags;
