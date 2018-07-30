@@ -191,7 +191,7 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
 
     foreach ($settings as $key => $setting) {
       if (is_string($setting)) {
-        $settings[$key] = $this->util->token->replace($setting, $context);
+        $settings[$key] = $this->util->token->replace($setting, $context, ['clear' => TRUE]);
       }
       elseif (is_array($setting)) {
         $this->processTokenArraySetting($settings[$key], $context);
@@ -215,7 +215,7 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
     if (count($setting)) {
       foreach ($setting as $key => $value) {
         if (is_string($value)) {
-          $setting[$key] = $this->util->token->replace($value, $context);
+          $setting[$key] = $this->util->token->replace($value, $context, ['clear' => TRUE]);
         }
         elseif (is_array($value)) {
           $this->processTokenArraySetting($setting[$key], $context);
