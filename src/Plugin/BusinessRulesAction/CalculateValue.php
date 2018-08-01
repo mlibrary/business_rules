@@ -158,7 +158,7 @@ class CalculateValue extends BusinessRulesActionPlugin {
       }
     }
     else {
-      $formula_result = NULL;
+      $formula_result = $formula;
       $success        = FALSE;
     }
 
