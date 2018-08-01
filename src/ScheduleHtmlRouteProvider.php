@@ -46,6 +46,34 @@ class ScheduleHtmlRouteProvider extends AdminHtmlRouteProvider {
   }
 
   /**
+   * Gets the collection route.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   *   The entity type.
+   *
+   * @return \Symfony\Component\Routing\Route|null
+   *   The generated route, if available.
+   */
+  protected function getCollectionRoute(EntityTypeInterface $entity_type) {
+    if ($entity_type->hasLinkTemplate('collection') && $entity_type->hasListBuilderClass()) {
+      $entity_type_id = $entity_type->id();
+      $route          = new Route($entity_type->getLinkTemplate('collection'));
+      $route
+        ->setDefaults([
+          '_entity_list' => $entity_type_id,
+          // Make sure this is not a TranslatableMarkup object as the
+          // TitleResolver translates this string again.
+          '_title'       => (string) $entity_type->getLabel(),
+          'view_mode'    => 'list',
+        ])
+        ->setRequirement('_permission', $entity_type->getAdminPermission())
+        ->setOption('_admin_route', TRUE);
+
+      return $route;
+    }
+  }
+
+  /**
    * Gets the version history route.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
