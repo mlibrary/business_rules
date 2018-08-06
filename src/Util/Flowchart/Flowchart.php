@@ -301,7 +301,7 @@ class Flowchart {
     $meta_data = self::getMetaData($item);
     $x         = $root['x'];
     $y         = $root['y'];
-    $label     = $item->label();
+    $label     = str_replace('""', '', $item->label());
     $output    = [];
     $output[]  = '<UserObject label="' . $label . '" link="' . $meta_data['link'] . '" id="' . $root['element']->getUuid() . '">';
     $output[]  = '<mxCell style="' . $meta_data['style'] . '" parent="1" vertex="1">';
@@ -339,7 +339,7 @@ class Flowchart {
   private function getConnection(array $cell) {
     $child_id  = $cell['element']->getUuid();
     $parent_id = $cell['element']->getOriginUuid();
-    $label     = $cell['element']->getArrowLabel();
+    $label     = str_replace('"', '', $cell['element']->getArrowLabel());
 
     $connection = '<mxCell id="arrow-' . $child_id . '" value="' . $label . '" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#000000;fontSize=13;fontColor=#000000;fontStyle=1;labelBackgroundColor=#FFFFFF;" parent="1" source="' . $parent_id . '" target="' . $child_id . '" edge="1"><mxGeometry as="geometry"/></mxCell>';
 
@@ -363,7 +363,7 @@ class Flowchart {
     $meta_data = self::getMetaData($item);
 
     $graph   = [];
-    $graph[] = '<UserObject id="' . $element->getUuid() . '" label="' . $item->label() . '" link="' . $meta_data['link'] . '">';
+    $graph[] = '<UserObject id="' . $element->getUuid() . '" label="' . str_replace('"', '', $item->label()) . '" link="' . $meta_data['link'] . '">';
     $graph[] = '<mxCell style="' . $meta_data['style'] . '" parent="1" vertex="1">';
     $graph[] = '<mxGeometry x="' . $x . '" y="' . $y . '" width="120" height="60" as="geometry"/>';
     $graph[] = '</mxCell>';
