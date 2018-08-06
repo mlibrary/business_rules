@@ -146,7 +146,8 @@ class BusinessRulesProcessor {
   public function process(BusinessRulesEvent $event) {
 
     // Check if it's running in safe mode.
-    if ($this->util->request->get('brmode') == 'safe') {
+    if (($this->config->get('enable_safemode') == TRUE && $this->util->request->get('brmode') == 'safe')
+      || (is_null($this->config->get('enable_safemode')) && $this->util->request->get('brmode') == 'safe')) {
       return;
     }
 
@@ -402,7 +403,7 @@ class BusinessRulesProcessor {
         foreach ($evaluates_variables[$rule->id()] as $evaluates_variable) {
           $variable = Variable::load($evaluates_variable->getId());
           if ($variable instanceof Variable) {
-            $variable_link = Link::createFromRoute($variable->id(), 'entity.business_rules_variable.edit_form', ['business_rules_variable' => $variable->id()]);
+            $variable_link  = Link::createFromRoute($variable->id(), 'entity.business_rules_variable.edit_form', ['business_rules_variable' => $variable->id()]);
             $variable_value = empty($evaluates_variable->getValue()) ? 'NULL' : $evaluates_variable->getValue();
 
             if (!is_string($variable_value) && !is_numeric($variable_value)) {
@@ -460,6 +461,8 @@ class BusinessRulesProcessor {
    *
    * @return array
    *   Render array to display action result on debug block.
+   *
+   * @throws \ReflectionException
    */
   public function executeAction(Action $action, BusinessRulesEvent $event) {
 
@@ -488,6 +491,8 @@ class BusinessRulesProcessor {
    *
    * @return bool
    *   True if the condition is valid or False if not.
+   *
+   * @throws \ReflectionException
    */
   public function isConditionValid(Condition $condition, BusinessRulesEvent $event) {
 
@@ -624,6 +629,8 @@ class BusinessRulesProcessor {
    *   The variable set.
    * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
    *   The event.
+   *
+   * @throws \Exception
    */
   public function evaluateVariables(VariablesSet $variablesSet, BusinessRulesEvent $event) {
     // Dispatch a event before evaluate variables.

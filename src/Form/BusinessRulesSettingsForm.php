@@ -40,6 +40,13 @@ class BusinessRulesSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('enable_scheduler'),
     ];
 
+    $form['enable_safemode'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Enable safe mode'),
+      '#description'   => $this->t('Enable Business Rules safe mode, include query string: <code>brmode=safe</code>.'),
+      '#default_value' => $config->get('enable_safemode'),
+    ];
+
     $form['debug_screen'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Show debug information on screen'),
@@ -64,11 +71,13 @@ class BusinessRulesSettingsForm extends ConfigFormBase {
     $enable_scheduler = $form_state->getValue('enable_scheduler');
     $debug_screen = $form_state->getValue('debug_screen');
     $clear_render_cache = $form_state->getValue('clear_render_cache');
+    $enable_safemode = $form_state->getValue('enable_safemode');
 
     $this->config('business_rules.settings')
       ->set('enable_scheduler', $enable_scheduler)
       ->set('debug_screen', $debug_screen)
       ->set('clear_render_cache', $clear_render_cache)
+      ->set('enable_safemode', $enable_safemode)
       ->save();
 
     parent::submitForm($form, $form_state);
