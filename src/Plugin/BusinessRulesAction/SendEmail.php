@@ -131,45 +131,6 @@ class SendEmail extends BusinessRulesActionPlugin {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-
-    /** @var \Drupal\business_rules\ItemInterface $item */
-    $item = $form_state->get('business_rules_item');
-
-    // We only can validate the form if the item is not new.
-    if (!empty($item) && !$item->isNew()) {
-      // Validate the 'From' field.
-      if ($form_state->getValue('use_site_mail_as_sender') === '0') {
-        // Check if it's a valid email.
-        if (!\Drupal::service('email.validator')
-          ->isValid($form_state->getValue('from')) ||
-          // Check if it's not a variable.
-          count($this->pregMatch($form_state->getValue('from'))) < 1
-        ) {
-          $form_state->setErrorByName('from', t('Please, use valid email address or variables on email address.'));
-        }
-      }
-
-      // Validate the 'To' field.
-      $to     = $form_state->getValue('to');
-      $arr_to = explode(';', $to);
-      if (count($arr_to)) {
-        foreach ($arr_to as $to_value) {
-          // Check if it's a valid email.
-          if (!\Drupal::service('email.validator')->isValid($to_value) &&
-            // Check if it's a variable.
-            count($this->pregMatch($to_value)) < 1
-          ) {
-            $form_state->setErrorByName('to', t('Please, use valid email address or variables on email address.'));
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function execute(ActionInterface $action, BusinessRulesEvent $event) {
 
     $event_variables = $event->getArgument('variables');
