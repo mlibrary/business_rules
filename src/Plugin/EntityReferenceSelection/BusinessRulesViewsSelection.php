@@ -2,7 +2,9 @@
 
 namespace Drupal\business_rules\Plugin\EntityReferenceSelection;
 
+use Drupal\business_rules\Ajax\UpdateOptionsCommand;
 use Drupal\business_rules\Util\BusinessRulesUtil;
+use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionInterface;
@@ -87,8 +89,8 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
 
     $this->entityManager = $entity_manager;
     $this->moduleHandler = $module_handler;
-    $this->currentUser   = $current_user;
-    $this->util          = $util;
+    $this->currentUser = $current_user;
+    $this->util = $util;
   }
 
   /**
@@ -133,9 +135,9 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     }
 
     $value = [
-      'view_name'    => $view,
+      'view_name' => $view,
       'display_name' => $display,
-      'arguments'    => $arguments,
+      'arguments' => $arguments,
       'parent_field' => $element['parent_field']['#value'],
     ];
     $form_state->setValueForElement($element, $value);
@@ -154,51 +156,100 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
    */
   public static function updateDependentField(array $form, FormStateInterface $form_state) {
 
-    $entity             = $form_state->getFormObject()->getEntity();
-    $trigger_field      = $form_state->getTriggeringElement();
-    $trigger_field_name = $trigger_field['#field_name'];
+    $entity = $form_state->getFormObject()->getEntity();
+    $trigger_field = $form_state->getTriggeringElement();
+    //    $trigger_field_name = $trigger_field['#field_name'];
 
-    $fields_definitions = $entity->getFieldDefinitions();
-    $child_field        = NULL;
-    foreach ($fields_definitions as $field_name => $field_definition) {
-      $handler = $field_definition->getSetting('handler');
-      if ($handler == 'business_rules_views') {
-        $handle_settings = $field_definition->getSetting('handler_settings');
-        $parent_field    = $handle_settings['business_rules_view']['parent_field'];
+    //    $fields_definitions = $entity->getFieldDefinitions();
+    //    $child_field        = NULL;
+    //    foreach ($fields_definitions as $field_name => $field_definition) {
+    //      $handler = $field_definition->getSetting('handler');
+    //      if ($handler == 'business_rules_views') {
+    //        $handle_settings = $field_definition->getSetting('handler_settings');
+    //        $parent_field    = $handle_settings['business_rules_view']['parent_field'];
+    //
+    //        if ($trigger_field_name == $parent_field) {
+    //          $child_field = $field_name;
+    //          break;
+    //        }
+    //      }
+    //    }
 
-        if ($trigger_field_name == $parent_field) {
-          $child_field = $field_name;
-          break;
+    //    $parent_field_value = $trigger_field['#value'];
+    //    $arguments          = $handle_settings['business_rules_view']['arguments'];
+    //    $args               = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
+    //    $view_id            = $handle_settings['business_rules_view']['view_name'];
+    //    $display_id         = $handle_settings['business_rules_view']['display_name'];
+    //
+    //    // Get values from the view.
+    //    $view = Views::getView($view_id);
+    //    $view->setArguments($args);
+    //    $view->setDisplay($display_id);
+    //    $view->preExecute();
+    //    $view->build();
+    //
+    //    $options['_none'] = t('-Select-');
+    //    if ($view->execute()) {
+    //      $renderer     = \Drupal::service('renderer');
+    //      $render_array = $view->style_plugin->render();
+    //      foreach ($render_array as $key => $value) {
+    //        $rendered_value = (string) $renderer->render($value);
+    //        $options[$key] = strip_tags($rendered_value);
+    //      }
+    //    }
+
+    // Update children.
+    $children = $trigger_field['#ajax']['br_children'];
+    $response = new AjaxResponse();
+    foreach ($children as $child) {
+      $field_definition = $entity->getFieldDefinitions();
+      if ($field_definition[$child]->getSetting('handler') == 'business_rules_views') {
+        $handle_settings = $field_definition[$child]->getSetting('handler_settings');
+
+        $parent_field_value = $trigger_field['#value'];
+        $arguments = $handle_settings['business_rules_view']['arguments'];
+        $args = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
+        $view_id = $handle_settings['business_rules_view']['view_name'];
+        $display_id = $handle_settings['business_rules_view']['display_name'];
+
+        // Get values from the view.
+        $view = Views::getView($view_id);
+        $view->setArguments($args);
+        $view->setDisplay($display_id);
+        $view->preExecute();
+        $view->build();
+
+        $options = [];
+        $options[] = [
+          'key' => '_none',
+          'value' => t('-Select-'),
+        ];
+
+        if ($view->execute()) {
+          $renderer = \Drupal::service('renderer');
+          $render_array = $view->style_plugin->render();
+          foreach ($render_array as $key => $value) {
+            $rendered_value = (string) $renderer->render($value);
+            $options[] = [
+              'key' => $key,
+              'value' => strip_tags($rendered_value),
+            ];
+          }
         }
+
+        $form_field = $form[$child];
+        $form_field['widget']['#options'] = $options;
+        $html_field_id = explode('-wrapper-', $form_field['#id'])[0];
+        $response->addCommand(new UpdateOptionsCommand($html_field_id, $options));
+
       }
     }
 
-    $parent_field_value = $trigger_field['#value'];
-    $arguments          = $handle_settings['business_rules_view']['arguments'];
-    $args               = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
-    $view_id            = $handle_settings['business_rules_view']['view_name'];
-    $display_id         = $handle_settings['business_rules_view']['display_name'];
+    return $response;
 
-    // Get values from the view.
-    $view = Views::getView($view_id);
-    $view->setArguments($args);
-    $view->setDisplay($display_id);
-    $view->preExecute();
-    $view->build();
+    //    $form[$child_field]['widget']['#options'] = $options;
 
-    $options['_none'] = t('-Select-');
-    if ($view->execute()) {
-      $renderer     = \Drupal::service('renderer');
-      $render_array = $view->style_plugin->render();
-      foreach ($render_array as $key => $value) {
-        $rendered_value = (string) $renderer->render($value);
-        $options[$key] = strip_tags($rendered_value);
-      }
-    }
-
-    $form[$child_field]['widget']['#options'] = $options;
-
-    return $form[$child_field]['widget'];
+    //    return $form[$child_field]['widget'];
   }
 
   /**
@@ -211,7 +262,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     $handler_settings = isset($this->configuration['handler_settings']) ? $this->configuration['handler_settings'] : $this->configuration;
 
     $view_settings = !empty($handler_settings['business_rules_view']) ? $handler_settings['business_rules_view'] : [];
-    $displays      = Views::getApplicableViews('entity_reference_display');
+    $displays = Views::getApplicableViews('entity_reference_display');
     // Filter views that list the entity type we want, and group the separate
     // displays by view.
     $entity_type = $this->entityManager->getDefinition($this->configuration['target_type']);
@@ -225,7 +276,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
         $entity_type->getBaseTable(),
         $entity_type->getDataTable(),
       ])) {
-        $display                               = $view->get('display');
+        $display = $view->get('display');
         $options[$view_id . ':' . $display_id] = $view_id . ' - ' . $display[$display_id]['display_title'];
       }
     }
@@ -248,19 +299,19 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
       $default = !empty($view_settings['view_name']) ? $view_settings['view_name'] . ':' . $view_settings['display_name'] : NULL;
 
       $form['business_rules_view']['view_and_display'] = [
-        '#type'          => 'select',
-        '#title'         => $this->t('View used to select the entities'),
-        '#required'      => TRUE,
-        '#options'       => $options,
+        '#type' => 'select',
+        '#title' => $this->t('View used to select the entities'),
+        '#required' => TRUE,
+        '#options' => $options,
         '#default_value' => $default,
-        '#description'   => '<p>' . $this->t('Choose the view and display that select the entities that can be referenced.<br />Only views with a display of type "Entity Reference" are eligible.') . '</p>',
+        '#description' => '<p>' . $this->t('Choose the view and display that select the entities that can be referenced.<br />Only views with a display of type "Entity Reference" are eligible.') . '</p>',
       ];
 
       /** @var \Drupal\field\Entity\FieldConfig $field_config */
       $field_config = $this->util->request->get('field_config');
-      $entity_type  = $field_config->getTargetEntityTypeId();
-      $bundle       = $field_config->getTargetBundle();
-      $fields       = $this->util->getBundleEditableFields($entity_type, $bundle);
+      $entity_type = $field_config->getTargetEntityTypeId();
+      $bundle = $field_config->getTargetBundle();
+      $fields = $this->util->getBundleEditableFields($entity_type, $bundle);
 
       $fields_options = [];
       if (count($fields)) {
@@ -272,23 +323,23 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
         }
       }
 
-      $default                                     = !empty($view_settings['parent_field']) ? $view_settings['parent_field'] : NULL;
+      $default = !empty($view_settings['parent_field']) ? $view_settings['parent_field'] : NULL;
       $form['business_rules_view']['parent_field'] = [
-        '#type'          => 'select',
-        '#title'         => t('Parent field'),
-        '#options'       => $fields_options,
-        '#required'      => TRUE,
-        '#description'   => t('The field which this field depends. When the parent field value is changed, the available options for this field will be updated using the parent field value as the first argument followed by any particular other argument imputed in the "Views arguments".'),
+        '#type' => 'select',
+        '#title' => t('Parent field'),
+        '#options' => $fields_options,
+        '#required' => TRUE,
+        '#description' => t('The field which this field depends. When the parent field value is changed, the available options for this field will be updated using the parent field value as the first argument followed by any particular other argument imputed in the "Views arguments".'),
         '#default_value' => $default,
       ];
 
-      $default                                  = !empty($view_settings['arguments']) ? implode(', ', $view_settings['arguments']) : '';
+      $default = !empty($view_settings['arguments']) ? implode(', ', $view_settings['arguments']) : '';
       $form['business_rules_view']['arguments'] = [
-        '#type'          => 'textfield',
-        '#title'         => $this->t('View arguments'),
+        '#type' => 'textfield',
+        '#title' => $this->t('View arguments'),
         '#default_value' => $default,
-        '#required'      => FALSE,
-        '#description'   => $this->t('Provide a comma separated list of arguments to pass to the view.'),
+        '#required' => FALSE,
+        '#description' => $this->t('Provide a comma separated list of arguments to pass to the view.'),
       ];
     }
     else {
@@ -296,7 +347,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
         $form['business_rules_view']['no_view_help'] = [
           '#markup' => '<p>' . $this->t('No eligible views were found. <a href=":create">Create a view</a> with an <em>Entity Reference</em> display, or add such a display to an <a href=":existing">existing view</a>.',
               [
-                ':create'   => Url::fromRoute('views_ui.add')->toString(),
+                ':create' => Url::fromRoute('views_ui.add')->toString(),
                 ':existing' => Url::fromRoute('entity.view.collection')
                   ->toString(),
               ]) . '</p>',
@@ -313,12 +364,12 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
   /**
    * {@inheritdoc}
    */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {}
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) { }
 
   /**
    * {@inheritdoc}
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {}
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) { }
 
   /**
    * Initializes a view.
@@ -342,8 +393,8 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     // kept for back compatibility.
     // @see https://www.drupal.org/node/2870971
     $handler_settings = isset($this->configuration['handler_settings']) ? $this->configuration['handler_settings'] : $this->configuration;
-    $view_name        = $handler_settings['business_rules_view']['view_name'];
-    $display_name     = $handler_settings['business_rules_view']['display_name'];
+    $view_name = $handler_settings['business_rules_view']['view_name'];
+    $display_name = $handler_settings['business_rules_view']['display_name'];
 
     // Check that the view is valid and the display still exists.
     $this->view = Views::getView($view_name);
@@ -356,10 +407,10 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
 
     // Pass options to the display handler to make them available later.
     $entity_reference_options = [
-      'match'          => $match,
+      'match' => $match,
       'match_operator' => $match_operator,
-      'limit'          => $limit,
-      'ids'            => $ids,
+      'limit' => $limit,
+      'ids' => $ids,
     ];
     $this->view->displayHandlers->get($display_name)
       ->setOption('entity_reference_options', $entity_reference_options);
@@ -377,15 +428,15 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     $handler_settings = isset($this->configuration['handler_settings']) ? $this->configuration['handler_settings'] : $this->configuration;
 
     $display_name = $handler_settings['business_rules_view']['display_name'];
-    $arguments    = $handler_settings['business_rules_view']['arguments'];
+    $arguments = $handler_settings['business_rules_view']['arguments'];
     $parent_field = $handler_settings['business_rules_view']['parent_field'];
 
     /** @var \Drupal\Core\Entity\Entity $entity */
-    $entity             = $this->configuration['entity'];
+    $entity = $this->configuration['entity'];
     $parent_field_value = $parent_field_value = $this->util->request->get($parent_field) ? $parent_field_value = $this->util->request->get($parent_field) : $entity->get($parent_field)
       ->getString();
-    $arguments          = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
-    $result             = [];
+    $arguments = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
+    $result = [];
     if ($this->initializeView($match, $match_operator, $limit)) {
       // Get the results.
       $result = $this->view->executeDisplay($display_name, $arguments);
@@ -394,7 +445,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     $return = [];
     if ($result) {
       foreach ($this->view->result as $row) {
-        $entity                                   = $row->_entity;
+        $entity = $row->_entity;
         $return[$entity->bundle()][$entity->id()] = $entity->label();
       }
     }
@@ -418,18 +469,18 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     // The ['handler_settings'] was removed on Drupal 8.4. the code bellow is
     // kept for back compatibility.
     // @see https://www.drupal.org/node/2870971
-    $handler_settings   = isset($this->configuration['handler_settings']) ? $this->configuration['handler_settings'] : $this->configuration;
-    $display_name       = $handler_settings['business_rules_view']['display_name'];
-    $arguments          = $handler_settings['business_rules_view']['arguments'];
-    $parent_field       = $handler_settings['business_rules_view']['parent_field'];
+    $handler_settings = isset($this->configuration['handler_settings']) ? $this->configuration['handler_settings'] : $this->configuration;
+    $display_name = $handler_settings['business_rules_view']['display_name'];
+    $arguments = $handler_settings['business_rules_view']['arguments'];
+    $parent_field = $handler_settings['business_rules_view']['parent_field'];
     $parent_field_value = $this->util->request->get($parent_field);
-    $arguments          = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
-    $result             = [];
-    $ids                = $this->getValidIds($parent_field_value);
+    $arguments = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
+    $result = [];
+    $ids = $this->getValidIds($parent_field_value);
     if ($this->initializeView(NULL, 'CONTAINS', 0, $ids)) {
       // Get the results.
       $entities = $this->view->executeDisplay($display_name, $arguments);
-      $result   = is_array($entities) ? array_keys($entities) : [];
+      $result = is_array($entities) ? array_keys($entities) : [];
     }
 
     return $result;
@@ -449,10 +500,10 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     // kept for back compatibility.
     // @see https://www.drupal.org/node/2870971
     $handler_settings = isset($this->configuration['handler_settings']) ? $this->configuration['handler_settings'] : $this->configuration;
-    $display_name     = $handler_settings['business_rules_view']['display_name'];
-    $arguments        = $handler_settings['business_rules_view']['arguments'];
-    $arguments        = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
-    $result           = [];
+    $display_name = $handler_settings['business_rules_view']['display_name'];
+    $arguments = $handler_settings['business_rules_view']['arguments'];
+    $arguments = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
+    $result = [];
     if ($this->initializeView(NULL, 'CONTAINS', 0)) {
       // Get the results.
       $result = $this->view->executeDisplay($display_name, $arguments);
@@ -460,7 +511,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     $return = [];
     if ($result) {
       foreach ($this->view->result as $row) {
-        $entity   = $row->_entity;
+        $entity = $row->_entity;
         $return[] = $entity->id();
       }
     }
@@ -471,6 +522,6 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
   /**
    * {@inheritdoc}
    */
-  public function entityQueryAlter(SelectInterface $query) {}
+  public function entityQueryAlter(SelectInterface $query) { }
 
 }

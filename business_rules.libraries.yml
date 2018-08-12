@@ -17,3 +17,9 @@ mxClient:
     js/update-flowchart-command.js: {}
   dependencies:
     - core/drupal.ajax
+
+dependentField:
+  js:
+    js/update-options-command.js: {}
+  dependencies:
+    - core/drupal.ajax
