@@ -15,7 +15,15 @@ class UpdateOptionsCommand implements CommandInterface {
 
   protected $options;
 
-  public function __construct($elementId, $options) {
+  /**
+   * UpdateOptionsCommand constructor.
+   *
+   * @param string $elementId
+   *   The element html id.
+   * @param array $options
+   *   The element options [key, value].
+   */
+  public function __construct($elementId, array $options) {
     $this->elementId = $elementId;
     $this->options = $options;
   }
