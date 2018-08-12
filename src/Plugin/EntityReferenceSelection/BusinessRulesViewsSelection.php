@@ -158,45 +158,6 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
 
     $entity = $form_state->getFormObject()->getEntity();
     $trigger_field = $form_state->getTriggeringElement();
-    //    $trigger_field_name = $trigger_field['#field_name'];
-
-    //    $fields_definitions = $entity->getFieldDefinitions();
-    //    $child_field        = NULL;
-    //    foreach ($fields_definitions as $field_name => $field_definition) {
-    //      $handler = $field_definition->getSetting('handler');
-    //      if ($handler == 'business_rules_views') {
-    //        $handle_settings = $field_definition->getSetting('handler_settings');
-    //        $parent_field    = $handle_settings['business_rules_view']['parent_field'];
-    //
-    //        if ($trigger_field_name == $parent_field) {
-    //          $child_field = $field_name;
-    //          break;
-    //        }
-    //      }
-    //    }
-
-    //    $parent_field_value = $trigger_field['#value'];
-    //    $arguments          = $handle_settings['business_rules_view']['arguments'];
-    //    $args               = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
-    //    $view_id            = $handle_settings['business_rules_view']['view_name'];
-    //    $display_id         = $handle_settings['business_rules_view']['display_name'];
-    //
-    //    // Get values from the view.
-    //    $view = Views::getView($view_id);
-    //    $view->setArguments($args);
-    //    $view->setDisplay($display_id);
-    //    $view->preExecute();
-    //    $view->build();
-    //
-    //    $options['_none'] = t('-Select-');
-    //    if ($view->execute()) {
-    //      $renderer     = \Drupal::service('renderer');
-    //      $render_array = $view->style_plugin->render();
-    //      foreach ($render_array as $key => $value) {
-    //        $rendered_value = (string) $renderer->render($value);
-    //        $options[$key] = strip_tags($rendered_value);
-    //      }
-    //    }
 
     // Update children.
     $children = $trigger_field['#ajax']['br_children'];
@@ -246,10 +207,6 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     }
 
     return $response;
-
-    //    $form[$child_field]['widget']['#options'] = $options;
-
-    //    return $form[$child_field]['widget'];
   }
 
   /**
