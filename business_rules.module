@@ -20,6 +20,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\quickedit\Form\QuickEditFieldForm;
 use Drupal\user\Entity\User;
+use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget;
 
 /**
  * Implements hook_help().
@@ -236,7 +237,7 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
         $children = isset($element['#ajax']['br_children']) ? $element['#ajax']['br_children'] : [];
         $children += $child_fields;
 
-        $element['#ajax'] = [
+        $ajax_definition = [
           'callback' => '\Drupal\business_rules\Plugin\EntityReferenceSelection\BusinessRulesViewsSelection::updateDependentField',
           'event' => 'change',
           'progress' => [
@@ -244,6 +245,14 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
           ],
           'br_children' => $children,
         ];
+
+        if (!empty($context['widget']) && $context['widget'] instanceof EntityReferenceAutocompleteWidget && !empty($element['target_id'])) {
+          $ajax_definition['event'] = 'autocompleteclose';
+          $element['target_id']['#ajax'] = $ajax_definition;
+        }
+        else {
+          $element['#ajax'] = $ajax_definition;
+        }
 
       }
 
