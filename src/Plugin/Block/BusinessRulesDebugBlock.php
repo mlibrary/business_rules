@@ -76,7 +76,7 @@ class BusinessRulesDebugBlock extends BlockBase implements ContainerFactoryPlugi
       $debug      = $this->keyvalue->get($session_id);
       $this->keyvalue->set($session_id, NULL);
 
-      if (count($debug)) {
+      if ($debug && count($debug)) {
         $output['#attached']['library'][] = 'business_rules/style';
         $output['#attached']['library'][] = 'dbug/dbug';
 
