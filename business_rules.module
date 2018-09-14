@@ -7,20 +7,19 @@
 
 use Drupal\business_rules\Entity\Schedule;
 use Drupal\business_rules\Events\BusinessRulesEvent;
-use Drupal\Component\Serialization\Json;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\quickedit\Form\QuickEditFieldForm;
 use Drupal\user\Entity\User;
-use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget;
 
 /**
  * Implements hook_help().
@@ -375,8 +374,11 @@ function business_rules_user_logout($account) {
     ->get('plugin.manager.business_rules.reacts_on')
     ->getDefinition('user_logout');
 
-  $account = $account->getAccount();
-  $entity  = User::load($account->id());
+  if (method_exists($account, "getAccount")) {
+    $account = $account->getAccount();
+  }
+
+  $entity = User::load($account->id());
 
   $entity_type_id = $entity->getEntityTypeId();
   $event          = new BusinessRulesEvent($entity, [
