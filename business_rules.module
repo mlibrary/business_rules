@@ -374,7 +374,7 @@ function business_rules_user_logout($account) {
     ->get('plugin.manager.business_rules.reacts_on')
     ->getDefinition('user_logout');
 
-  if (method_exists($account, "getAccount")) {
+  if (method_exists($account, 'getAccount')) {
     $account = $account->getAccount();
   }
 
