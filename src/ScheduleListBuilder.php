@@ -37,6 +37,9 @@ class ScheduleListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
+    if (!$entity->id() || !$entity->getTriggeredBy()) {
+      return [];
+    }
     /* @var $entity \Drupal\business_rules\Entity\Schedule */
     $row['id']             = $entity->id();
     $row['triggered_by']   = Link::createFromRoute($entity->getTriggeredBy()

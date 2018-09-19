@@ -45,7 +45,7 @@ class AddNodeToGroupAction extends BusinessRulesActionPlugin {
       '#type' => 'textfield',
       '#title' => t('Group Id'),
       '#required' => TRUE,
-      '#description' => t('The group id to remove the user. You may use variable or token to fill this information'),
+      '#description' => t('The group id to add the node. You may use variable or token to fill this information'),
       '#default_value' => $item->getSettings('group_id'),
     ];
 
