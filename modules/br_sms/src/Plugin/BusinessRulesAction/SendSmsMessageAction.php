@@ -81,12 +81,14 @@ class SendSmsMessageAction extends BusinessRulesActionPlugin {
       '#description' => t('Send or receive the message immediately. If the gateway-specific skip queue setting is turned on, then this option is already applied.'),
       '#default_value' => $item->getSettings('skip_queue') ?: FALSE,
     ];
+
     $settings['options']['automated'] = [
       '#type' => 'checkbox',
       '#title' => t('Automated'),
       '#description' => t('Flag this message as automated.'),
       '#default_value' => $item->getSettings('automated') != NULL ? $item->getSettings('automated') : TRUE,
     ];
+
     $settings['options']['send_on'] = [
       '#type' => 'textfield',
       '#title' => t('Send on'),
