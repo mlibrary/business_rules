@@ -116,7 +116,7 @@ class EntityEmptyVariable extends BusinessRulesVariablePlugin {
       // Get entity bundle key.
       $manager      = \Drupal::entityTypeManager();
       $entity_type1 = $manager->getDefinition($entity_type);
-      $entity_key   = $entity_type1->getBundleEntityType();
+      $entity_key = $entity_type1->get('entity_keys')['bundle'];
     }
 
     $entity = \Drupal::entityTypeManager()
