@@ -253,21 +253,21 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
           return $new_entity;
         }
         else {
-          drupal_set_message(t("Action: %action fail. It's not possible to fetch entity %entity, bundle %bundle, with id=%id", [
-            '%action' => $action->label() . ' [' . $action->id() . ']',
-            '%entity' => $entity_type,
-            '%bundle' => $bundle,
-            '%id'     => $id,
-          ]), 'error');
+          // drupal_set_message(t("Action: %action fail. It's not possible to fetch entity %entity, bundle %bundle, with id=%id", [
+          //   '%action' => $action->label() . ' [' . $action->id() . ']',
+          //   '%entity' => $entity_type,
+          //   '%bundle' => $bundle,
+          //   '%id'     => $id,
+          // ]), 'error');
 
           return $original_variable_value;
         }
       }
       else {
-        drupal_set_message(t("Action: %action fail. Variable: %variable could not be loaded.", [
-          '%action'   => $action->label() . ' [' . $action->id() . ']',
-          '%variable' => $variable->getId(),
-        ]), 'error');
+        // drupal_set_message(t("Action: %action fail. Variable: %variable could not be loaded.", [
+        //   '%action'   => $action->label() . ' [' . $action->id() . ']',
+        //   '%variable' => $variable->getId(),
+        // ]), 'error');
 
         return $original_variable_value;
       }
