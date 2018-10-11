@@ -122,7 +122,7 @@ class DataComparison extends BusinessRulesConditionPlugin {
       $entity = $event->getArgument('entity');
     }
     elseif ($data_to_compare == self::ORIGINAL_DATA) {
-      $entity = $event->getArgument('entity_original');
+      $entity = $event->getArgument('entity_unchanged');
     }
     $values = $entity->get($field)->getValue();
 
