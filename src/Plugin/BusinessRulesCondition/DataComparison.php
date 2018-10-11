@@ -100,7 +100,7 @@ class DataComparison extends BusinessRulesConditionPlugin {
       if (!in_array($operator, $textarea_fields) && stristr($value_to_compare, chr(10))) {
         $form_state->setErrorByName('value_to_compare', t('This operator only allows one value in one line. Please remove the additional lines.'));
       }
-      elseif ($operator != 'empty') {
+      elseif ($operator != 'empty' && trim($value_to_compare) == '') {
         $form_state->setErrorByName('value_to_compare', t('This operator require one value to be compared with.'));
       }
     }
