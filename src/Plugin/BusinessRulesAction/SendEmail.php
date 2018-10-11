@@ -148,6 +148,13 @@ class SendEmail extends BusinessRulesActionPlugin {
     }
 
     foreach ($arr_to as $to) {
+      // Check if it's a valid email address.
+      $pattern = "^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$^";
+      $email = (preg_match($pattern, $to)) ? TRUE : FALSE;
+      if (!$email) {
+        continue;
+      }
+
       // Check if $to is an email registered on database.
       /** @var \Drupal\Core\Entity\Query\Sql\Query $query */
       $query = $query_service->get('user');
