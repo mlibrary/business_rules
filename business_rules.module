@@ -407,6 +407,9 @@ function business_rules_cache_flush() {
  */
 function business_rules_mail($key, &$message, $params) {
   if ($key == 'business_rules_mail') {
+    if (isset($params['headers'])) {
+      $message['headers'] = $params['headers'];
+    }
     $message['from']    = \Drupal::config('system.site')->get('mail');
     $message['subject'] = $params['subject'];
     $message['body'][]  = $params['message'];

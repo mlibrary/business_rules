@@ -7,6 +7,7 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\language\ConfigurableLanguageManagerInterface;
 
 /**
@@ -105,12 +106,25 @@ class SendEmail extends BusinessRulesActionPlugin {
       '#description'   => t('You can use variables on this field.'),
     ];
 
+    $settings['format'] = [
+      '#type'          => 'select',
+      '#title'         => t('Mail format'),
+      '#options'       => [
+        'html' => t('HTML'),
+        'text' => t('Text'),
+      ],
+      '#required'      => TRUE,
+      '#default_value' => $item->getSettings('format') ? $item->getSettings('format') : 'text',
+      '#description'   => t('Email body format.'),
+    ];
+
     $settings['body'] = [
-      '#type'          => 'textarea',
+      '#type'          => 'text_format',
       '#title'         => t('Message'),
       '#required'      => TRUE,
-      '#default_value' => $item->getSettings('body'),
+      '#default_value' => $item->getSettings('body')['value'],
       '#description'   => t('You can use variables on this field.'),
+      '#format' => ($item->getSettings('body') && isset($item->getSettings('body')['format'])) ? $item->getSettings('body')['format'] : 'full_html',
     ];
 
     return $settings;
@@ -186,11 +200,27 @@ class SendEmail extends BusinessRulesActionPlugin {
       }
 
       $subject = isset($settings_translated['subject']) ? $settings_translated['subject'] : $action->getSettings('subject');
-      $message = isset($settings_translated['body']) ? $settings_translated['body'] : $action->getSettings('body');
+      $message = isset($settings_translated['body']) ? $settings_translated['body'] : $action->getSettings('body')['value'];
       $subject = $this->processVariables($subject, $event_variables);
       $message = $this->processVariables($message, $event_variables);
 
+      // Check if body is on html format.
+      if ($action->getSettings('format') == 'html') {
+        // $message = [
+        //   'body' => $message,
+        //   'headers' => [
+        //     'Content-Type' => 'text/html; charset=UTF-8',
+        //   ],
+        // ];
+        $headers = ['Content-Type' => 'text/html; charset=UTF-8'];
+      }
+      else {
+        $headers = ['Content-Type' => 'text/plain; charset=UTF-8'];
+        $message = MailFormatHelper::htmlToText($message);
+      }
+
       $params = [
+        'headers' => $headers,
         'from'    => $from,
         'subject' => $subject,
         'message' => $message,
