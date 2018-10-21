@@ -206,13 +206,8 @@ class SendEmail extends BusinessRulesActionPlugin {
 
       // Check if body is on html format.
       if ($action->getSettings('format') == 'html') {
-        // $message = [
-        //   'body' => $message,
-        //   'headers' => [
-        //     'Content-Type' => 'text/html; charset=UTF-8',
-        //   ],
-        // ];
         $headers = ['Content-Type' => 'text/html; charset=UTF-8'];
+        $message = html_entity_decode($message);
       }
       else {
         $headers = ['Content-Type' => 'text/plain; charset=UTF-8'];
