@@ -400,6 +400,9 @@ function business_rules_user_logout($account) {
 function business_rules_cache_flush() {
   $key_value = \Drupal::keyValueExpirable('business_rules.debug');
   $key_value->deleteAll();
+
+  $key_value = \Drupal::keyValueExpirable('business_rules.token_tree');
+  $key_value->deleteAll();
 }
 
 /**
