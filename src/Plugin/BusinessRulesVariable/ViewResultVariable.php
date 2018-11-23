@@ -155,7 +155,7 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
 
             // Now, with the bundle info, we can load the fields definitions.
             $fields_definitions = $this->entityFieldManager->getFieldDefinitions($entity_type, $bundle);
-            $field_definition   = $fields_definitions[$field_name];
+            $field_definition   = isset($fields_definitions[$field_name]) ? $fields_definitions[$field_name] : NULL;
             // If we are not in the correct bundle, lets try again.
             if (empty($field_definition)) {
               $idx_bundle++;
