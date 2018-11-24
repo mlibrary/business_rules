@@ -331,6 +331,15 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
             }
             ksort($arr);
 
+            // Remove empty values.
+            if (is_array($arr) && count($arr)) {
+              foreach ($arr as $key => $item) {
+                if (is_string($item) && strlen(trim($item)) == 0) {
+                  unset($arr[$key]);
+                }
+              }
+            }
+
             $value = $arr;
 
           }
