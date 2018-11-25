@@ -152,6 +152,7 @@ class SendEmail extends BusinessRulesActionPlugin {
     $to              = $this->processVariables($action->getSettings('to'), $event_variables);
     $arr_to          = explode(';', $to);
     $result          = [];
+    $email_validator = \Drupal::getContainer()->get('email.validator');
 
     if ($action->getSettings('use_site_mail_as_sender')) {
       $from = \Drupal::config('system.site')->get('mail');
@@ -163,9 +164,7 @@ class SendEmail extends BusinessRulesActionPlugin {
 
     foreach ($arr_to as $to) {
       // Check if it's a valid email address.
-      $pattern = "^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$^";
-      $email = (preg_match($pattern, $to)) ? TRUE : FALSE;
-      if (!$email) {
+      if (!$email_validator->isValid($to)) {
         continue;
       }
 
