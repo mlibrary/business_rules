@@ -191,10 +191,12 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
 
     foreach ($settings as $key => $setting) {
       if (is_string($setting)) {
+        $variables = $event->getArgument('variables');
+        $setting = $this->processVariables($setting, $variables);
         $settings[$key] = $this->util->token->replace($setting, $context, ['clear' => TRUE]);
       }
       elseif (is_array($setting)) {
-        $this->processTokenArraySetting($settings[$key], $context);
+        $this->processTokenArraySetting($settings[$key], $context, $event);
       }
     }
 
@@ -210,15 +212,19 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
    *   The setting array.
    * @param array $context
    *   The context to replace the tokens.
+   * @param \Drupal\business_rules\Events\BusinessRulesEvent $event
+   *   The Business Rules event.
    */
-  private function processTokenArraySetting(array &$setting, array $context) {
+  private function processTokenArraySetting(array &$setting, array $context, BusinessRulesEvent $event) {
     if (count($setting)) {
       foreach ($setting as $key => $value) {
         if (is_string($value)) {
+          $variables = $event->getArgument('variables');
+          $value = $this->processVariables($setting[$key], $variables);
           $setting[$key] = $this->util->token->replace($value, $context, ['clear' => TRUE]);
         }
         elseif (is_array($value)) {
-          $this->processTokenArraySetting($setting[$key], $context);
+          $this->processTokenArraySetting($setting[$key], $context, $event);
         }
       }
     }
