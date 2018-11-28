@@ -128,6 +128,10 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
 
     /** @var \Drupal\business_rules\VariableObject $variable */
     /** @var \Drupal\business_rules\Entity\Action $action */
+    // TODO: change this function name as it is not the regular process variables.
+    if (!$action instanceof Action) {
+      return;
+    }
     $id_field = $action->getSettings('field');
     $bundle   = $action->getTargetBundle();
     $id       = $action->getSettings('value');
