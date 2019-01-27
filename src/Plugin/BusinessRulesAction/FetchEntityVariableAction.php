@@ -129,14 +129,15 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
     /** @var \Drupal\business_rules\VariableObject $variable */
     /** @var \Drupal\business_rules\Entity\Action $action */
     $id_field = $action->getSettings('field');
-    $bundle   = $action->getTargetBundle();
-    $id       = $action->getSettings('value');
-    $id       = parent::processVariables($id, $event_variables);
-    $value    = NULL;
+    $bundle = $action->getTargetBundle();
+    $id = $action->getSettings('value');
+    $id = parent::processVariables($id, $event_variables);
+    $empty_variable = $action->getSettings('empty_variable');
+    $value = NULL;
 
     if ($event_variables->count()) {
       foreach ($event_variables->getVariables() as $variable) {
-        if ($variable->getType() == 'entity_empty_variable') {
+        if ($variable->getType() == 'entity_empty_variable' && $empty_variable == substr($variable->getId(), 0, strlen($empty_variable))) {
 
           $original_variable_value = $variable->getValue();
 
@@ -227,6 +228,7 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
             }
 
           }
+
 
         }
       }
