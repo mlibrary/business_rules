@@ -108,9 +108,9 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
   public function execute(ActionInterface $action, BusinessRulesEvent $event) {
 
     /** @var \Drupal\business_rules\VariablesSet $variables */
-    $id_variable         = $action->getSettings('id_variable');
+    $id_variable         = $action->getSettings('empty_variable');
     $variables           = $event->getArgument('variables');
-    $processed_variables = $this->processVariables($action, $variables);
+    $processed_variables = $this->fetchEntityVariable($action, $variables);
     $event->setArgument('variables', $processed_variables);
 
     $result = [
@@ -124,14 +124,10 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
   /**
    * {@inheritdoc}
    */
-  public function processVariables($action, VariablesSet $event_variables) {
+  public function fetchEntityVariable($action, VariablesSet $event_variables) {
 
     /** @var \Drupal\business_rules\VariableObject $variable */
     /** @var \Drupal\business_rules\Entity\Action $action */
-    // TODO: change this function name as it is not the regular process variables.
-    if (!$action instanceof Action) {
-      return;
-    }
     $id_field = $action->getSettings('field');
     $bundle   = $action->getTargetBundle();
     $id       = $action->getSettings('value');
@@ -158,7 +154,7 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
               $field       = explode('->', $variable->getId())[1];
 
               if ($entity->$field) {
-
+                $already_replaced = [];
                 $definition  = $entity->$field->getFieldDefinition();
                 $field_type  = $definition->getType();
                 $cardinality = $definition->getFieldStorageDefinition()
@@ -184,37 +180,48 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
                       ->referencedEntities();
                     foreach ($arr as $key => $item) {
                       $arr[$key] = $item['target_id'];
-                      $multi_val = new VariableObject($variable->getId() . "[$key]", $item['target_id'], $variable->getType());
-                      $event_variables->append($multi_val);
+                      if (substr($variable->getId(), strlen($variable->getId()) - strlen('->label'), strlen('->label')) != '->label') {
+                        $variable_key_id = substr($variable->getId(), strlen($variable->getId()) - strlen("[$key]"), strlen("[$key]")) == "[$key]" ? $variable->getId() : $variable->getId() . "[$key]";
+                        $multi_val = new VariableObject($variable_key_id, $item['target_id'], $variable->getType());
+                        $event_variables->append($multi_val);
 
-                      // Prepare the variable field with the entity reference
-                      // title / name / other property name.
-                      /** @var \Drupal\Core\Entity\Entity $entity_reference */
-                      $entity_reference       = $entity_references[$key];
-                      $entity_reference_value = $entity_reference->label();
-                      $entity_reference_label = new VariableObject($variable->getId() . "[$key]->label", $entity_reference_value, $variable->getType());
-                      $event_variables->append($entity_reference_label);
-
+                        // Prepare the variable field with the entity reference
+                        // title / name / other property name.
+                        /** @var \Drupal\Core\Entity\Entity $entity_reference */
+                        $entity_reference = $entity_references[$key];
+                        $entity_reference_value = $entity_reference->label();
+                        $variable_key_label_id = substr($variable->getId(), strlen($variable->getId()) - strlen("[$key]->label"), strlen("[$key]->label")) == "[$key]->label" ? $variable->getId() : $variable->getId() . "[$key]->label";
+                        $entity_reference_label = new VariableObject($variable_key_label_id, $entity_reference_value, $variable->getType());
+                        $event_variables->append($entity_reference_label);
+                      }
                       // Fetch array labels variable.
                       $arr_labels = [];
                       foreach ($entity_references as $reference) {
                         $arr_labels[] = $reference->label();
                       }
-                      $entity_reference_labels = new VariableObject($variable->getId() . "->label", $arr_labels, $variable->getType());
-                      $event_variables->append($entity_reference_labels);
+                      if (count($arr_labels)) {
+                        $variable_label_id = substr($variable->getId(), strlen($variable->getId()) - strlen('->label'), strlen('->label')) == '->label' ? $variable->getId() : $variable->getId() . "->label";
+                        $entity_reference_labels = new VariableObject($variable_label_id, $arr_labels, $variable->getType());
+                        $event_variables->append($entity_reference_labels);
+                        $event_variables->replaceValue($variable_label_id, $arr_labels);
+                        $already_replaced[] = $variable_label_id;
+                      }
                     }
                   }
                   else {
                     foreach ($arr as $key => $item) {
-                      $arr[$key] = $item['value'];
-                      $multi_val = new VariableObject($variable->getId() . "[$key]", $item['value'], $variable->getType());
-                      $event_variables->append($multi_val);
+                      if (isset ($item['value'])) {
+                        $arr[$key] = $item['value'];
+                        $multi_val = new VariableObject($variable->getId() . "[$key]", $item['value'], $variable->getType());
+                        $event_variables->append($multi_val);
+                      }
                     }
                   }
                   $value = $arr;
                 }
-                $event_variables->replaceValue($variable->getId(), $value);
-
+                if (!in_array($variable->getId(), $already_replaced)) {
+                  $event_variables->replaceValue($variable->getId(), $value);
+                }
               }
 
             }
