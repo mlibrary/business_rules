@@ -334,16 +334,18 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
             // Remove empty values.
             if (is_array($arr) && count($arr)) {
               foreach ($arr as $key => $item) {
-                if (is_string($item) && strlen(trim($item)) == 0) {
+                if (empty($item) || is_null($item) || (is_string($item) && strlen(trim($item)) == 0)) {
                   unset($arr[$key]);
                 }
               }
             }
 
             $value = $arr;
-
           }
-          $entity->set($field_value['entity_field'], $value);
+
+          if ((is_array($value) && count($value)) || (is_string($value) && strlen(trim($value)) != 0)) {
+            $entity->set($field_value['entity_field'], $value);
+          }
 
           $result[$field_value['entity_field']] = [
             '#type'   => 'markup',
