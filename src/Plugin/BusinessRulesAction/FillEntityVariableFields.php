@@ -343,7 +343,12 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
             $value = $arr;
           }
 
-          if ((is_array($value) && count($value)) || (is_string($value) && strlen(trim($value)) != 0)) {
+          if (is_array($value)) {
+            if (count($value)) {
+              $entity->set($field_value['entity_field'], $value);
+            }
+          }
+          else {
             $entity->set($field_value['entity_field'], $value);
           }
 
