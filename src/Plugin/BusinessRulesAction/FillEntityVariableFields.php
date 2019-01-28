@@ -334,7 +334,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
             // Remove empty values.
             if (is_array($arr) && count($arr)) {
               foreach ($arr as $key => $item) {
-                if (is_string($item) && strlen(trim($item)) == 0) {
+                if (empty($item) || is_null($item) || (is_string($item) && strlen(trim($item)) == 0)) {
                   unset($arr[$key]);
                 }
               }
