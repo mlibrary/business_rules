@@ -361,7 +361,6 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
     }
 
     return $result;
-
   }
 
   /**
