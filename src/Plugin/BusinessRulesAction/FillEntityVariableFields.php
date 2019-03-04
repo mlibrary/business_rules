@@ -375,12 +375,16 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
 
     $fields_values_variables = $item->getSettings('fields_values');
 
-    foreach ($fields_values_variables as $fields_values_variable) {
-      $field_value    = $fields_values_variable['field_value'];
-      $variable_names = $this->pregMatch($field_value);
-      foreach ($variable_names as $variable_name) {
-        $variable = new VariableObject($variable_name);
-        $variableSet->append($variable);
+    if (is_array($fields_values_variables)) {
+      foreach ($fields_values_variables as $fields_values_variable) {
+        $field_value = $fields_values_variable['field_value'];
+        $variable_names = $this->pregMatch($field_value);
+        if (is_array($variable_names)) {
+          foreach ($variable_names as $variable_name) {
+            $variable = new VariableObject($variable_name);
+            $variableSet->append($variable);
+          }
+        }
       }
     }
 
