@@ -174,6 +174,11 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
           // string which contains the entity id.
           $parent_field_value = $matches[1];
         }
+        // If we have an array with values we should implode those values and
+        // enable Allow multiple values into our contextual filter.
+        if (is_array($parent_field_value)) {
+          $parent_field_value = implode(",", $parent_field_value);
+        }
         $arguments = $handle_settings['business_rules_view']['arguments'];
         $args = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
         $view_id = $handle_settings['business_rules_view']['view_name'];
@@ -391,6 +396,11 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
       // string which contains the entity id.
       $parent_field_value = $matches[1];
     }
+    // If we have an array with values we should implode those values and enable
+    // Allow multiple values into our contextual filter.
+    if (is_array($parent_field_value)) {
+      $parent_field_value = implode(",", $parent_field_value);
+    }
     $arguments = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
     $result = [];
     if ($this->initializeView($match, $match_operator, $limit)) {
@@ -426,6 +436,11 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     $display_name = $handler_settings['business_rules_view']['display_name'];
     $arguments = $handler_settings['business_rules_view']['arguments'];
     $parent_field_value = $this->getParentFieldValue();
+    // If we have an array with values we should implode those values and enable
+    // Allow multiple values into our contextual filter.
+    if (is_array($parent_field_value)) {
+      $parent_field_value = implode(",", $parent_field_value);
+    }
     $arguments = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
     $result = [];
     $ids = $this->getValidIds($parent_field_value);
@@ -490,7 +505,6 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     if (!$value && $entity) {
       $value = $entity->get($field)->getString();
     }
-
     if (is_array($value) && !empty($value[0]['target_id']) && preg_match('/\((\d+)\)$/', $value[0]['target_id'], $matches)) {
       // If the field widget is entity autocomplete, the returned value is a
       // string which contains the entity id.
