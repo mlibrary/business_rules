@@ -207,6 +207,10 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
         $form_field = $form[$child];
         $form_field['widget']['#options'] = $options;
         $html_field_id = explode('-wrapper-', $form_field['#id'])[0];
+
+        // Fix html_field_id last char when it ends with _.
+        $html_field_id = substr($child, strlen($child) - 1, 1) == '_' ? $html_field_id . '-' : $html_field_id;
+
         $response->addCommand(new UpdateOptionsCommand($html_field_id, $options));
 
       }
