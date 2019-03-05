@@ -192,10 +192,6 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
         $view->build();
 
         $options = [];
-        $options[] = [
-          'key' => '_none',
-          'value' => t('-Select-'),
-        ];
 
         if ($view->execute()) {
           $renderer = \Drupal::service('renderer');
@@ -208,6 +204,15 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
             ];
           }
         }
+
+        uasort($options, function ($a, $b) {
+          return $a['value'] < $b['value'] ? -1 : 1;
+        });
+
+        array_unshift($options, [
+          'key' => '_none',
+          'value' => t('-Select-'),
+        ]);
 
         $form_field = $form[$child];
         $form_field['widget']['#options'] = $options;
