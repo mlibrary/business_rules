@@ -1,7 +1,7 @@
 <?php
 
 use Drupal\business_rules\Entity\Action;
-use Drupal\Core\Database\Database;
+use Drupal\Core\Field\BaseFieldDefinition;
 
 /**
  * Update the email actions to allow HTML.
@@ -27,22 +27,20 @@ function business_rules_update_8101(&$sandbox) {
 
 /**
  * Allows schedule to work with event variables.
- * https://www.drupal.org/project/business_rules/issues/3040833
+ * @see https://www.drupal.org/project/business_rules/issues/3040833
  */
 function business_rules_update_8102() {
-  $schema = Database::getConnection()->schema();
+  $fields['update_entity'] = BaseFieldDefinition::create('boolean')
+    ->setLabel('Save entity as the last action of the task')
+    ->setDescription('It the task will save the entity in the end of the process.');
 
-  $spec = [
-    'type' => 'bool',
-    'description' => "Save entity as the last action of the task",
-    'not null' => FALSE,
-  ];
-  $schema->addField('br_schedule', 'update_entity', $spec);
+  $fields['event'] = BaseFieldDefinition::create('map')
+    ->setLabel(t('Event.'))
+    ->setDescription(t('The event that has created the schedule.'));
 
-  $spec = [
-    'type' => 'blob',
-    'description' => "The event that has created the schedule",
-    'not null' => FALSE,
-  ];
-  $schema->addField('br_schedule', 'event', $spec);
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('update_entity', 'business_rules_schedule', 'business_rules', $fields['update_entity']);
+
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('event', 'business_rules_schedule', 'business_rules', $fields['event']);
 }
