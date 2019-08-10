@@ -507,7 +507,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     $field = $handler_settings['business_rules_view']['parent_field'];
     $value = $this->util->request->get($field);
 
-    if (!$value && $entity) {
+    if (!$value && $entity && $entity->get($field)) {
       $value = $entity->get($field)->getString();
     }
     if (is_array($value) && !empty($value[0]['target_id']) && preg_match('/\((\d+)\)$/', $value[0]['target_id'], $matches)) {
