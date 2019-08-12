@@ -2,6 +2,8 @@
 
 namespace Drupal\business_rules\Plugin\BusinessRulesVariable;
 
+use Drupal\Core\Render\Markup;
+use Drupal\Core\Render\RenderContext;
 use Drupal\business_rules\Entity\Variable;
 use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\ItemInterface;
@@ -62,6 +64,13 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
       '#required'      => TRUE,
       '#default_value' => $item->getSettings('view'),
       '#description'   => t("Select the view to get the results. When you use the view fields, it will always have the raw value."),
+    ];
+
+    $settings['view_html'] = [
+      '#title' => t('Use HTML rendered view fields'),
+      '#type' => 'checkbox',
+      '#default_value' => $item->getSettings('view_html'),
+      '#description'   => t('If checked, changes on the view fields formatter will reflect into the variables and HTML markup will be used.')
     ];
 
     $settings['arguments'] = [
@@ -202,6 +211,7 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
   public function evaluate(Variable $variable, BusinessRulesEvent $event) {
     // Get settings.
     $defined_view    = $variable->getSettings('view');
+    $view_fields     = $variable->getSettings('view_html');
     $args            = $variable->getSettings('arguments');
     $event_variables = $event->getArgument('variables');
 
@@ -229,16 +239,73 @@ class ViewResultVariable extends BusinessRulesVariablePlugin {
 
     $variableObject = NULL;
     if ($view->execute()) {
+
+      /** @var \Drupal\Core\Render\RendererInterface $renderer */
+      $renderer = \Drupal::service('renderer');
+
+      /** @var \Drupal\views\ResultRow $resultRow */
       $view_result = $view->result;
       $values      = [];
-      /** @var \Drupal\views\ResultRow $resultRow */
+
       foreach ($view_result as $key => $resultRow) {
-        /** @var \Drupal\views\Plugin\views\field\Field $field */
-        foreach ($fields as $field) {
-          $field_id                = $field->field;
-          $values[$key][$field_id] = $field->getValue($resultRow);
+        if ($view_fields == TRUE) {
+          // Inner field array
+          $inner_values = [];
+          // Building new context for cron
+          $output = $renderer->executeInRenderContext(new RenderContext(), function () use ($inner_values, $resultRow, $fields) {
+            /** @var \Drupal\views\Plugin\views\field\Field $field */
+            foreach ($fields as $field) {
+              // Get field ID
+              $field_id = $field->field;
+              // Get HTML markup
+              $html_rended = Markup::create($field->advancedRender($resultRow));
+              // Pass extra filter to be sure data is a string
+              if(!is_string($html_rended)) {
+                $html_rended = $html_rended->__toString();
+              }
+              // Pass field data to array
+              $inner_values[$field_id] = $html_rended;
+            }
+            return $inner_values;
+          });
+
+          $values[$key] = $output;
+
+        } else {
+
+        if ($view_fields == TRUE) {
+          // Inner field array
+          $inner_values = [];
+          // Building new context for cron
+          $output = $renderer->executeInRenderContext(new RenderContext(), function () use ($inner_values, $resultRow, $fields) {
+            /** @var \Drupal\views\Plugin\views\field\Field $field */
+            foreach ($fields as $field) {
+              // Get field ID
+              $field_id = $field->field;
+              // Get HTML markup
+              $html_rended = Markup::create($field->advancedRender($resultRow));
+              // Pass extra filter to be sure data is a string
+              if(!is_string($html_rended)) {
+                $html_rended = $html_rended->__toString();
+              }
+              // Pass field data to array
+              $inner_values[$field_id] = $html_rended;
+            }
+            return $inner_values;
+          });
+
+          $values[$key] = $output;
+
+        } else {
+
+          /** @var \Drupal\views\Plugin\views\field\Field $field */
+          foreach ($fields as $field) {
+            $field_id = $field->field;
+            $values[$key][$field_id] = $field->getValue($resultRow);
+          }
         }
       }
+    }
 
       $variableObject = new VariableObject($variable->id(), $values, $variable->getType());
     }

@@ -72,6 +72,9 @@ business_rules.variable.type.view_result_variable:
     view:
       type: string
       label: 'View'
+    view_html:
+      type: bolean
+      label: 'Markup Values'
     arguments:
       type: string
       label: 'Arguments'
