@@ -11,6 +11,7 @@ use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\business_rules\VariableObject;
 use Drupal\business_rules\VariablesSet;
 use Drupal\Core\Entity\Entity;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -150,7 +151,7 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
               $entity = $this->fetchEntity($id, $variable, $id_field, $action, $bundle, $original_variable_value);
             }
 
-            if ($entity instanceof Entity) {
+            if ($entity instanceof EntityInterface) {
 
               $field       = explode('->', $variable->getId())[1];
 

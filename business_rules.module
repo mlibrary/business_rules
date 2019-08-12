@@ -205,7 +205,7 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
     }
   }
 
-  if ($entity instanceof Entity) {
+  if ($entity instanceof EntityInterface) {
     // Check if the field is a dependent field.
     /** @var \Drupal\Core\Field\FieldItemList $items */
     $items         = $context['items'];

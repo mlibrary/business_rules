@@ -12,6 +12,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\Entity;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -152,7 +153,7 @@ class ScheduleController extends ControllerBase implements ContainerInjectionInt
         $entity_exists = \Drupal::entityTypeManager()
           ->getStorage($entity->getEntityTypeId())
           ->load($entity->id());
-        if ($entity_exists instanceof Entity) {
+        if ($entity_exists instanceof EntityInterface) {
           $entity->save();
         }
       }
