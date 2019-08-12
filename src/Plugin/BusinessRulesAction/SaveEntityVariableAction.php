@@ -10,6 +10,7 @@ use Drupal\business_rules\ItemInterface;
 use Drupal\business_rules\Plugin\BusinessRulesActionPlugin;
 use Drupal\business_rules\VariableObject;
 use Drupal\Core\Entity\Entity;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -103,7 +104,7 @@ class SaveEntityVariableAction extends BusinessRulesActionPlugin {
       $variable = $variables->getVariable($action->getSettings('variable'));
       $entity = $variable ? $variable->getValue() : FALSE;
 
-      if ($entity instanceof Entity) {
+      if ($entity instanceof EntityInterface) {
 
         // Prevent infinite calls regarding the dispatched entity events such as
         // save / presave, etc.

@@ -9,6 +9,7 @@ use Drupal\business_rules\Plugin\BusinessRulesItemPluginInterface;
 use Drupal\business_rules\Plugin\BusinessRulesVariablePlugin;
 use Drupal\business_rules\VariableObject;
 use Drupal\Core\Entity\Entity;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -79,7 +80,7 @@ class CustomValueVariable extends BusinessRulesVariablePlugin {
 
             if ($var instanceof Variable) {
               $entity = $variables->getVariables()[$var->id()]->getValue();
-              if ($entity instanceof Entity) {
+              if ($entity instanceof EntityInterface) {
                 $field = $entity->get($field_name);
                 $value = $field->value;
 

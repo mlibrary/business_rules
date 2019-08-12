@@ -6,6 +6,7 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\Util\BusinessRulesUtil;
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
@@ -438,7 +439,7 @@ class Schedule extends RevisionableContentEntityBase implements ScheduleInterfac
               $entity_exists = \Drupal::entityTypeManager()
                 ->getStorage($entity->getEntityTypeId())
                 ->load($entity->id());
-              if ($entity_exists instanceof Entity) {
+              if ($entity_exists instanceof EntityInterface) {
                 $entity->save();
               }
             }
