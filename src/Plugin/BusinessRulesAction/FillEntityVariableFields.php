@@ -303,7 +303,6 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
 
           if ($cardinality === 1) {
             // Single value field.
-            // TODO check this variable processing.
             $value = $this->processVariables($field_value['field_value'], $event_variables);
           }
           else {
@@ -381,6 +380,7 @@ class FillEntityVariableFields extends BusinessRulesActionPlugin {
         $variable_names = $this->pregMatch($field_value);
         if (is_array($variable_names)) {
           foreach ($variable_names as $variable_name) {
+            $variable_name = explode('->', $variable_name)[0];
             $variable = new VariableObject($variable_name);
             $variableSet->append($variable);
           }
