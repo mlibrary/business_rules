@@ -488,11 +488,11 @@ function business_rules_cron() {
 function business_rules_entity_type_alter(array &$entity_types) {
   $form_modes = \Drupal::service('entity_display.repository')
     ->getAllFormModes();
+  $skip_names = ['register', 'add_to_cart'];
   foreach ($form_modes as $entity_type => $display_modes) {
-
     $type = $entity_types[$entity_type];
     foreach ($display_modes as $machine_name => $form_display) {
-      if ($machine_name != 'register') {
+      if (!in_array($machine_name, $skip_names)) {
         $default_handler_class = $type->getHandlerClasses()['form']['default'];
         $type->setFormClass($machine_name, $default_handler_class);
       }
