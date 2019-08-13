@@ -345,8 +345,11 @@ class LoopThroughViewResult extends BusinessRulesActionPlugin {
       }
 
       // Process items.
-      $items = BusinessRulesItemObject::itemsArrayToItemsObject($action_items);
-      $this->processor->processItems($items, $event, $action->id());
+      if(!empty($action_items)){
+        $items = BusinessRulesItemObject::itemsArrayToItemsObject($action_items);
+        $this->processor->processItems($items, $event, $action->id());
+      }
+
     }
 
   }
