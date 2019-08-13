@@ -56,14 +56,6 @@ class SendEmail extends BusinessRulesActionPlugin {
       return [];
     }
 
-    $settings['subject'] = [
-      '#type'          => 'textfield',
-      '#title'         => t('Subject'),
-      '#required'      => TRUE,
-      '#default_value' => $item->getSettings('subject'),
-      '#desctiption'   => t('Mail subject'),
-    ];
-
     $site_mail = \Drupal::config('system.site')->get('mail');
 
     $settings['use_site_mail_as_sender'] = [
@@ -102,6 +94,7 @@ class SendEmail extends BusinessRulesActionPlugin {
       '#type'          => 'textfield',
       '#title'         => t('Subject'),
       '#required'      => TRUE,
+      '#maxlength'     => 256,
       '#default_value' => $item->getSettings('subject'),
       '#description'   => t('You can use variables on this field.'),
     ];
