@@ -249,4 +249,26 @@ class Condition extends BusinessRulesItemBase implements ConditionInterface {
     return $defined_condition->process($condition, $event);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function calculateDependencies() {
+    parent::calculateDependencies();
+
+    /** @var \Drupal\business_rules\BusinessRulesItemObject $item */
+    foreach (array_merge($this->getSuccessItems(), $this->getFailItems()) as $item) {
+      $this->addDependency('config', $item->loadEntity()->getConfigDependencyName());
+    }
+
+    $items = $this->getSettings('items');
+
+    if (is_array($items)) {
+      foreach (BusinessRulesItemObject::itemsArrayToItemsObject($items) as $item) {
+        $this->addDependency('config', $item->loadEntity()->getConfigDependencyName());
+      }
+    }
+
+    return $this;
+  }
+
 }

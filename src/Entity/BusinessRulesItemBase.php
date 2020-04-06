@@ -326,4 +326,25 @@ abstract class BusinessRulesItemBase extends ConfigEntityBase implements ItemInt
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function calculateDependencies() {
+    parent::calculateDependencies();
+
+    $plugin_type = $this->itemManager->getDefinition($this->getType());
+    $reflection = new \ReflectionClass($plugin_type['class']);
+    /** @var \Drupal\business_rules\Plugin\BusinessRulesItemPluginBase $defined_item */
+    $defined_item = $reflection->newInstance($plugin_type, $plugin_type['id'], $plugin_type);
+
+    foreach ($defined_item->getVariables($this)->getVariablesIds() as $id) {
+      /** @var \Drupal\business_rules\Entity\Variable $variable */
+      if ($variable = Variable::load($id)) {
+        $this->addDependency('config', $variable->getConfigDependencyName());
+      }
+    }
+
+    return $this;
+  }
+
 }

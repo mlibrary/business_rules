@@ -488,4 +488,18 @@ class BusinessRule extends ConfigEntityBase implements BusinessRuleInterface {
 
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function calculateDependencies() {
+    parent::calculateDependencies();
+
+    /** @var \Drupal\business_rules\BusinessRulesItemObject $item */
+    foreach ($this->getItems() as $item) {
+      $this->addDependency('config', $item->loadEntity()->getConfigDependencyName());
+    }
+
+    return $this;
+  }
+
 }
