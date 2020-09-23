@@ -6,4 +6,4 @@ package: Workflow
 
 dependencies:
   - business_rules:business_rules
-  - sms:sms
+  - smsframework:sms
