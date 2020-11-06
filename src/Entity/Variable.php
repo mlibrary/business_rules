@@ -23,6 +23,16 @@ use Drupal\business_rules\VariableInterface;
  *     },
  *   },
  *   config_prefix = "variable",
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "type",
+ *     "description",
+ *     "target_entity_type",
+ *     "target_bundle",
+ *     "tags",
+ *     "settings"
+ *   },
  *   admin_permission = "administer site configuration",
  *   entity_keys = {
  *     "id" = "id",

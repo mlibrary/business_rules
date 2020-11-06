@@ -24,6 +24,16 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *     },
  *   },
  *   config_prefix = "business_rule",
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "description",
+ *     "reacts_on",
+ *     "target_entity_type",
+ *     "target_bundle",
+ *     "items",
+ *     "tags",
+ *   },
  *   admin_permission = "administer site configuration",
  *   entity_keys = {
  *     "id" = "id",

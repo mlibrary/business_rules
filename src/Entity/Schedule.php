@@ -57,17 +57,16 @@ use Drupal\user\UserInterface;
  *     "delete-form" = "/admin/config/workflow/business_rules/schedule/{business_rules_schedule}/delete",
  *     "collection" = "/admin/config/workflow/business_rules/schedule/collection/{view_mode}",
  *   },
+ *  revision_metadata_keys = {
+ *     "revision_user" = "revision_user",
+ *     "revision_created" = "revision_created",
+ *     "revision_log_message" = "revision_log_message",
+ *  },
  * )
  */
 class Schedule extends RevisionableContentEntityBase implements ScheduleInterface {
 
   use EntityChangedTrait;
-
-  //TODO think about include revisions in the future.
-  //"version-history" = "/admin/config/workflow/business_rules/schedule/{business_rules_schedule}/revisions",
-  //"revision" = "/admin/config/workflow/business_rules/schedule/{schedule}/revisions/{schedule_revision}/view",
-  //"revision_revert" = "/admin/config/workflow/business_rules/schedule/{schedule}/revisions/{schedule_revision}/revert",
-  //"revision_delete" = "/admin/config/workflow/business_rules/schedule/{schedule}/revisions/{schedule_revision}/delete",
 
   /**
    * {@inheritdoc}

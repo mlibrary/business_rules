@@ -24,6 +24,19 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
  *     },
  *   },
  *   config_prefix = "condition",
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "type",
+ *     "reverse",
+ *     "description",
+ *     "target_entity_type",
+ *     "target_bundle",
+ *     "success_items",
+ *     "fail_items",
+ *     "tags",
+ *     "settings"
+ *   },
  *   admin_permission = "administer site configuration",
  *   entity_keys = {
  *     "id" = "id",
