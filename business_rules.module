@@ -186,7 +186,7 @@ function business_rules_form_alter(&$form, FormStateInterface $form_state, $form
  */
 function business_rules_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
 
-  // TODO check patch inline_entity_form_2973571_1.patch.
+  // @todo check patch inline_entity_form_2973571_1.patch.
   $form_object = $form_state->getFormObject();
   // Establish whether we're in a normal EntityForm context or an inline
   // QuickeditFieldForm context and retrieve the entity from the respectively
@@ -497,7 +497,7 @@ function business_rules_entity_type_alter(array &$entity_types) {
   foreach ($form_modes as $entity_type => $display_modes) {
     $type = $entity_types[$entity_type];
     foreach ($display_modes as $machine_name => $form_display) {
-      if (!in_array($machine_name, $skip_names)) {
+      if (!in_array($machine_name, $skip_names) && isset($type->getHandlerClasses()['form']['default'])) {
         $default_handler_class = $type->getHandlerClasses()['form']['default'];
         $type->setFormClass($machine_name, $default_handler_class);
       }
