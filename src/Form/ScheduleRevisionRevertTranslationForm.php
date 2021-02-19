@@ -51,7 +51,7 @@ class ScheduleRevisionRevertTranslationForm extends ScheduleRevisionRevertForm {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity.manager')->getStorage('schedule'),
+      $container->get('entity_type.manager')->getStorage('schedule'),
       $container->get('date.formatter'),
       $container->get('language_manager')
     );
@@ -107,7 +107,7 @@ class ScheduleRevisionRevertTranslationForm extends ScheduleRevisionRevertForm {
 
     $latest_revision_translation->setNewRevision();
     $latest_revision_translation->isDefaultRevision(TRUE);
-    $revision->setRevisionCreationTime(REQUEST_TIME);
+    $revision->setRevisionCreationTime(\Drupal::time()->getRequestTime());
 
     return $latest_revision_translation;
   }

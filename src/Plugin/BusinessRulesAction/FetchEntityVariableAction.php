@@ -293,7 +293,7 @@ class FetchEntityVariableAction extends BusinessRulesActionPlugin {
       }
     }
     catch (\Exception $e) {
-      drupal_set_message($e, 'error');
+      \Drupal::messenger()->addError($e);
 
       return $original_variable_value;
     }

@@ -2,6 +2,7 @@
 
 namespace Drupal\business_rules\Controller;
 
+use Drupal\Core\Link;
 use Drupal\business_rules\Entity\Action;
 use Drupal\business_rules\Entity\Schedule;
 use Drupal\business_rules\Events\BusinessRulesEvent;
@@ -191,10 +192,10 @@ class ScheduleController extends ControllerBase implements ContainerInjectionInt
    *   An array suitable for drupal_render().
    */
   public function revisionShow($schedule_revision) {
-    $schedule     = $this->entityManager()
+    $schedule     = $this->entityTypeManager()
       ->getStorage('business_rules_schedule')
       ->loadRevision($schedule_revision);
-    $view_builder = $this->entityManager()
+    $view_builder = $this->entityTypeManager()
       ->getViewBuilder('business_rules_schedule');
 
     // Return $view_builder->view($schedule);
@@ -211,13 +212,13 @@ class ScheduleController extends ControllerBase implements ContainerInjectionInt
    *   The page title.
    */
   public function revisionPageTitle($schedule_revision) {
-    $schedule = $this->entityManager()
+    $schedule = $this->entityTypeManager()
       ->getStorage('schedule')
       ->loadRevision($schedule_revision);
 
     return $this->t('Revision of %title from %date', [
       '%title' => $schedule->label(),
-      '%date'  => format_date($schedule->getRevisionCreationTime()),
+      '%date'  => \Drupal::service('date.formatter')->format($schedule->getRevisionCreationTime()),
     ]);
   }
 
@@ -237,7 +238,7 @@ class ScheduleController extends ControllerBase implements ContainerInjectionInt
     $langname                = $business_rules_schedule->language()->getName();
     $languages               = $business_rules_schedule->getTranslationLanguages();
     $has_translations        = (count($languages) > 1);
-    $schedule_storage        = $this->entityManager()
+    $schedule_storage        = $this->entityTypeManager()
       ->getStorage('business_rules_schedule');
 
     $build['#title'] = $has_translations ? $this->t('@langname revisions for %title', [
@@ -274,13 +275,13 @@ class ScheduleController extends ControllerBase implements ContainerInjectionInt
           $date = \Drupal::service('date.formatter')
             ->format($revision->getRevisionCreationTime(), 'short');
           if ($vid != $business_rules_schedule->getRevisionId()) {
-            $link = $this->l($date, new Url('entity.business_rules_schedule.revision', [
+            $link = Link::fromTextAndUrl($date, Url::fromRoute('entity.business_rules_schedule.revision', [
               'schedule'          => $business_rules_schedule->id(),
               'schedule_revision' => $vid,
             ]));
           }
           else {
-            $link = $business_rules_schedule->link($date);
+            $link = $business_rules_schedule->toLink($date)->toString();
           }
         }
         else {

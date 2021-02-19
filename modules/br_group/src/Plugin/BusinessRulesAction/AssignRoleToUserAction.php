@@ -167,7 +167,7 @@ class AssignRoleToUserAction extends BusinessRulesActionPlugin {
         '#type' => 'markup',
         '#markup' => t('Role %role has been assigned to user %user on group %group.', [
           '%role' => $new_role->label(),
-          '%user' => $user->getUsername(),
+          '%user' => $user->getAccountName(),
           '%group' => $group->label(),
         ]),
       ];
@@ -177,7 +177,7 @@ class AssignRoleToUserAction extends BusinessRulesActionPlugin {
         '#type' => 'markup',
         '#markup' => t('Role %role could not be assigned to user %user because he is not member of group %group.', [
           '%role' => $role_id,
-          '%user' => $user->getUsername(),
+          '%user' => $user->getAccountName(),
           '%group' => $group->label(),
         ]),
       ];

@@ -16,6 +16,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Link;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\dbug\Dbug;
+use Drupal\Core\Messenger\MessengerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\Event;
 
@@ -130,10 +131,19 @@ class BusinessRulesProcessor {
   protected $entityTypeManager;
 
   /**
+   * The messenger service.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
    * BusinessRulesProcessor constructor.
    *
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   Drupal container.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger service.
    */
   public function __construct(ContainerInterface $container) {
     $this->configFactory = $container->get('config.factory');
@@ -145,6 +155,7 @@ class BusinessRulesProcessor {
     $this->config = $this->configFactory->get('business_rules.settings');
     $this->eventDispatcher = $container->get('event_dispatcher');
     $this->entityTypeManager = $container->get('entity_type.manager');
+    $this->messenger = $container->get('messenger');
   }
 
   /**
@@ -332,7 +343,7 @@ class BusinessRulesProcessor {
         }
         else {
           $this->util->logger->error('Action id: %id not found', ['%id' => $item->getId()]);
-          drupal_set_message($this->t('Business Rules - Action id: %id not found.', ['%id' => $item->getId()]), 'error');
+          $this->messenger->addError($this->t('Business Rules - Action id: %id not found.', ['%id' => $item->getId()]));
         }
       }
       elseif ($item->getType() == BusinessRulesItemObject::CONDITION) {
@@ -340,7 +351,7 @@ class BusinessRulesProcessor {
 
         if (empty($condition)) {
           $this->util->logger->error('Condition id: %id not found', ['%id' => $item->getId()]);
-          drupal_set_message($this->t('Business Rules Condition id: %id not found.', ['%id' => $item->getId()]), 'error');
+          $this->messenger->addError($this->t('Business Rules Condition id: %id not found.', ['%id' => $item->getId()]));
         }
         else {
           $success = $this->isConditionValid($condition, $event);

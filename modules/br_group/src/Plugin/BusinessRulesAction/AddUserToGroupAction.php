@@ -139,7 +139,7 @@ class AddUserToGroupAction extends BusinessRulesActionPlugin {
       $result = [
         '#type' => 'markup',
         '#markup' => t('User %user has been added on group %group.', [
-          '%user' => $user->getUsername(),
+          '%user' => $user->getAccountName(),
           '%group' => $group->label(),
         ]),
       ];
@@ -148,7 +148,7 @@ class AddUserToGroupAction extends BusinessRulesActionPlugin {
       $result = [
         '#type' => 'markup',
         '#markup' => t('User %user is already member of group %group.', [
-          '%user' => $user->getUsername(),
+          '%user' => $user->getAccountName(),
           '%group' => $group->label(),
         ]),
       ];

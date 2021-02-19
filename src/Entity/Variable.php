@@ -39,6 +39,17 @@ use Drupal\business_rules\VariableInterface;
  *     "label" = "label",
  *     "uuid" = "uuid"
  *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "description",
+ *     "settings",
+ *     "tags",
+ *     "uuid",
+ *     "type",
+ *     "target_entity_type",
+ *     "target_bundle",
+ *   },
  *   links = {
  *     "canonical" = "/admin/config/workflow/business_rules/variable/{business_rules_variable}",
  *     "add-form" = "/admin/config/workflow/business_rules/variable/add",

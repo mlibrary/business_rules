@@ -82,7 +82,7 @@ class ScheduleForm extends ContentEntityForm {
       $entity->setNewRevision();
 
       // If a new revision is created, save the current user as revision author.
-      $entity->setRevisionCreationTime(REQUEST_TIME);
+      $entity->setRevisionCreationTime(\Drupal::time()->getRequestTime());
       $entity->setRevisionUserId(\Drupal::currentUser()->id());
     }
     else {
@@ -95,13 +95,13 @@ class ScheduleForm extends ContentEntityForm {
 
     switch ($status) {
       case SAVED_NEW:
-        drupal_set_message($this->t('Created the %label Schedule.', [
+        $this->messenger()->addMessage($this->t('Created the %label Schedule.', [
           '%label' => $entity->label(),
         ]));
         break;
 
       default:
-        drupal_set_message($this->t('Saved the %label Schedule.', [
+        $this->messenger()->addMessage($this->t('Saved the %label Schedule.', [
           '%label' => $entity->label(),
         ]));
     }

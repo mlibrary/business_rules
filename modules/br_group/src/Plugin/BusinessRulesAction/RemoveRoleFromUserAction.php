@@ -167,7 +167,7 @@ class RemoveRoleFromUserAction extends BusinessRulesActionPlugin {
           '#type' => 'markup',
           '#markup' => t('Role %role has been removed from user %user on group %group.', [
             '%role' => $role_to_remove->label(),
-            '%user' => $user->getUsername(),
+            '%user' => $user->getAccountName(),
             '%group' => $group->label(),
           ]),
         ];
@@ -177,7 +177,7 @@ class RemoveRoleFromUserAction extends BusinessRulesActionPlugin {
           '#type' => 'markup',
           '#markup' => t('User %user does not have role %role on group %group.', [
             '%role' => $role_id,
-            '%user' => $user->getUsername(),
+            '%user' => $user->getAccountName(),
             '%group' => $group->label(),
           ]),
         ];
@@ -188,7 +188,7 @@ class RemoveRoleFromUserAction extends BusinessRulesActionPlugin {
         '#type' => 'markup',
         '#markup' => t('Role %role could not be removed from user %user because he is not member of group %group.', [
           '%role' => $role_id,
-          '%user' => $user->getUsername(),
+          '%user' => $user->getAccountName(),
           '%group' => $group->label(),
         ]),
       ];

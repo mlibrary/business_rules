@@ -8,7 +8,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -18,6 +18,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Views;
+use Drupal\Core\Messenger\MessengerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -70,6 +71,13 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
   protected $view;
 
   /**
+   * The messenger service.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
    * Constructs a new SelectionBase object.
    *
    * @param array $configuration
@@ -78,7 +86,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity manager service.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler service.
@@ -86,14 +94,17 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
    *   The current user.
    * @param \Drupal\business_rules\Util\BusinessRulesUtil $util
    *   The BusinessRulesUtil.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityManagerInterface $entity_manager, ModuleHandlerInterface $module_handler, AccountInterface $current_user, BusinessRulesUtil $util) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, AccountInterface $current_user, BusinessRulesUtil $util, MessengerInterface $messenger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
-    $this->entityManager = $entity_manager;
+    $this->entityManager = $entity_type_manager;
     $this->moduleHandler = $module_handler;
     $this->currentUser = $current_user;
     $this->util = $util;
+    $this->messenger = $messenger;
   }
 
   /**
@@ -104,10 +115,11 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity.manager'),
+      $container->get('entity_type.manager'),
       $container->get('module_handler'),
       $container->get('current_user'),
-      $container->get('business_rules.util')
+      $container->get('business_rules.util'),
+      $container->get('messenger')
     );
   }
 
@@ -396,7 +408,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     // Check that the view is valid and the display still exists.
     $this->view = Views::getView($view_name);
     if (!$this->view || !$this->view->access($display_name)) {
-      drupal_set_message(t('The reference view %view_name cannot be found.', ['%view_name' => $view_name]), 'warning');
+      $this->messenger->addWarning(t('The reference view %view_name cannot be found.', ['%view_name' => $view_name]));
 
       return FALSE;
     }

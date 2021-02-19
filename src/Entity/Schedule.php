@@ -50,6 +50,11 @@ use Drupal\user\UserInterface;
  *     "uid" = "user_id",
  *     "status" = "status",
  *   },
+ *   revision_metadata_keys = {
+ *     "revision_created" = "revision_created",
+ *     "revision_user" = "revision_user",
+ *     "revision_log_message" = "revision_log_message"
+ *   },
  *   links = {
  *     "canonical" = "/admin/config/workflow/business_rules/schedule/{business_rules_schedule}",
  *     "add-form" = "/admin/config/workflow/business_rules/schedule/add",

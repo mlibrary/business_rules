@@ -23,7 +23,7 @@ class BusinessRuleController extends ControllerBase {
   public function disable(BusinessRule $business_rule) {
     $business_rule->disable()->save();
 
-    return new RedirectResponse($business_rule->url('collection', ['absolute' => TRUE]));
+    return new RedirectResponse($business_rule->toUrl('collection', ['absolute' => TRUE])->toString());
   }
 
   /**
@@ -38,7 +38,7 @@ class BusinessRuleController extends ControllerBase {
   public function enable(BusinessRule $business_rule) {
     $business_rule->enable()->save();
 
-    return new RedirectResponse($business_rule->url('collection', ['absolute' => TRUE]));
+    return new RedirectResponse($business_rule->toUrl('collection', ['absolute' => TRUE])->toString());
   }
 
 }

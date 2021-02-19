@@ -77,14 +77,14 @@ abstract class BusinessRulesItemPluginBase extends PluginBase implements Busines
    * {@inheritdoc}
    */
   public function getRedirectUrl(ItemInterface $item) {
-    return $item->urlInfo('collection');
+    return $item->toUrl('collection');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getEditUrl(ItemInterface $item) {
-    return $item->urlInfo('edit-form');
+    return $item->toUrl('edit-form');
   }
 
   /**

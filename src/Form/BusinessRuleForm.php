@@ -513,13 +513,13 @@ class BusinessRuleForm extends EntityForm {
 
       switch ($status) {
         case SAVED_NEW:
-          drupal_set_message($this->t('Created the %label Rule.', [
+          $this->messenger()->addMessage($this->t('Created the %label Rule.', [
             '%label' => $business_rule->label(),
           ]));
           break;
 
         default:
-          drupal_set_message($this->t('Saved the %label Rule.', [
+          $this->messenger()->addMessage($this->t('Saved the %label Rule.', [
             '%label' => $business_rule->label(),
           ]));
       }
@@ -528,10 +528,10 @@ class BusinessRuleForm extends EntityForm {
         $op = $form_state->getTriggeringElement()['#op'];
 
         if ($op == 'save') {
-          $form_state->setRedirectUrl($business_rule->urlInfo('edit-form', ['business_rule' => $business_rule->id()]));
+          $form_state->setRedirectUrl($business_rule->toUrl('edit-form', ['business_rule' => $business_rule->id()]));
         }
         else {
-          $form_state->setRedirectUrl($business_rule->urlInfo('collection'));
+          $form_state->setRedirectUrl($business_rule->toUrl('collection'));
         }
       }
     }

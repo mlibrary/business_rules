@@ -447,13 +447,13 @@ abstract class ItemForm extends EntityForm {
 
       switch ($status) {
         case SAVED_NEW:
-          drupal_set_message($this->t('Created the %label Item.', [
+          $this->messenger()->addMessage($this->t('Created the %label Item.', [
             '%label' => $item->label(),
           ]));
           break;
 
         default:
-          drupal_set_message($this->t('Saved the %label Item.', [
+          $this->messenger()->addMessage($this->t('Saved the %label Item.', [
             '%label' => $item->label(),
           ]));
       }

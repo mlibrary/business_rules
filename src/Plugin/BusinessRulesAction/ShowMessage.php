@@ -66,8 +66,7 @@ class ShowMessage extends BusinessRulesActionPlugin {
     $message      = nl2br($message);
     $message      = Xss::filterAdmin($message);
     $message      = new FormattableMarkup($message, []);
-
-    drupal_set_message($message, $message_type);
+    \Drupal::messenger()->all($message, $message_type);
 
     $result = [
       '#type'   => 'markup',
