@@ -11,6 +11,7 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\VariableObject;
 use Drupal\business_rules\VariablesSet;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Database\DatabaseExceptionWrapper;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Link;
@@ -763,7 +764,19 @@ class BusinessRulesProcessor {
    */
   public function __destruct() {
     $keyvalue = $this->util->getKeyValueExpirable('process');
-    $keyvalue->deleteAll();
+    try {
+      $keyvalue->deleteAll();
+    }
+    // If we get an SQL error, do nothing because it is likely that we are
+    // operating in a test environment, where the database table has already
+    // been deleted.
+    //
+    // Note we let other exceptions bubble up the call stack, because if
+    // $keyvalue->deleteAll() fails to complete; the key_value_expire database
+    // table could fill up pretty quickly, and the error should be noted.
+    catch (DatabaseExceptionWrapper $e) {
+      // No-op.
+    }
 
     if ($this->config->get('clear_render_cache')) {
       Cache::invalidateTags(['rendered']);
