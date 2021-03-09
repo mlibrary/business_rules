@@ -414,11 +414,8 @@ function business_rules_cache_flush() {
  * Implements hook_mail().
  */
 function business_rules_mail($key, &$message, $params) {
-  if ($key == 'business_rules_mail') {
-    if (isset($params['headers'])) {
-      $message['headers'] = $params['headers'];
-    }
-    $message['from']    = \Drupal::config('system.site')->get('mail');
+  if ($key === 'business_rules_mail') {
+    $message['headers'] = array_merge($message['headers'], $params['headers']);
     $message['subject'] = $params['subject'];
     $message['body'][]  = $params['message'];
   }

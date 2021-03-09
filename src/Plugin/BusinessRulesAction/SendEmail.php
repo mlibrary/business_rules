@@ -62,11 +62,11 @@ class SendEmail extends BusinessRulesActionPlugin {
       '#type'          => 'select',
       '#title'         => t('Use site mail as sender'),
       '#options'       => [
-        TRUE  => t('Yes'),
-        FALSE => t('No'),
+        1  => t('Yes'),
+        0 => t('No'),
       ],
       '#required'      => TRUE,
-      '#default_value' => ($item->getSettings('use_site_mail_as_sender') === FALSE) ? FALSE : TRUE,
+      '#default_value' => $item->getSettings('use_site_mail_as_sender') ?: 0,
       '#description'   => t('Use %mail as sender', ['%mail' => $site_mail]),
     ];
 
@@ -139,46 +139,44 @@ class SendEmail extends BusinessRulesActionPlugin {
    * {@inheritdoc}
    */
   public function execute(ActionInterface $action, BusinessRulesEvent $event) {
-
     $event_variables = $event->getArgument('variables');
-    $query_service   = \Drupal::getContainer()->get('entity.query');
     $to              = $this->processVariables($action->getSettings('to'), $event_variables);
     $arr_to          = explode(';', $to);
     $result          = [];
-    $email_validator = \Drupal::getContainer()->get('email.validator');
+    $from = NULL;
 
-    if ($action->getSettings('use_site_mail_as_sender')) {
-      $from = \Drupal::config('system.site')->get('mail');
-    }
-    else {
+    // If we have set to NOT use site email; get the From setting.
+    if (!$action->getSettings('use_site_mail_as_sender')) {
       $from = $action->getSettings('from');
       $from = $this->processVariables($from, $event_variables);
     }
 
+    // Should handle the To set as ; separated list: multiple emails sent
+    // OR CSV list which is single item in $arr_to and 1 email sent to multiple people.
     foreach ($arr_to as $to) {
-      // Check if it's a valid email address.
-      if (!$email_validator->isValid($to)) {
+      // Handle RFC-822 formatted emails.
+      $email_pattern = '/\s*"?([^><,"]+)"?\s*((?:<[^><,]+>)?)\s*/';
+      if(preg_match_all($email_pattern, $to, $matches, PREG_SET_ORDER) > 0) {
+        foreach ($matches as $m) {
+          if(!empty($m[2])) {
+            $emails[trim($m[2], '<>')] = trim($m[1]);
+          }
+          else {
+            $emails[$m[1]] = '';
+          }
+        }
+      }
+      else {
+        // If not valid email or list of emails; just skip this one.
         continue;
       }
 
-      // Check if $to is an email registered on database.
-      /** @var \Drupal\Core\Entity\Query\Sql\Query $query */
-      $query = $query_service->get('user');
-      $query->condition('mail', $to);
-      $ids = $query->execute();
-
-      $entityManager = \Drupal::entityTypeManager()->getStorage('user');
-      $users         = $entityManager->loadMultiple($ids);
-
-      // If email address is duplicated on user table, use the first email to
-      // get the user language.
-      if (count($users)) {
-        foreach ($users as $user) {
+      // Check if $to (or 1st To) is a registered email to get Language.
+      // @todo: go through all in CSV list to find a registered user.
+      $user = user_load_by_mail(current(array_keys($emails)));
+      if ($user) {
           $langcode = $user->language()->getId();
-          break;
         }
-
-      }
       else {
         // If user not found, use the site language.
         $langcode = \Drupal::config('system.site')->get('langcode');
@@ -198,24 +196,26 @@ class SendEmail extends BusinessRulesActionPlugin {
 
       // Check if body is on html format.
       if ($action->getSettings('format') == 'html') {
-        $headers = ['Content-Type' => 'text/html; charset=UTF-8'];
-        $headers = ['Return-Path' => $from];
+        $headers['Content-Type'] = 'text/html; charset=UTF-8';
         $message = html_entity_decode($message);
       }
       else {
-        $headers = ['Content-Type' => 'text/plain; charset=UTF-8'];
-        $headers = ['Return-Path' => $from];
+        $headers['Content-Type'] = 'text/plain; charset=UTF-8';
         $message = MailFormatHelper::htmlToText($message);
+      }
+
+      // Add we have our own From, add into headers. If not; Drupal will add Site Email
+      if ($from) {
+        $headers['From'] = $from;
       }
 
       $params = [
         'headers' => $headers,
-        'from'    => $from,
         'subject' => $subject,
         'message' => $message,
       ];
 
-      $send_result = $this->mailManager->mail('business_rules', 'business_rules_mail', $to, $langcode, $params, $from);
+      $send_result = $this->mailManager->mail('business_rules', 'business_rules_mail', $to, $langcode, $params);
 
       $result = [
         '#type'   => 'markup',
@@ -223,7 +223,7 @@ class SendEmail extends BusinessRulesActionPlugin {
           '%result'  => $send_result['result'] ? t('success') : t('fail'),
           '%subject' => $subject,
           '%from'    => $from,
-          '%to'      => implode('; ', $arr_to),
+          '%to'      => $to,
           '%message' => $message,
         ]),
       ];
