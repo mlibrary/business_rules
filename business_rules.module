@@ -18,6 +18,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\quickedit\Form\QuickEditFieldForm;
 use Drupal\user\Entity\User;
+use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 
 /**
  * Implements hook_help().
@@ -144,9 +145,11 @@ function business_rules_entity_delete(EntityInterface $entity) {
  */
 function business_rules_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
+  $request_object = \Drupal::request();
+
   if ((method_exists($form_state->getFormObject(), 'getEntity') && !$form_state->isCached()) &&
     // Preventing add validation on ajax operations.
-    (!isset($_GET['ajax_form']) || $_GET['ajax_form'] != 1) && (!isset($_GET['_wrapper_format']) || $_GET['_wrapper_format'] != 'drupal_ajax')
+    (!$request_object->query->has('ajax_form') || $request_object->query->get('ajax_form') != 1) && (!$request_object->query->has('_wrapper_format') || $request_object->query->get('_wrapper_format') != 'drupal_ajax')
   ) {
     $entity = $form_state->getFormObject()->getEntity();
 
@@ -190,7 +193,14 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
   // Establish whether we're in a normal EntityForm context or an inline
   // QuickeditFieldForm context and retrieve the entity from the respectively
   // appropriate place.
-  if ($form_object instanceof EntityFormInterface) {
+  if (isset($context['items']) && $context['items'] instanceof EntityReferenceFieldItemListInterface) {
+    /**
+     * @var \Drupal\Core\Field\EntityReferenceFieldItemListInterface $items
+     */
+    $items = $context['items'];
+    $entity = $items->getEntity();
+  }
+  elseif ($form_object instanceof EntityFormInterface) {
     $entity = $form_object->getEntity();
   }
   else {

@@ -172,21 +172,55 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
    */
   public static function updateDependentField(array $form, FormStateInterface $form_state) {
     $entity = $form_state->getFormObject()->getEntity();
+    $subform = $form;
     $trigger_field = $form_state->getTriggeringElement();
+
+    // Inline form marker.
+    $inline_form = FALSE;
+    if (isset($trigger_field['#parents'])) {
+      $parents = $trigger_field['#parents'];
+      // If paragraphs are used, find the most deeply nested paragraph.
+      while (TRUE) {
+        if (!in_array('subform', $parents, TRUE)) {
+          break;
+        }
+        $parent_field_key = array_shift($parents);
+        /** @var \Drupal\field\Entity\FieldConfig $definition */
+        $definition = $entity->getFieldDefinition($parent_field_key);
+        if ($definition->getSetting('target_type') !== 'paragraph') {
+          break;
+        }
+        $inline_form = TRUE;
+        $delta = array_shift($parents);
+        $widget = $subform[$parent_field_key]['widget'][$delta];
+        if (!isset($widget['#paragraph_type'])) {
+          break;
+        }
+        // Create a new paragraph instead of loading the actual paragraphs here,
+        // as the actual paragraph can be empty.
+        $entity = \Drupal::entityTypeManager()->getStorage('paragraph')->create([
+          'type' => $widget['#paragraph_type'],
+        ]);
+
+        $subform = $subform[$parent_field_key]['widget'][$delta]['subform'];
+        // Remove 'subform' corresponding with the current paragraph from array.
+        array_shift($parents);
+      }
+    }
 
     // Update children.
     $children = $trigger_field['#ajax']['br_children'];
+    $field_definition = $entity->getFieldDefinitions();
     $response = new AjaxResponse();
     foreach ($children as $child) {
-      $field_definition = $entity->getFieldDefinitions();
       if ($field_definition[$child]->getSetting('handler') == 'business_rules_views') {
         $handler_settings = $field_definition[$child]->getSetting('handler_settings');
         $view = Views::getView($handler_settings['business_rules_view']['view_name']);
 
         $parent_field_value = $trigger_field['#value'];
-        if ($trigger_field['#type'] === 'entity_autocomplete' && preg_match('/\((\d+)\)$/', $parent_field_value, $matches)) {
-          // If the field widget is entity autocomplete, the returned value is a
-          // string which contains the entity id.
+        // If the field widget is entity autocomplete, the returned value is a.
+        if ($trigger_field['#type'] === 'entity_autocomplete' && preg_match('/\((\d )\)$/', $parent_field_value, $matches)) {
+          // String which contains the entity id.
           $parent_field_value = $matches[1];
         }
 
@@ -208,7 +242,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
         $view->build();
         $options = static::getViewOptions($view);
 
-        $form_field = $form[$child];
+        $form_field = $subform[$child];
         $form_field['widget']['#options'] = $options;
         $html_field_id = explode('-wrapper-', $form_field['#id'])[0];
 
@@ -216,13 +250,24 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
         $html_field_id = substr($child, strlen($child) - 1, 1) == '_' ? $html_field_id . '-' : $html_field_id;
 
         $formatter = $form_field['widget']['#type'];
-
-        $response->addCommand(new UpdateOptionsCommand($html_field_id, $options, $formatter));
+        // Check if field is multiple or not.
+        $multiple = FALSE;
+        /**
+         * @var \Drupal\field\Entity\FieldStorageConfig $storage_config
+         */
+        $storage_config = $field_definition[$child]->getFieldStorageDefinition();
+        if ($storage_config->getCardinality() === -1) {
+          $multiple = TRUE;
+        }
+        $response->addCommand(new UpdateOptionsCommand($html_field_id, $options, $formatter, $multiple));
       }
     }
     return $response;
   }
 
+  /**
+   * Function convertEntityIdsToUuids.
+   */
   protected static function convertEntityIdsToUuids($entity_ids, string $entity_type) {
     if (!is_array($entity_ids)) {
       $entity_ids = [$entity_ids];
@@ -235,6 +280,9 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     return $uuids;
   }
 
+  /**
+   * Function getViewOptions.
+   */
   protected static function getViewOptions(ViewExecutable $view) {
     $options = [];
     if ($view->execute()) {
@@ -535,7 +583,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
   /**
    * Get the parent field value.
    *
-   * @param \Drupal\Core\Entity\Entity|NULL $entity
+   * @param \Drupal\Core\Entity\Entity|null $entity
    *   The fallback entity to extract the value from.
    *
    * @return mixed
@@ -548,6 +596,16 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
 
     if (!$value && $entity && $entity->get($field)) {
       $value = $entity->get($field)->getString();
+    }
+    if (!$value && !$entity) {
+      // Try to extract values from nested entities.
+      if (isset($handler_settings['entity']) && $handler_settings['entity'] instanceof EntityInterface) {
+        // Handle paragraphs.
+        if ($handler_settings['entity']->getEntityTypeId() === 'paragraph') {
+          $value = $handler_settings['entity']->get($field)->getString();
+        }
+        // Here may be processors for another entity types.
+      }
     }
     if (is_array($value) && !empty($value[0]['target_id']) && preg_match('/\((\d+)\)$/', $value[0]['target_id'], $matches)) {
       // If the field widget is entity autocomplete, the returned value is a

@@ -7,3 +7,5 @@ package: Workflow
 configure: entity.business_rule.collection
 dependencies:
   - dbug:dbug
+test_dependencies:
+  - paragraphs:paragraphs

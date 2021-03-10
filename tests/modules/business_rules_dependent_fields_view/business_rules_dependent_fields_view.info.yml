@@ -1,5 +1,5 @@
 name: 'Business Rules: test dependent fields view'
-description: 'See \Drupal\Tests\business_rules\FunctionalJavascript\DependentFieldsView.'
+description: 'See \Drupal\Tests\business_rules\FunctionalJavascript\DependentFieldsView. This test module is similar to business_rules_paragraphs_ajax_support, except it sets up fields in a node, instead of fields in a paragraph.'
 package: Workflow
 
 type: module

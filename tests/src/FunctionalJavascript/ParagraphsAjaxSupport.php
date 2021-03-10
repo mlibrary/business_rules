@@ -10,16 +10,16 @@ use Drupal\taxonomy\VocabularyInterface;
 use Drupal\Tests\taxonomy\Traits\TaxonomyTestTrait;
 
 /**
- * Tests business rules' dependant fields feature.
+ * Tests business rules support for paragraphs and AJAX.
  *
- * This test is similar to the test in ParagraphsAjaxSupport, except the two
- * fields are in a node instead of a paragraph.
+ * This test is similar to the test in DependentFieldsView, except the two
+ * fields are in a paragraph in a node instead of just a node.
  *
- * @see \Drupal\Tests\business_rules\FunctionalJavascript\ParagraphsAjaxSupport
+ * @see \Drupal\Tests\business_rules\FunctionalJavascript\DependentFieldsView
  *
  * @group business_rules
  */
-class DependentFieldsView extends WebDriverTestBase {
+class ParagraphsAjaxSupport extends WebDriverTestBase {
   use TaxonomyTestTrait;
 
   /**
@@ -30,7 +30,7 @@ class DependentFieldsView extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['business_rules_dependent_fields_view'];
+  public static $modules = ['business_rules_paragraphs_ajax_support'];
 
   /**
    * A set of taxonomy terms needed by the system under test.
@@ -76,24 +76,24 @@ class DependentFieldsView extends WebDriverTestBase {
   }
 
   /**
-   * Test that a triggering field can affect a target field in a node.
+   * Test that a triggering field can affect a target field in a paragraph.
    */
-  public function testTriggeringFieldCanAffectTargetFieldInNode() {
+  public function testTriggeringFieldCanAffectTargetFieldInParagraph() {
     // Create a user that can add nodes.
     $this->drupalLogin($this->drupalCreateUser([
       'administer nodes',
       'bypass node access',
     ]));
 
-    // Load the node/add page.
+    // Load the node/add page containing the embedded paragraph.
     $this->drupalGet(Url::fromRoute('node.add', [
       'node_type' => 'nodetype1',
     ]));
     $page = $this->getSession()->getPage();
 
     // Get the fields we will be testing.
-    $triggeringField = $page->find('named', ['select', 'termfield1']);
-    $targetFieldLabel = 'user1';
+    $triggeringField = $page->find('named', ['select', 'paratype1_termfield1']);
+    $targetFieldLabel = 'paratype1_user1';
 
     // Assert after selecting the first term in the triggering field, the first
     // and third users become options in the target field; but the second and
