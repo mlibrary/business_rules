@@ -139,6 +139,13 @@ class BusinessRulesProcessor {
   protected $messenger;
 
   /**
+   * Generates a UUID v4 (RFC 4122 section 4.4) using PHP code.
+   *
+   * @var \Drupal\Component\Uuid\Php
+   */
+  protected $uuid;
+
+  /**
    * BusinessRulesProcessor constructor.
    *
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
@@ -157,6 +164,7 @@ class BusinessRulesProcessor {
     $this->eventDispatcher = $container->get('event_dispatcher');
     $this->entityTypeManager = $container->get('entity_type.manager');
     $this->messenger = $container->get('messenger');
+    $this->uuid = $container->get('uuid');
   }
 
   /**
@@ -212,9 +220,7 @@ class BusinessRulesProcessor {
    *   TRUE|FALSE
    */
   private function avoidInfiniteLoop(BusinessRulesEvent $event) {
-
-    $keyvalue         = $this->util->getKeyValueExpirable('process');
-    $processed_events = $keyvalue->getAll();
+    $processed_events = &drupal_static(__CLASS__ . '-process', []);
     $loop_control     = $event->hasArgument('loop_control') ? $event->getArgument('loop_control') : $event->getSubject();
     $serialized_data  = json_encode($loop_control) . json_encode($event->getArgument('reacts_on'));
     if (count($processed_events)) {
@@ -224,8 +230,8 @@ class BusinessRulesProcessor {
         }
       }
     }
-    $this->processId = $this->util->container->get('uuid')->generate();
-    $keyvalue->set($this->processId, $serialized_data);
+    $this->processId = $this->uuid->generate();
+    $processed_events[$this->processId] = $serialized_data;
 
     return FALSE;
   }
@@ -763,21 +769,6 @@ class BusinessRulesProcessor {
    * Destructor.
    */
   public function __destruct() {
-    $keyvalue = $this->util->getKeyValueExpirable('process');
-    try {
-      $keyvalue->deleteAll();
-    }
-    // If we get an SQL error, do nothing because it is likely that we are
-    // operating in a test environment, where the database table has already
-    // been deleted.
-    //
-    // Note we let other exceptions bubble up the call stack, because if
-    // $keyvalue->deleteAll() fails to complete; the key_value_expire database
-    // table could fill up pretty quickly, and the error should be noted.
-    catch (DatabaseExceptionWrapper $e) {
-      // No-op.
-    }
-
     if ($this->config->get('clear_render_cache')) {
       Cache::invalidateTags(['rendered']);
     }
