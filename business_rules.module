@@ -262,7 +262,15 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
 
         $element['#attached']['library'][] = 'business_rules/dependentField';
       }
-
+      // Make sure multi value dependent fields stay multi value, even if they don't have any options initially
+      if (isset($entity->getFieldDefinitions()[$current_field]) &&
+        $entity->getFieldDefinitions()[$current_field]->getFieldStorageDefinition()->getCardinality() === -1 &&
+        $entity->getFieldDefinitions()[$current_field]->getSetting('handler') === 'business_rules_views' &&
+        $element['#type'] === 'select' &&
+        !$element['#multiple']
+      ) {
+        $element['#multiple'] = TRUE;
+      }
     }
 
     // Prepare the event to FormFieldAlter.

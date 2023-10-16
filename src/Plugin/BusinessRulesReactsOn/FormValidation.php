@@ -46,7 +46,7 @@ class FormValidation extends BusinessRulesReactsOnPlugin {
     $entity                = $form_state->getFormObject()->getEntity();
     $entity_values         = $form_state->getValues();
     $entity_values['type'] = $entity->bundle();
-
+if ($entity_values['type'] == 'user') { return; }
     // For some reason that I'm lazy to look for, the Comment entity does not
     // use the key "type" to specify the bundle. It uses "comment_type" instead.
     if ($entity->getEntityTypeId() == 'comment') {

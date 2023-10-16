@@ -228,6 +228,15 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
           $parent_field_value = static::convertEntityIdsToUuids($parent_field_value, $view->getBaseEntityType()->id());
         }
 
+        if ($trigger_field['#type'] === 'checkbox') {
+          // If we have a multi-value checkbox, only a single value of the
+          // checkbox list is available in the triggering element. The complete
+          // list can be obtained from the form_state (arrays must be removed).
+          $parent_field_value = array_filter(
+            $form_state->getValue($trigger_field['#parents'][0]),
+            function ($element) { return !is_array($element); }
+          );
+        }
         // If we have an array with values we should implode those values and
         // enable Allow multiple values into our contextual filter.
         if (is_array($parent_field_value)) {
