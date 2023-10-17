@@ -49,7 +49,7 @@ class KernelRequestListener implements EventSubscriberInterface, ContainerAwareI
     ]);
     /** @var \Symfony\Component\EventDispatcher\EventDispatcher $event_dispatcher */
     $event_dispatcher = $this->container->get('event_dispatcher');
-    $event_dispatcher->dispatch($reacts_on_definition['eventName'], $new_event);
+    $event_dispatcher->dispatch($new_event, $reacts_on_definition['eventName']);
   }
 
 }
