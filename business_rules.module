@@ -60,7 +60,7 @@ function business_rules_entity_presave(EntityInterface $entity) {
     ]);
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
-    $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+    $event_dispatcher->dispatch($event, $reacts_on_definition['eventName']);
   }
 
 }
@@ -86,7 +86,7 @@ function business_rules_entity_update(EntityInterface $entity) {
     ]);
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
-    $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+    $event_dispatcher->dispatch($event, $reacts_on_definition['eventName']);
   }
 }
 
@@ -111,7 +111,7 @@ function business_rules_entity_insert(EntityInterface $entity) {
     ]);
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
-    $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+    $event_dispatcher->dispatch($event, $reacts_on_definition['eventName']);
   }
 }
 
@@ -136,7 +136,7 @@ function business_rules_entity_delete(EntityInterface $entity) {
     ]);
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
-    $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+    $event_dispatcher->dispatch($event, $reacts_on_definition['eventName']);
   }
 }
 
@@ -297,7 +297,7 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
 
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
-    $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+    $event_dispatcher->dispatch($event, $reacts_on_definition['eventName']);
 
     // Now we need to replace the current element by the changed one.
     $element = $event->getArgument('element');
@@ -328,7 +328,7 @@ function business_rules_entity_view(array &$build, EntityInterface $entity, Enti
     ]);
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
-    $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+    $event_dispatcher->dispatch($event, $reacts_on_definition['eventName']);
   }
 }
 
@@ -354,7 +354,7 @@ function business_rules_entity_load(array $entities, $entity_type_id) {
       ]);
       /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
       $event_dispatcher = \Drupal::service('event_dispatcher');
-      $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+      $event_dispatcher->dispatch($event, $reacts_on_definition['eventName']);
     }
   }
 }
@@ -382,7 +382,7 @@ function business_rules_user_login($account) {
     ]);
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
-    $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+    $event_dispatcher->dispatch($event, $reacts_on_definition['eventName']);
   }
 }
 
@@ -413,7 +413,7 @@ function business_rules_user_logout($account) {
     ]);
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
     $event_dispatcher = \Drupal::service('event_dispatcher');
-    $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+    $event_dispatcher->dispatch($event, $reacts_on_definition['eventName']);
   }
 }
 
@@ -460,7 +460,7 @@ function business_rules_page_load_event() {
     ]);
 
     $event_dispatcher = \Drupal::service('event_dispatcher');
-    $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+    $event_dispatcher->dispatch($event, $reacts_on_definition['eventName']);
   }
 }
 
@@ -495,7 +495,7 @@ function business_rules_cron() {
     ]);
 
     $event_dispatcher = \Drupal::service('event_dispatcher');
-    $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+    $event_dispatcher->dispatch($event, $reacts_on_definition['eventName']);
 
     // Dispatch the scheduled items.
     Schedule::executeSchedule($event);
@@ -542,7 +542,7 @@ function business_rules_entity_form_display_alter(EntityFormDisplayInterface &$f
 
   /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
   $event_dispatcher = \Drupal::service('event_dispatcher');
-  $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+  $event_dispatcher->dispatch($event, $reacts_on_definition['eventName']);
 
   $new_form_display = $event->getArgument('form_display');
   if ($new_form_display instanceof EntityFormDisplayInterface) {
