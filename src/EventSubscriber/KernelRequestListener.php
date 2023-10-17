@@ -8,6 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 /**
  * Class KernelRequestListener.
@@ -31,10 +32,10 @@ class KernelRequestListener implements EventSubscriberInterface, ContainerAwareI
   /**
    * Create a new event for BusinessRules plugin KernelRequest.
    *
-   * @param \Symfony\Component\EventDispatcher\Event $event
+   * @param \Symfony\Component\HttpKernel\Event\RequestEvent $event
    *   The event.
    */
-  public function onKernelRequest(Event $event) {
+  public function onKernelRequest(RequestEvent $event) {
 
     $reacts_on_definition = $this->container
       ->get('plugin.manager.business_rules.reacts_on')
