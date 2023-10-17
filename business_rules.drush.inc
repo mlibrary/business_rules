@@ -6,7 +6,7 @@
  */
 
 use Drupal\business_rules\Events\BusinessRulesDrushEvent;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Implements hook_drush_init().

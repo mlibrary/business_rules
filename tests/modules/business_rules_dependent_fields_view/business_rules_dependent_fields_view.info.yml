@@ -3,8 +3,7 @@ description: 'See \Drupal\Tests\business_rules\FunctionalJavascript\DependentFie
 package: Workflow
 
 type: module
-core: 8.x
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^8 || ^9 || ^10
 
 dependencies:
   - business_rules:business_rules

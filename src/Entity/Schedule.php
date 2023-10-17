@@ -408,6 +408,7 @@ class Schedule extends RevisionableContentEntityBase implements ScheduleInterfac
       $ids = \Drupal::entityTypeManager()
         ->getStorage('business_rules_schedule')
         ->getQuery()
+        ->accessCheck(TRUE)
         ->condition('status', 0)
         ->condition('scheduled', time(), '<=')
         ->execute();

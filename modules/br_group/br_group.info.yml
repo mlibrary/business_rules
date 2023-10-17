@@ -1,8 +1,7 @@
 name: Business Rules - Group Integration
 type: module
 description: Provide a set of actions and conditions to work with Group module
-core: 8.x
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^8 || ^9 || ^10
 package: Workflow
 
 dependencies:

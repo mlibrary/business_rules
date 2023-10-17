@@ -125,6 +125,7 @@ class AddUserToGroupAction extends BusinessRulesActionPlugin {
       $id = $this->util->container->get('entity_type.manager')
         ->getStorage('user')
         ->getQuery()
+        ->accessCheck(TRUE)
         ->condition('name', $user_name)
         ->execute();
 

@@ -19,7 +19,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\dbug\Dbug;
 use Drupal\Core\Messenger\MessengerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Class BusinessRulesProcessor.
