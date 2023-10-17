@@ -186,7 +186,7 @@ class BusinessRulesProcessor {
     }
 
     // Dispatch a event before start the processing.
-    $this->eventDispatcher->dispatch('business_rules.before_process_event', $event);
+    $this->eventDispatcher->dispatch($event, 'business_rules.before_process_event');
 
     if (!$event->hasArgument('variables')) {
       $event->setArgument('variables', new VariablesSet());
@@ -200,7 +200,7 @@ class BusinessRulesProcessor {
     $this->saveDebugInfo();
 
     // Dispatch a event after processing the business rule.
-    $this->eventDispatcher->dispatch('business_rules.after_process_event', $event);
+    $this->eventDispatcher->dispatch($event, 'business_rules.after_process_event');
   }
 
   /**
@@ -255,7 +255,7 @@ class BusinessRulesProcessor {
     $triggered_rules = [];
 
     // Dispatch a event before check the triggered rules.
-    $this->eventDispatcher->dispatch('business_rules.before_check_the_triggered_rules', $event);
+    $this->eventDispatcher->dispatch($event, 'business_rules.before_check_the_triggered_rules');
 
     foreach ($rules as $rule) {
       $rule = new BusinessRule($rule);
@@ -268,7 +268,7 @@ class BusinessRulesProcessor {
     }
 
     // Dispatch a event after check the triggered rules.
-    $this->eventDispatcher->dispatch('business_rules.after_check_the_triggered_rules', $event);
+    $this->eventDispatcher->dispatch($event, 'business_rules.after_check_the_triggered_rules');
 
     return $triggered_rules;
   }
@@ -313,7 +313,7 @@ class BusinessRulesProcessor {
       $array = (object) $array;
       $event = new Event($array);
       // Dispatch a event before save debug info block.
-      $this->eventDispatcher->dispatch('business_rules.before_save_debug_info_block', $event);
+      $this->eventDispatcher->dispatch($event, 'business_rules.before_save_debug_info_block');
       $array = (array) $array;
 
       $key_value->set($session_id, $array);
@@ -334,7 +334,7 @@ class BusinessRulesProcessor {
    */
   public function processItems(array $items, BusinessRulesEvent $event, $parent_id) {
     // Dispatch a event before process business rule items.
-    $this->eventDispatcher->dispatch('business_rules.before_process_items', $event);
+    $this->eventDispatcher->dispatch($event, 'business_rules.before_process_items');
 
     /** @var \Drupal\business_rules\BusinessRulesItemObject $item */
     foreach ($items as $item) {
@@ -388,7 +388,7 @@ class BusinessRulesProcessor {
     }
 
     // Dispatch a event after process business rule items.
-    $this->eventDispatcher->dispatch('business_rules.after_process_items', $event);
+    $this->eventDispatcher->dispatch($event, 'business_rules.after_process_items');
   }
 
   /**
@@ -495,7 +495,7 @@ class BusinessRulesProcessor {
   public function executeAction(Action $action, BusinessRulesEvent $event) {
 
     // Dispatch a event before execute an action.
-    $this->eventDispatcher->dispatch('business_rules.before_execute_action', new Event($event, $action));
+    $this->eventDispatcher->dispatch(new Event($event, $action), 'business_rules.before_execute_action');
 
     $action_variables = $action->getVariables();
     $this->evaluateVariables($action_variables, $event);
@@ -504,7 +504,7 @@ class BusinessRulesProcessor {
     $this->debugArray['action_result'][$this->ruleBeingExecuted->id()][$action->id()] = $result;
 
     // Dispatch a event after execute an action.
-    $this->eventDispatcher->dispatch('business_rules.after_execute_action', new Event($event, $action));
+    $this->eventDispatcher->dispatch(new Event($event, $action), 'business_rules.after_execute_action');
 
     return $result;
   }
@@ -525,7 +525,7 @@ class BusinessRulesProcessor {
   public function isConditionValid(Condition $condition, BusinessRulesEvent $event) {
 
     // Dispatch a event before check if condition is valid.
-    $this->eventDispatcher->dispatch('business_rules.before_check_if_condition_is_valid', new Event($event, $condition));
+    $this->eventDispatcher->dispatch(new Event($event, $condition), 'business_rules.before_check_if_condition_is_valid');
 
     $condition_variables = $condition->getVariables();
     $this->evaluateVariables($condition_variables, $event);
@@ -533,7 +533,7 @@ class BusinessRulesProcessor {
     $result = $condition->isReverse() ? !$result : $result;
 
     // Dispatch a event after check if condition is valid.
-    $this->eventDispatcher->dispatch('business_rules.after_check_if_condition_is_valid', new Event($event, $condition));
+    $this->eventDispatcher->dispatch(new Event($event, $condition), 'business_rules.after_check_if_condition_is_valid');
 
     return $result;
 
@@ -662,7 +662,7 @@ class BusinessRulesProcessor {
    */
   public function evaluateVariables(VariablesSet $variablesSet, BusinessRulesEvent $event) {
     // Dispatch a event before evaluate variables.
-    $this->eventDispatcher->dispatch('business_rules.before_evaluate_variables', new Event($event, $variablesSet));
+    $this->eventDispatcher->dispatch(new Event($event, $variablesSet), 'business_rules.before_evaluate_variables');
 
     /** @var \Drupal\business_rules\VariableObject $variable */
     /** @var \Drupal\business_rules\VariablesSet $eventVariables */
@@ -679,7 +679,7 @@ class BusinessRulesProcessor {
     }
 
     // Dispatch a event after evaluate variables.
-    $this->eventDispatcher->dispatch('business_rules.after_evaluate_variables', new Event($event, $variablesSet));
+    $this->eventDispatcher->dispatch(new Event($event, $variablesSet), 'business_rules.after_evaluate_variables');
   }
 
   /**
