@@ -13,6 +13,6 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 function business_rules_drush_init() {
   if (\Drupal::hasService('event_dispatcher')) {
-    \Drupal::service('event_dispatcher')->dispatch(BusinessRulesDrushEvent::DRUSHINIT, new Event());
+    \Drupal::service('event_dispatcher')->dispatch(new Event(), BusinessRulesDrushEvent::DRUSHINIT);
   }
 }
