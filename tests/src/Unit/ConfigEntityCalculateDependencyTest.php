@@ -58,7 +58,7 @@ class ConfigEntityCalculateDependencyTest extends UnitTestCase {
 
     $container = new ContainerBuilder();
     $container->set('uuid', $this->createMock(UuidInterface::class));
-    $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+    $container->set($this->createMock(EventDispatcherInterface::class), 'event_dispatcher');
     $container->set('config.factory', $this->createMock(ConfigFactoryInterface::class));
     $container->set('entity_type.manager', $entityTypeManager);
     $container->set('entity_type.repository', $this->createMock(EntityTypeRepositoryInterface::class));
