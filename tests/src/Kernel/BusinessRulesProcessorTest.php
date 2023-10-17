@@ -167,7 +167,7 @@ class BusinessRulesProcessorTest extends KernelTestBase {
         [['business_rules.after_check_the_triggered_rules', $brEventTwo], $brEventTwo],
         [['business_rules.after_process_event', $brEventTwo], $brEventTwo],
       ]);
-    $this->sutContainer->set('event_dispatcher', $eventDispatcher);
+    $this->sutContainer->set($eventDispatcher, 'event_dispatcher');
 
     // The \Drupal\business_rules\Entity\BusinessRule::__construct() method uses
     // a Drupal service container directly, i.e.: instead of through proper
