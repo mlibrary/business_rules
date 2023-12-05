@@ -290,7 +290,7 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
       'entity_type_id' => $entity->getEntityTypeId(),
       'bundle' => $entity->bundle(),
       'entity' => $entity,
-      'entity_unchanged' => property_exists($entity, 'original') ? $entity->original : $entity,
+      'entity_unchanged' => property_exists($entity, 'original') && isset($entity->original) ? $entity->original : $entity,
       'reacts_on' => $reacts_on_definition,
       'loop_control' => $loop_control,
     ]);
